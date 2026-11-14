@@ -15,7 +15,7 @@ import {
 
 import { Icon } from '../../icons/Icon';
 import { Text } from '../../ui/Text';
-import { useGrid } from '../../ui/layout';
+import { useContentInset, useGrid, useMeasuredWidth } from '../../ui/layout';
 import { EmptyState, FilterChip } from '../../ui/primitives';
 import { useCart } from '../../state/cart';
 import { useNotice } from '../../state/notice';
@@ -78,8 +78,11 @@ export function CategoryScreen({
   const [layout, setLayout] = useState<'grid' | 'list'>('grid');
 
   // The grid shares out the width it has, so three columns survive on a
-  // phone narrower than the design canvas.
-  const grid = useGrid(3, { basis: 114 });
+  // phone narrower than the design canvas and fill the row on a wider one.
+  const gridBox = useMeasuredWidth(spacing.lg);
+  const grid = useGrid(3, { basis: 114 }, gridBox.width);
+  // On a screen wider than the design the content column is centred.
+  const inset = useContentInset();
   const [sortOpen, setSortOpen] = useState(false);
 
   /** Every product in the category, before any filter. */
@@ -113,7 +116,7 @@ export function CategoryScreen({
         <View style={[styles.zone, { paddingTop: insets.top }]}>
           <View style={styles.zoneInner}>
             {/* Nav bar */}
-            <View style={styles.navBar}>
+            <View style={[styles.navBar, { paddingRight: inset }]}>
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="Back to home"
@@ -142,7 +145,7 @@ export function CategoryScreen({
             </View>
 
             {/* Zone content */}
-            <View style={styles.zoneContent}>
+            <View style={[styles.zoneContent, { paddingLeft: inset }]}>
               <View style={styles.zoneText}>
                 <Text variant="sectionEyebrow" color={gold[300]} style={styles.eyebrow}>
                   Category
@@ -180,7 +183,7 @@ export function CategoryScreen({
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.rail}
+          contentContainerStyle={[styles.rail, { paddingHorizontal: inset }]}
         >
           {siblings.map((name) => {
             const selected = name === category;
@@ -206,7 +209,7 @@ export function CategoryScreen({
         </ScrollView>
 
         {/* Filters */}
-        <View style={styles.filters}>
+        <View style={[styles.filters, { marginHorizontal: inset }]}>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -274,7 +277,7 @@ export function CategoryScreen({
         </View>
 
         {/* Count + layout switch */}
-        <View style={styles.metaRow}>
+        <View style={[styles.metaRow, { paddingHorizontal: inset }]}>
           <Text variant="countLine" color={semantic.text}>
             {`${products.length} products`}
           </Text>
@@ -327,7 +330,7 @@ export function CategoryScreen({
           />
         ) : null}
         {layout === 'grid' && products.length > 0 ? (
-          <View style={[styles.grid, { gap: grid.gap }]}>
+          <View style={[styles.grid, { gap: grid.gap }]} onLayout={gridBox.onLayout}>
             {products.map((product) => (
               <ProductCard
                 key={product.id}
@@ -339,7 +342,7 @@ export function CategoryScreen({
             ))}
           </View>
         ) : products.length > 0 ? (
-          <View style={styles.list}>
+          <View style={[styles.list, { paddingHorizontal: inset }]}>
             {products.map((product) => (
               <ProductCard
                 key={product.id}
@@ -352,7 +355,7 @@ export function CategoryScreen({
           </View>
         ) : null}
 
-        <Text variant="resultSub" color={semantic.textMuted} style={styles.footerNote}>
+        <Text variant="resultSub" color={semantic.textMuted} style={[styles.footerNote, { paddingHorizontal: inset }]}>
           {categoryFooterNote}
         </Text>
       </ScrollView>

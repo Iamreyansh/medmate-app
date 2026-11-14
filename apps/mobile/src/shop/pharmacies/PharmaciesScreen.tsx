@@ -16,7 +16,7 @@ import {
 } from '@medmate/theme';
 
 import { Icon } from '../../icons/Icon';
-import { useContentWidth } from '../../ui/layout';
+import { useContentInset, useContentWidth } from '../../ui/layout';
 import { Text } from '../../ui/Text';
 import { ArtTile, EmptyState, FilterChip, Gradient } from '../../ui/primitives';
 import { useNotice } from '../../state/notice';
@@ -55,6 +55,8 @@ export function PharmaciesScreen({
   onCategoryPress,
 }: PharmaciesScreenProps) {
   const insets = useSafeAreaInsets();
+  // On a screen wider than the design the content column is centred.
+  const inset = useContentInset();
   const notice = useNotice();
   const [filter, setFilter] = useState<PharmacyFilterId>('all');
   const [query, setQuery] = useState('');
@@ -125,7 +127,7 @@ export function PharmaciesScreen({
           </View>
         </Gradient>
 
-        <View style={styles.body}>
+        <View style={[styles.body, { paddingHorizontal: inset }]}>
           {/* Highlighted stores */}
           <ScrollView
             horizontal

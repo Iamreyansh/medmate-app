@@ -6,6 +6,7 @@ import { brand, gold, mint, neutral, radii, semantic, spacing } from '@medmate/t
 
 import { Icon } from '../../icons/Icon';
 import { Text } from '../../ui/Text';
+import { useContentInset } from '../../ui/layout';
 import { CategoryChip, StatusTag } from '../../ui/chips';
 import { useCart } from '../../state/cart';
 import { useNotice } from '../../state/notice';
@@ -54,6 +55,8 @@ export function SearchScreen({
   onProductPress,
 }: SearchScreenProps) {
   const insets = useSafeAreaInsets();
+  // On a screen wider than the design the content column is centred.
+  const inset = useContentInset();
   const cart = useCart();
   const notice = useNotice();
 
@@ -128,7 +131,7 @@ export function SearchScreen({
 
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 110 }]}
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 110, paddingHorizontal: inset }]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >

@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { neutral, semantic, spacing } from '@medmate/theme';
 
 import { Text } from '../../ui/Text';
-import { useGrid } from '../../ui/layout';
+import { useContentInset, useGrid, useMeasuredWidth } from '../../ui/layout';
 import { EmptyState, FilterChip } from '../../ui/primitives';
 import { useCart } from '../../state/cart';
 import { useNotice } from '../../state/notice';
@@ -43,7 +43,13 @@ export function NewArrivalsScreen({
   const notice = useNotice();
   const [category, setCategory] = useState<string | null>(null);
 
-  const grid = useGrid(3, { basis: 114 });
+  // The grid shares out the width it has: three columns survive on a phone
+  // narrower than the design canvas and fill the row on a wider one. The grid
+  // has no padding of its own, so it gets the width of the body it sits in.
+  const gridBox = useMeasuredWidth();
+  const grid = useGrid(3, { basis: 114 }, gridBox.width);
+  // On a screen wider than the design the content column is centred.
+  const inset = useContentInset();
 
   const categories = useMemo(() => newArrivalCategories(), []);
   const products = useMemo(
@@ -66,7 +72,7 @@ export function NewArrivalsScreen({
           onHelp={onHelp}
         />
 
-        <View style={styles.body}>
+        <View style={[styles.body, { paddingHorizontal: inset }]}>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -89,7 +95,7 @@ export function NewArrivalsScreen({
               body="New products land every week - try another category."
             />
           ) : null}
-          <View style={[styles.grid, { gap: grid.gap }]}>
+          <View style={[styles.grid, { gap: grid.gap }]} onLayout={gridBox.onLayout}>
             {products.map((product) => (
               <ProductCard
                 key={product.id}

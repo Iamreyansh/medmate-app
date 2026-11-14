@@ -17,6 +17,7 @@ import {
 
 import { Icon } from '../../icons/Icon';
 import { Text } from '../../ui/Text';
+import { useContentInset } from '../../ui/layout';
 import { Button, Gradient } from '../../ui/primitives';
 import { useNotice } from '../../state/notice';
 import {
@@ -43,6 +44,8 @@ export type OffersScreenProps = {
  */
 export function OffersScreen({ onBack, onApplyCoupon }: OffersScreenProps) {
   const insets = useSafeAreaInsets();
+  // On a screen wider than the design the content column is centred.
+  const inset = useContentInset();
   const notice = useNotice();
   const [code, setCode] = useState('');
 
@@ -73,7 +76,7 @@ export function OffersScreen({ onBack, onApplyCoupon }: OffersScreenProps) {
             actionLabel="Help"
           />
 
-          <View style={styles.zoneContent}>
+          <View style={[styles.zoneContent, { paddingHorizontal: inset }]}>
             <Text variant="storeTitle" color={neutral.surface}>
               Save on health products
             </Text>
@@ -84,7 +87,7 @@ export function OffersScreen({ onBack, onApplyCoupon }: OffersScreenProps) {
         </View>
 
         {/* The rewards card overlaps the brand zone. */}
-        <View style={styles.overlap}>
+        <View style={[styles.overlap, { paddingHorizontal: inset }]}>
           <Gradient token="gold" radius={radii.xxl} style={styles.rewards}>
             <Text variant="sectionEyebrow" color={brand.forest} style={styles.rewardsEyebrow}>
               {rewards.title}
@@ -107,7 +110,7 @@ export function OffersScreen({ onBack, onApplyCoupon }: OffersScreenProps) {
           </Gradient>
         </View>
 
-        <View style={styles.body}>
+        <View style={[styles.body, { paddingHorizontal: inset }]}>
           {/* A code the user already has */}
           <View style={styles.card}>
             <Text variant="headline" color={semantic.text}>

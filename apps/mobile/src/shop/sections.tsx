@@ -16,7 +16,7 @@ import {
 
 import { Icon } from '../icons/Icon';
 import { Text } from '../ui/Text';
-import { useGrid } from '../ui/layout';
+import { useContentWidth, useGrid, useMeasuredWidth } from '../ui/layout';
 import {
   AddButton,
   ArtTile,
@@ -52,6 +52,26 @@ import {
 /* -------------------------------------------------------------------------- */
 /*  Shared bits                                                               */
 /* -------------------------------------------------------------------------- */
+
+/** The padding a product card carries. */
+const CARD_PADDING = spacing.xs + 2;
+
+/** The border a product card carries. */
+const CARD_BORDER = 1;
+
+/** The width of a product card in the horizontal rails. */
+const RAIL_CARD_WIDTH = 132;
+
+/**
+ * The width the content box of a card really has.
+ *
+ * A card's children live inside its padding and its border, so anything
+ * sized from the card's outer width spills past the edge. This is the width
+ * that is actually available to them.
+ */
+function contentBox(width: number, padding: number, border: number): number {
+  return Math.max(0, width - padding * 2 - border * 2);
+}
 
 /** A horizontal rail with a fixed gap between items. */
 function Rail({
@@ -122,7 +142,7 @@ function OffTag({ label }: { label: string }) {
 function PriceRow({ product, priceSize = 'price' }: { product: Product; priceSize?: 'price' | 'amount' }) {
   return (
     <View style={styles.priceRow}>
-      <Text variant={priceSize} color={semantic.text}>
+      <Text variant={priceSize} color={semantic.text} style={styles.price}>
         {`₹${product.price.toLocaleString('en-IN')}`}
       </Text>
       {!product.rx && product.mrp ? (
@@ -167,15 +187,26 @@ export type ProductCardProps = {
  * Used by the horizontal rails and by the "Best offers" grid. The card keeps
  * the Figma proportions: a square art tint on the mint gradient, the pack
  * size, the name, the delivery window, the price and the ADD button.
+ *
+ * A card without an explicit width fills the row it sits in and measures
+ * itself. Without a width of any kind the card would be sized by its longest
+ * line of text, so a long product name drags the card out past the art tile
+ * and past the card's own border instead of wrapping inside it.
  */
 export function ProductCard({ product, width, onPress, onAdd }: ProductCardProps) {
-  // The design component draws a 120pt art. A card narrower than that (a
-  // three column grid on a small phone) takes a proportionally smaller art so
-  // it never spills into the next card.
-  const art = Math.min(120, Math.max(0, (width ?? 132) - spacing.md));
+  const box = useMeasuredWidth();
+  const cardWidth = width ?? box.width;
+
+  // The art is sized from the card's content box - its width minus the
+  // padding and the border - so it can never spill past the card edge.
+  const inner = contentBox(cardWidth, CARD_PADDING, CARD_BORDER);
+  const art = Math.min(120, inner || 120);
 
   return (
-    <View style={[styles.productCard, width ? { width } : null]}>
+    <View
+      style={[styles.productCard, width ? { width } : null]}
+      onLayout={box.onLayout}
+    >
       <Pressable
         accessibilityRole="button"
         onPress={onPress}
@@ -228,17 +259,21 @@ export type ProductTileProps = {
  */
 export function ProductTile({ product, width = 174, onPress, onAdd }: ProductTileProps) {
   const photoHeight = 132;
+  // The photo band runs to the inside edge of the tile's border. Sizing it
+  // from the tile's outer width pushes it past the rounded corner, where the
+  // tile's own overflow rule clips it.
+  const band = contentBox(width, 0, CARD_BORDER);
 
   return (
     <View style={[styles.productTile, { width }]}>
-      <View style={{ width, height: photoHeight }}>
+      <View style={{ width: band, height: photoHeight }}>
         <Pressable
           accessibilityRole="button"
           onPress={onPress}
           style={({ pressed }) => [{ opacity: pressed ? 0.92 : 1 }]}
         >
           <ArtTile
-            width={width}
+            width={band}
             height={photoHeight}
             radius={0}
             initials={initialsOf(product.name)}
@@ -269,7 +304,9 @@ export function ProductTile({ product, width = 174, onPress, onAdd }: ProductTil
  * The category grid.
  *
  * Four columns of 76pt tiles with a 19pt gap, wrapping onto as many rows as
- * the group needs.
+ * the group needs. On a screen wider than the design the tiles grow into the
+ * extra room so the row always fills the page instead of sitting against the
+ * left edge with a gap on the right.
  */
 function CategoryGrid({
   categories,
@@ -279,10 +316,14 @@ function CategoryGrid({
   onPress?: (label: string) => void;
 }) {
   // Four across, whatever the width: the tiles tighten before they wrap.
-  const grid = useGrid(4, { basis: 76, gap: 19, minGap: 8 });
+  const box = useMeasuredWidth();
+  const grid = useGrid(4, { basis: 76, gap: 19, minGap: 8, maxBasis: 96 }, box.width);
 
   return (
-    <View style={[styles.categoryGrid, { gap: grid.gap }]}>
+    <View
+      style={[styles.categoryGrid, { gap: grid.gap }]}
+      onLayout={box.onLayout}
+    >
       {categories.map((category) => (
         <Pressable
           key={category.id}
@@ -291,13 +332,18 @@ function CategoryGrid({
           style={[styles.category, { width: grid.width }]}
         >
           <ArtTile
-            width={76}
-            height={76}
+            width={grid.width}
+            height={grid.width}
             radius={18}
             initials={category.initials}
             style={styles.categoryArt}
           />
-          <Text variant="tileLabel" color={semantic.text} style={styles.categoryLabel}>
+          <Text
+            variant="tileLabel"
+            color={semantic.text}
+            style={styles.categoryLabel}
+            numberOfLines={2}
+          >
             {category.label}
           </Text>
         </Pressable>
@@ -374,16 +420,16 @@ export function OrderAgainCard({
                   {product.sub}
                 </Text>
                 <View style={styles.orderPriceRow}>
-                  <Text variant="footnoteEmphasized" color={semantic.text}>
+                  <Text variant="footnoteEmphasized" color={semantic.text} style={styles.price}>
                     {`₹${product.price.toLocaleString('en-IN')}`}
                   </Text>
                   {product.mrp ? (
-                    <Text variant="caption" color={semantic.textMuted}>
+                    <Text variant="caption" color={semantic.textMuted} style={styles.mrp}>
                       {`₹${product.mrp.toLocaleString('en-IN')}`}
                     </Text>
                   ) : null}
                   {product.off ? (
-                    <Text variant="captionStrong" color={semantic.savings}>
+                    <Text variant="captionStrong" color={semantic.savings} style={styles.price}>
                       {`${product.off}% OFF`}
                     </Text>
                   ) : null}
@@ -463,7 +509,7 @@ function CouponCard({
             {coupon.code}
           </Text>
         </View>
-        <Text variant="caption" color={isForest ? neutral.surface : neutral.ink2}>
+        <Text variant="caption" color={isForest ? neutral.surface : neutral.ink2} numberOfLines={2}>
           {coupon.desc}
         </Text>
       </View>
@@ -501,33 +547,40 @@ export function CouponsSection({
 /** One tinted health-store tile with three product photos. */
 function HealthStoreTile({
   store,
+  width,
   onPress,
 }: {
   store: HealthStore;
+  width: number;
   onPress?: (store: HealthStore) => void;
 }) {
   const accent = storeAccents[store.accent];
+  // The three photos share the tile's content box. They shrink together
+  // rather than the third one hanging over the edge of the card.
+  const inner = Math.max(0, width - spacing.md * 2);
+  const slot = Math.min(46, Math.max(28, (inner - spacing.xs * 2) / 3));
+  const slotHeight = Math.round((slot * 64) / 46);
 
   return (
     <Pressable
       accessibilityRole="button"
       onPress={() => onPress?.(store)}
-      style={[styles.storeTile, { backgroundColor: accent.bg }]}
+      style={[styles.storeTile, { width, backgroundColor: accent.bg }]}
     >
-      <Text variant="buttonSmall" color={accent.ink}>
+      <Text variant="buttonSmall" color={accent.ink} numberOfLines={2}>
         {store.name}
       </Text>
       <Text variant="caption" color={semantic.textSecondary} numberOfLines={2}>
         {store.sub}
       </Text>
       <View style={styles.storeCollage}>
-        {[0, 1, 2].map((slot) => (
-          <View key={slot} style={styles.storeSlot}>
+        {[0, 1, 2].map((index) => (
+          <View key={index} style={[styles.storeSlot, { width: slot, height: slotHeight }]}>
             <ArtTile
-              width={46}
-              height={64}
-          radius={radii.md}
-              initials={initialsOf(store.products[slot]?.name ?? store.name)}
+              width={slot}
+              height={slotHeight}
+              radius={radii.md}
+              initials={initialsOf(store.products[index]?.name ?? store.name)}
             />
           </View>
         ))}
@@ -542,12 +595,20 @@ export function HealthStoresSection({
 }: {
   onPress?: (store: HealthStore) => void;
 }) {
+  const box = useMeasuredWidth();
+  const grid = useGrid(2, { basis: 174, gap: spacing.md, maxBasis: 230 }, box.width);
+
   return (
     <View style={styles.section}>
       <SectionHeader title="Health stores" />
-      <View style={styles.storeGrid}>
+      <View style={[styles.storeGrid, { gap: grid.gap }]} onLayout={box.onLayout}>
         {careStoreShelves().map((store) => (
-          <HealthStoreTile key={store.id} store={store} onPress={onPress} />
+          <HealthStoreTile
+            key={store.id}
+            store={store}
+            width={grid.width}
+            onPress={onPress}
+          />
         ))}
       </View>
     </View>
@@ -601,6 +662,7 @@ export function DealsSection({
           <ProductCard
             key={item.id}
             product={item}
+            width={RAIL_CARD_WIDTH}
             onAdd={() => onAdd?.(item)}
             onPress={() => onPress?.(item)}
           />
@@ -625,6 +687,8 @@ export function SeasonalSection({
   onPress?: (product: Product) => void;
 }) {
   const [filter, setFilter] = React.useState(0);
+  const box = useMeasuredWidth();
+  const grid = useGrid(2, { basis: 174, gap: spacing.md, maxBasis: 230 }, box.width);
 
   return (
     <View style={styles.section}>
@@ -660,11 +724,12 @@ export function SeasonalSection({
         ))}
       </Rail>
 
-      <View style={styles.seasonalGrid}>
+      <View style={[styles.seasonalGrid, { gap: grid.gap }]} onLayout={box.onLayout}>
         {products.map((product) => (
           <ProductTile
             key={product.id}
             product={product}
+            width={grid.width}
             onAdd={() => onAdd?.(product)}
             onPress={() => onPress?.(product)}
           />
@@ -715,7 +780,7 @@ function PharmacyCard({
           </Text>
         </View>
         {store.perk ? (
-          <Text variant="caption" color={semantic.textMuted}>
+          <Text variant="caption" color={semantic.textMuted} style={styles.perkText}>
             {`· ${store.perk}`}
           </Text>
         ) : null}
@@ -725,7 +790,7 @@ function PharmacyCard({
 
       <View style={styles.perkRow}>
         <Icon name="tag" size={14} color={semantic.savings} />
-        <Text variant="caption" color={semantic.savings}>
+        <Text variant="caption" color={semantic.savings} style={styles.perkText}>
           {store.perkLabel}
         </Text>
       </View>
@@ -767,7 +832,10 @@ export function CareBlock({
   onAdd?: (product: Product) => void;
   onPress?: (product: Product) => void;
 }) {
-  const grid = useGrid(2, { basis: 163 });
+  const box = useMeasuredWidth(0, useContentWidth() - 26);
+  // The grid sits inside the block's own padding, so the width it has to
+  // share out is the block's content box, not the page.
+  const grid = useGrid(2, { basis: 163, maxBasis: 220 }, box.width);
   const accent = storeAccents[store.accent];
 
   return (
@@ -777,7 +845,7 @@ export function CareBlock({
           <Icon name="steth" size={20} color={accent.ink} />
         </View>
         <View style={styles.careHeaderInfo}>
-          <Text variant="buttonSmall" color={accent.ink}>
+          <Text variant="buttonSmall" color={accent.ink} numberOfLines={1}>
             {store.name}
           </Text>
           <Text variant="caption" color={semantic.textSecondary} numberOfLines={2}>
@@ -792,7 +860,7 @@ export function CareBlock({
       </View>
 
       <View style={styles.careBody}>
-        <View style={[styles.careGrid, { gap: grid.gap }]}>
+        <View style={[styles.careGrid, { gap: grid.gap }]} onLayout={box.onLayout}>
           {store.products.map((product) => (
             <ProductCard
               key={product.id}
@@ -880,7 +948,7 @@ export function CareCornersSection({
             style={[styles.careCorner, { backgroundColor: accent.bg }]}
           >
             <View style={styles.careCornerInfo}>
-              <Text variant="bodyStrong" color={accent.ink}>
+              <Text variant="bodyStrong" color={accent.ink} numberOfLines={1}>
                 {corner.name}
               </Text>
               <Text variant="caption" color={semantic.textSecondary} numberOfLines={2}>
@@ -924,12 +992,13 @@ export function BestOffersSection({
   onAdd?: (product: Product) => void;
   onPress?: (product: Product) => void;
 }) {
-  const grid = useGrid(3, { basis: 114 });
+  const box = useMeasuredWidth();
+  const grid = useGrid(3, { basis: 114 }, box.width);
 
   return (
     <View style={styles.section}>
       <SectionHeader title="Best offers near you" actionLabel="See all" />
-      <View style={[styles.offerGrid, { gap: grid.gap }]}>
+      <View style={[styles.offerGrid, { gap: grid.gap }]} onLayout={box.onLayout}>
         {products.map((product) => (
           <ProductCard
             key={product.id}
@@ -963,6 +1032,7 @@ export function EverydayEssentialsSection({
           <ProductCard
             key={product.id}
             product={product}
+            width={RAIL_CARD_WIDTH}
             onAdd={() => onAdd?.(product)}
             onPress={() => onPress?.(product)}
           />
@@ -1081,9 +1151,18 @@ const styles = StyleSheet.create({
   priceRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    // On a narrow card the struck-through MRP drops to its own line rather
+    // than pushing out past the card edge.
+    flexWrap: 'wrap',
     gap: spacing.xs + 2,
   },
+  price: {
+    // React Native does not shrink row children by default, so a long price
+    // pair would push out of the card. The price gives way instead.
+    flexShrink: 1,
+  },
   mrp: {
+    flexShrink: 1,
     textDecorationLine: 'line-through',
   },
   etaRow: {
@@ -1173,6 +1252,7 @@ const styles = StyleSheet.create({
   orderPriceRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexWrap: 'wrap',
     gap: spacing.xs + 2,
   },
   orderAdd: {
@@ -1200,7 +1280,9 @@ const styles = StyleSheet.create({
   /* Coupons -------------------------------------------------------------- */
   coupon: {
     width: 220,
-    height: 92,
+    // The description wraps, so the ticket grows rather than spilling out of
+    // its own edges.
+    minHeight: 92,
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
@@ -1256,8 +1338,9 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   storeTile: {
-    width: 174,
-    height: 156,
+    // The height is a floor, not a lid: a store name that wraps grows the
+    // tile instead of spilling out of the bottom of it.
+    minHeight: 156,
     borderRadius: radii.xxl,
     padding: spacing.md,
     gap: spacing.sm,
@@ -1268,8 +1351,6 @@ const styles = StyleSheet.create({
     marginTop: 'auto',
   },
   storeSlot: {
-    width: 46,
-    height: 64,
     borderRadius: radii.md,
     backgroundColor: neutral.surface,
     overflow: 'hidden',
@@ -1329,7 +1410,8 @@ const styles = StyleSheet.create({
   /* Pharmacies ----------------------------------------------------------- */
   pharmacyCard: {
     width: 268,
-    height: 138,
+    // A floor, not a lid: the meta row can wrap on a narrow card.
+    minHeight: 138,
     gap: spacing.md - 2,
     padding: spacing.md,
     borderRadius: radii.xxl,
@@ -1375,6 +1457,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs + 2,
+  },
+  perkText: {
+    // The row gives way rather than pushing past the card edge.
+    flexShrink: 1,
   },
 
   /* Care blocks ---------------------------------------------------------- */
@@ -1460,7 +1546,9 @@ const styles = StyleSheet.create({
     marginTop: spacing.xxs,
   },
   careCornerPhotos: {
-    width: 120,
+    // The second photo overlaps the first, so the box has to be wide enough
+    // to hold both of them.
+    width: 135,
     height: 90,
   },
   careCornerPhoto: {

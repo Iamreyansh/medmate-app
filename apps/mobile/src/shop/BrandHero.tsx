@@ -28,6 +28,7 @@ import {
 import { Icon, type IconName } from '../icons/Icon';
 import { Text } from '../ui/Text';
 import { ArtTile, Button, Gradient, ServiceChip } from '../ui/primitives';
+import { useContentInset, useContentWidth } from '../ui/layout';
 import { delivery, heroBanners, serviceTabs, trustStrip } from '../data/shop';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
@@ -243,7 +244,10 @@ export function BrandHero({
 }: BrandHeroProps) {
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
-  const contentWidth = width - spacing.lg * 2;
+  // The hero keeps the same content column as the page below it, so on a
+  // wider screen the copy and the carousel stay in step with the sections.
+  const contentWidth = useContentWidth();
+  const inset = useContentInset();
 
   const [activeTab, setActiveTab] = useState(0);
   const [activeSlide, setActiveSlide] = useState(0);
@@ -255,7 +259,7 @@ export function BrandHero({
 
   return (
     <Gradient token="brand" radius={0} style={styles.hero}>
-      <View style={[styles.heroInner, { paddingTop: insets.top + spacing.xs }]}>
+      <View style={[styles.heroInner, { paddingTop: insets.top + spacing.xs, paddingHorizontal: inset }]}>
         {/* Drifting glyphs sit behind the content, so they are absolutely placed. */}
         <View pointerEvents="none" style={styles.glyphLayer}>
           {FLOATING_GLYPHS.map((glyph, index) => (
@@ -341,8 +345,8 @@ export function BrandHero({
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.tabsRow}
-          style={styles.tabsScroll}
+          contentContainerStyle={[styles.tabsRow, { paddingHorizontal: inset }]}
+          style={[styles.tabsScroll, { marginHorizontal: -inset }]}
         >
           {tabs.map((tab, index) => (
             <ServiceChip
@@ -379,7 +383,11 @@ export function BrandHero({
           >
             {heroBanners.map((banner) => (
               <View key={banner.id} style={{ width: slideWidth, marginRight: spacing.md }}>
-                <HeroBanner banner={banner} onPress={() => onBannerPress?.(banner.id)} />
+                <HeroBanner
+                  banner={banner}
+                  width={slideWidth}
+                  onPress={() => onBannerPress?.(banner.id)}
+                />
               </View>
             ))}
           </ScrollView>
@@ -420,15 +428,17 @@ export function BrandHero({
  */
 function HeroBanner({
   banner,
+  width,
   onPress,
 }: {
   banner: (typeof heroBanners)[number];
+  /** The width of the banner the art is drawn into. */
+  width: number;
   onPress: () => void;
 }) {
-  const { width } = useWindowDimensions();
   // The banner art is drawn for a 361pt banner. Scale it with the banner so
   // nothing is clipped on a narrower phone.
-  const scale = (width - spacing.lg * 2) / 361;
+  const scale = width / 361;
 
   return (
     <Gradient token={banner.gradient} radius={radii.huge} style={styles.banner}>

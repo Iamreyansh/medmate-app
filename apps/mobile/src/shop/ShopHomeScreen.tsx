@@ -7,6 +7,7 @@ import { neutral, platformMetrics, sectionGap, spacing } from '@medmate/theme';
 
 import { useCart } from '../state/cart';
 import { useNotice } from '../state/notice';
+import { useContentInset } from '../ui/layout';
 import { catalogue } from '../data/catalogue';
 import { careStores } from '../data/care';
 import { pharmacies } from '../data/pharmacy';
@@ -61,6 +62,9 @@ export function ShopHomeScreen() {
   const router = useRouter();
   const cart = useCart();
   const notice = useNotice();
+  // On a screen wider than the design the content column is centred, so the
+  // space is shared on both sides instead of piling up on the right.
+  const inset = useContentInset();
 
   const [serviceTab, setServiceTab] = useState('All');
 
@@ -129,7 +133,7 @@ export function ShopHomeScreen() {
           onServiceTabChange={setServiceTab}
         />
 
-        <View style={styles.sections}>
+        <View style={[styles.sections, { paddingHorizontal: inset }]}>
           <TrustStrip />
 
           <CategoryGroups
@@ -202,7 +206,7 @@ export function ShopHomeScreen() {
           <ForPharmaciesSection />
         </View>
 
-        <View style={styles.footerWrap}>
+        <View style={[styles.footerWrap, { paddingHorizontal: inset }]}>
           <PageFooter />
         </View>
       </ScrollView>

@@ -5,7 +5,7 @@ import { brand, mint, neutral, platformKey, radii, semantic, spacing, storeAccen
 
 import { Icon } from '../../icons/Icon';
 import { Text } from '../../ui/Text';
-import { useGrid } from '../../ui/layout';
+import { useContentInset, useGrid, useMeasuredWidth } from '../../ui/layout';
 import { FilterChip } from '../../ui/primitives';
 import { useCart } from '../../state/cart';
 import { useNotice } from '../../state/notice';
@@ -51,7 +51,13 @@ export function HealthStoreScreen({
   const notice = useNotice();
   const [sort, setSort] = useState<SortId>('recommended');
 
-  const grid = useGrid(3, { basis: 114 });
+  // The grid shares out the width it has: three columns survive on a phone
+  // narrower than the design canvas and fill the row on a wider one. The grid
+  // has no padding of its own, so it gets the width of the body it sits in.
+  const gridBox = useMeasuredWidth();
+  const grid = useGrid(3, { basis: 114 }, gridBox.width);
+  // On a screen wider than the design the content column is centred.
+  const inset = useContentInset();
 
   const products = useMemo(() => {
     const shelf = storeProducts(store);
@@ -77,7 +83,7 @@ export function HealthStoreScreen({
           onHelp={onHelp}
         />
 
-        <View style={styles.body}>
+        <View style={[styles.body, { paddingHorizontal: inset }]}>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -100,7 +106,7 @@ export function HealthStoreScreen({
             />
           </ScrollView>
 
-          <View style={[styles.grid, { gap: grid.gap }]}>
+          <View style={[styles.grid, { gap: grid.gap }]} onLayout={gridBox.onLayout}>
             {products.map((product) => (
               <ProductCard
                 key={product.id}

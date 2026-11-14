@@ -2,6 +2,8 @@ import React, { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useContentInset } from '../../ui/layout';
+
 import {
   brand,
   elevation,
@@ -77,6 +79,8 @@ export function ProductScreen({
   onPharmacyPress,
 }: ProductScreenProps) {
   const insets = useSafeAreaInsets();
+  // On a screen wider than the design the content column is centred.
+  const inset = useContentInset();
   const cart = useCart();
   const notice = useNotice();
 
@@ -186,7 +190,7 @@ export function ProductScreen({
         </Gradient>
 
         {/* The sheet slides over the image area. */}
-        <View style={styles.sheet}>
+        <View style={[styles.sheet, { paddingHorizontal: inset }]}>
           {!product.rx && product.off ? (
             <View style={styles.offTab}>
               <Icon name="percent" size={12} color={brand.forest} />
@@ -289,7 +293,12 @@ export function ProductScreen({
       </ScrollView>
 
       {/* The action bar */}
-      <View style={[styles.actionBar, { paddingBottom: insets.bottom + spacing.sm }]}>
+      <View
+        style={[
+          styles.actionBar,
+          { paddingBottom: insets.bottom + spacing.sm, paddingHorizontal: inset },
+        ]}
+      >
         <View style={styles.buyRow}>
           <View style={styles.buyPrice}>
             <Text variant="amount" color="#65726B">

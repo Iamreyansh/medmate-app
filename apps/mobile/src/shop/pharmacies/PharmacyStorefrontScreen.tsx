@@ -17,7 +17,7 @@ import {
 
 import { Icon } from '../../icons/Icon';
 import { Text } from '../../ui/Text';
-import { useGrid } from '../../ui/layout';
+import { useContentInset, useGrid, useMeasuredWidth } from '../../ui/layout';
 import { EmptyState, FilterChip } from '../../ui/primitives';
 import { useCart } from '../../state/cart';
 import { useNotice } from '../../state/notice';
@@ -57,7 +57,13 @@ export function PharmacyStorefrontScreen({
   const [filter, setFilter] = useState<'all' | 'noPrescription' | 'prescription' | 'discount'>('all');
   const [query, setQuery] = useState('');
 
-  const grid = useGrid(3, { basis: 114 });
+  // The grid shares out the width it has: three columns survive on a phone
+  // narrower than the design canvas and fill the row on a wider one. The grid
+  // has no padding of its own, so it gets the width of the body it sits in.
+  const gridBox = useMeasuredWidth();
+  const grid = useGrid(3, { basis: 114 }, gridBox.width);
+  // On a screen wider than the design the content column is centred.
+  const inset = useContentInset();
 
   const products = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -141,7 +147,7 @@ export function PharmacyStorefrontScreen({
           </View>
         </View>
 
-        <View style={styles.body}>
+        <View style={[styles.body, { paddingHorizontal: inset }]}>
           {/* Coupons the store accepts */}
           <ScrollView
             horizontal
@@ -220,7 +226,7 @@ export function PharmacyStorefrontScreen({
               body="Try another filter, or search the whole of MedMate."
             />
           ) : null}
-          <View style={[styles.grid, { gap: grid.gap }]}>
+          <View style={[styles.grid, { gap: grid.gap }]} onLayout={gridBox.onLayout}>
             {products.map((product) => (
               <ProductCard
                 key={product.id}
