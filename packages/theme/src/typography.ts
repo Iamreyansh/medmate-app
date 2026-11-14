@@ -78,10 +78,14 @@ export const iosType = {
   statusBarTime: { fontSize: 17, lineHeight: 22, fontWeight: '600', letterSpacing: 0 },
   /** Screen footer headline. */
   footer: { fontSize: 44, lineHeight: 46, fontWeight: '800', letterSpacing: -0.88 },
+  /** The app wordmark in the brand zone. */
+  wordmark: { fontSize: 26, lineHeight: 26, fontWeight: '700', letterSpacing: -0.91 },
   /** The category name in the brand zone - the same on both platforms. */
   categoryTitle: { fontSize: 30, lineHeight: 34, fontWeight: '800', letterSpacing: -0.6 },
-  /** Hero wordmark. */
-  wordmark: { fontSize: 26, lineHeight: 26, fontWeight: '700', letterSpacing: -0.91 },
+  /** The store name in the brand zone. */
+  storeTitle: { fontSize: 28, lineHeight: 34, fontWeight: '700', letterSpacing: -0.42 },
+  /** The title in a store nav bar. */
+  storeNavTitle: { fontSize: 17, lineHeight: 22, fontWeight: '600', letterSpacing: -0.085 },
 } as const satisfies Record<string, TypeStyle>;
 
 /** Material 3 type scale, used on Android. */
@@ -103,8 +107,6 @@ export const m3Type = {
   /** Android counterpart of the iOS 11pt semibold caption. */
   captionSmall: { fontSize: 11, lineHeight: 16, fontWeight: '600', letterSpacing: 0 },
   overline: { fontSize: 11, lineHeight: 16, fontWeight: '700', letterSpacing: 0.88, textTransform: 'uppercase' },
-  /** The category name in the brand zone - the same on both platforms. */
-  categoryTitle: { fontSize: 30, lineHeight: 34, fontWeight: '800', letterSpacing: -0.6 },
   price: { fontSize: 16, lineHeight: 24, fontWeight: '800', letterSpacing: 0 },
   amount: { fontSize: 20, lineHeight: 28, fontWeight: '800', letterSpacing: 0 },
   button: { fontSize: 14, lineHeight: 20, fontWeight: '600', letterSpacing: 0.14 },
@@ -114,6 +116,12 @@ export const m3Type = {
   statusBarTime: { fontSize: 14, lineHeight: 20, fontWeight: '500', letterSpacing: 0 },
   footer: { fontSize: 44, lineHeight: 46, fontWeight: '800', letterSpacing: -0.88 },
   wordmark: { fontSize: 26, lineHeight: 26, fontWeight: '700', letterSpacing: -0.91 },
+  /** The category name in the brand zone - the same on both platforms. */
+  categoryTitle: { fontSize: 30, lineHeight: 34, fontWeight: '800', letterSpacing: -0.6 },
+  /** The store name in the brand zone. */
+  storeTitle: { fontSize: 24, lineHeight: 32, fontWeight: '700', letterSpacing: -0.24 },
+  /** The title in a store nav bar. */
+  storeNavTitle: { fontSize: 22, lineHeight: 28, fontWeight: '700', letterSpacing: -0.11 },
 } as const satisfies Record<string, TypeStyle>;
 
 export type IosTypeToken = keyof typeof iosType;
@@ -155,6 +163,10 @@ export const typeRoles = {
   tileLabel: { ios: 'captionStrong', m3: 'captionSmall' },
   /** The category title in the brand zone. */
   categoryTitle: { ios: 'categoryTitle', m3: 'categoryTitle' },
+  /** The store title in the brand zone. */
+  storeTitle: { ios: 'storeTitle', m3: 'storeTitle' },
+  /** The title in a store nav bar. */
+  storeNavTitle: { ios: 'storeNavTitle', m3: 'storeNavTitle' },
   /** The product count under the category title. */
   countLine: { ios: 'footnote', m3: 'bodySmall' },
 } as const satisfies Record<string, { ios: IosTypeToken; m3: M3TypeToken }>;

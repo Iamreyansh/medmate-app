@@ -8,6 +8,7 @@ import { neutral, platformMetrics, sectionGap, spacing } from '@medmate/theme';
 import { useCart } from '../state/cart';
 import { useNotice } from '../state/notice';
 import { catalogue } from '../data/catalogue';
+import { careStores } from '../data/care';
 import { categoryList, slugFor } from '../data/category';
 import {
   bestOffers,
@@ -152,7 +153,9 @@ export function ShopHomeScreen() {
           />
 
           <HealthStoresSection
-            onPress={(store) => notice.notify(`${store.name} - the store page is next in the section`)}
+            onPress={(store) =>
+              router.push({ pathname: '/care/[slug]', params: { slug: store.id } })
+            }
           />
 
           <DealsSection products={narrowed.deals} onAdd={addToCart} onPress={openProduct} />
@@ -167,7 +170,18 @@ export function ShopHomeScreen() {
 
           <LabTestsSection />
 
-          <CareCornersSection />
+          <CareCornersSection
+            onPress={(corner) => {
+              const store = careStores.find(
+                (candidate) => candidate.name.toLowerCase() === corner.name.toLowerCase(),
+              );
+              if (store) {
+                router.push({ pathname: '/care/[slug]', params: { slug: store.id } });
+                return;
+              }
+              notice.notify(`${corner.name} is on the way`);
+            }}
+          />
 
           <BestOffersSection products={narrowed.offers} onAdd={addToCart} onPress={openProduct} />
 
@@ -194,7 +208,7 @@ export function ShopHomeScreen() {
               : notice.notify('The pharmacy screen is next in the section')
           }
           onChatPress={() => notice.notify('Chat opens in the next release')}
-          onAdPress={() => notice.notify('New arrivals - see the seasonal picks below')}
+          onAdPress={() => router.push('/new-arrivals')}
         />
       </View>
     </View>

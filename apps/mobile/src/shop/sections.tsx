@@ -23,6 +23,7 @@ import {
   Gradient,
   SectionHeader,
 } from '../ui/primitives';
+import { careStores, storeProducts } from '../data/care';
 import {
   careCorners,
   categoryGroups,
@@ -35,7 +36,6 @@ import {
   forPharmacies,
   footer,
   footerLinks,
-  healthStores,
   initialsOf,
   labTests,
   orderAgain,
@@ -301,6 +301,19 @@ function CategoryGrid({
   );
 }
 
+/**
+ * The health stores, with their shelves resolved from the catalogue.
+ */
+function careStoreShelves(): HealthStore[] {
+  return careStores.map((store) => ({
+    id: store.id,
+    name: store.name,
+    sub: store.sub,
+    accent: store.accent,
+    products: storeProducts(store),
+  }));
+}
+
 /** The three category groups of the Shop screen. */
 export function CategoryGroups({ onCategoryPress }: { onCategoryPress?: (label: string) => void }) {
   return (
@@ -528,7 +541,7 @@ export function HealthStoresSection({
     <View style={styles.section}>
       <SectionHeader title="Health stores" />
       <View style={styles.storeGrid}>
-        {healthStores.map((store) => (
+        {careStoreShelves().map((store) => (
           <HealthStoreTile key={store.id} store={store} onPress={onPress} />
         ))}
       </View>
@@ -799,11 +812,13 @@ export function CareBlocks({
 }) {
   return (
     <>
-      {healthStores.slice(0, 3).map((store) => (
-        <View key={store.id} style={styles.section}>
-          <CareBlock store={store} onAdd={onAdd} onPress={onPress} />
-        </View>
-      ))}
+      {careStoreShelves()
+        .slice(0, 3)
+        .map((store) => (
+          <View key={store.id} style={styles.section}>
+            <CareBlock store={store} onAdd={onAdd} onPress={onPress} />
+          </View>
+        ))}
     </>
   );
 }
@@ -842,13 +857,22 @@ export function LabTestsSection() {
 }
 
 /** The compact "care corner" cards: diabetes, heart, elderly. */
-export function CareCornersSection() {
+export function CareCornersSection({
+  onPress,
+}: {
+  onPress?: (corner: (typeof careCorners)[number]) => void;
+}) {
   return (
     <View style={styles.careCornerList}>
       {careCorners.map((corner) => {
         const accent = storeAccents[corner.accent as StoreAccentKey];
         return (
-          <View key={corner.id} style={[styles.careCorner, { backgroundColor: accent.bg }]}>
+          <Pressable
+            key={corner.id}
+            accessibilityRole="button"
+            onPress={() => onPress?.(corner)}
+            style={[styles.careCorner, { backgroundColor: accent.bg }]}
+          >
             <View style={styles.careCornerInfo}>
               <Text variant="bodyStrong" color={accent.ink}>
                 {corner.name}
@@ -856,12 +880,12 @@ export function CareCornersSection() {
               <Text variant="caption" color={semantic.textSecondary} numberOfLines={2}>
                 {corner.sub}
               </Text>
-              <Pressable accessibilityRole="button" style={styles.careCornerLink}>
+              <View style={styles.careCornerLink}>
                 <Text variant="linkLabel" color={accent.ink}>
                   Shop now
                 </Text>
                 <Icon name="chev-r" size={14} color={accent.ink} />
-              </Pressable>
+              </View>
             </View>
             <View style={styles.careCornerPhotos}>
               {corner.photos.map((photo, index) => (
@@ -873,7 +897,7 @@ export function CareCornersSection() {
                 </View>
               ))}
             </View>
-          </View>
+          </Pressable>
         );
       })}
     </View>

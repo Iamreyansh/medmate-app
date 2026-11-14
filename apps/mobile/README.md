@@ -11,6 +11,8 @@ against the Figma design system.
 | **Shop › Search results** (`app/search/index.tsx` → `src/shop/search/SearchScreen.tsx`) | Implemented, iOS + Android variants |
 | **Shop › Search, no results** (`app/search/no-results.tsx` → `src/shop/search/SearchEmptyScreen.tsx`) | Implemented, iOS + Android variants |
 | **Shop › Category** (`app/category/[slug].tsx` → `src/shop/category/CategoryScreen.tsx`) | Implemented, iOS + Android variants |
+| **Shop › Health store** (`app/care/[slug].tsx` → `src/shop/care/HealthStoreScreen.tsx`) | Implemented, iOS + Android variants |
+| **Shop › New arrivals** (`app/new-arrivals.tsx` → `src/shop/newarrivals/NewArrivalsScreen.tsx`) | Implemented, iOS + Android variants |
 
 The Shop home screen is the entry point of the Shop section: the brand zone
 (delivery promise, health day, search, service tabs, hero carousel), then the
@@ -39,6 +41,8 @@ apps/mobile/app           expo-router routes
 | `/search?q=paracetamol` | Search results (falls through to the empty state when nothing matches) |
 | `/search/no-results` | The empty state on its own |
 | `/category/fever-pain` | A category, with the prescription, price and brand filters |
+| `/care/ortho-pain-care` | A health store - ortho, baby, women's, diabetes, heart, elderly |
+| `/new-arrivals` | The newest products, with a filter per category |
 
 ### The mock data
 
@@ -54,6 +58,10 @@ matches nothing falls through to the empty state.
 The category screen filters the same catalogue by prescription status, price
 band and brand, and counts what is left, so the chips always agree with the
 products below them.
+
+The health stores are curated shelves of the same catalogue - ortho care, baby
+care, women's health, diabetes, heart and elderly care - and the new arrivals
+are the newest products on it.
 
 Every value comes from `@medmate/theme`. A hex literal inside a screen is a
 bug - the tokens mirror the Figma colour variables and type scales exactly.
