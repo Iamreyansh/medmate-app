@@ -1,0 +1,82 @@
+# MedMate — native app (Shop section)
+
+React Native + Expo app for the MedMate D2C storefront, built screen by screen
+against the Figma design system.
+
+## What is in this build
+
+| Screen | Status |
+| --- | --- |
+| **Shop › Home** (`app/index.tsx` → `src/shop/ShopHomeScreen.tsx`) | Implemented, iOS + Android variants |
+
+The Shop home screen is the entry point of the Shop section: the brand zone
+(delivery promise, health day, search, service tabs, hero carousel), then the
+content sections (categories, order again, coupons, health stores, today's
+deals, seasonal picks, pharmacies, care blocks, lab tests, care corners, best
+offers, everyday essentials), then the partner block and the footer, with the
+floating bottom chrome pinned to the viewport.
+
+## Layout
+
+```
+packages/theme/src        design tokens (colour, type, spacing, elevation, platform)
+apps/mobile/src/icons     icon set + the SVG renderer
+apps/mobile/src/ui        typed text and the shared primitives
+apps/mobile/src/shop      the Shop screen and its sections
+apps/mobile/src/data      the screen content (swap for an API client later)
+apps/mobile/app           expo-router routes
+```
+
+Every value comes from `@medmate/theme`. A hex literal inside a screen is a
+bug - the tokens mirror the Figma colour variables and type scales exactly.
+
+## Run it locally
+
+```bash
+npm install                     # from the repository root
+npm run ios                     # or: npm run android, npm run web
+```
+
+Metro serves on <http://localhost:8081>. Scan the QR code with Expo Go, or
+press `i` / `a` for a simulator.
+
+## Build for manual testing
+
+```bash
+cd apps/mobile
+
+# iOS preview build (TestFlight or install on a device)
+npx eas-cli build --platform ios --profile preview
+
+# Android preview build (APK, install on a device)
+npx eas-cli build --platform android --profile preview
+
+# Local simulator build, no EAS account needed
+npx expo run:ios
+npx expo run:android
+```
+
+EAS needs `expo login` once and a project id. Add one with
+`npx eas-cli init` (it writes `extra.eas.projectId` into `app.json`).
+
+## Verify the design
+
+```bash
+npm run typecheck              # tsc --noEmit across the workspaces
+npm run lint                   # eslint (flat config, eslint-config-expo)
+npm run format:check           # prettier
+```
+
+## Notes and open items
+
+- **Product photos** are placeholders for now. The art tile uses the mint
+  gradient from the design and falls back to the product initials - the same
+  treatment the Figma file uses when a photo is missing. Drop the real images
+  into `apps/mobile/assets` and pass them to `ArtTile` as `photo`.
+- **The system status bar** is drawn by the OS, not by the app, so the brand
+  zone uses the real safe-area inset instead of the Figma's 54pt mock.
+- **Prescription items** show the selling price only - never a struck MRP and
+  never a discount. `PriceRow` in `src/shop/sections.tsx` enforces this, and
+  the copy in the banners says so.
+- The bottom bar is part of the screen (a floating pill rather than a system
+  tab bar), so it lives in `src/shop/BottomChrome.tsx`.

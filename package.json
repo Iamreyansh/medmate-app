@@ -1,0 +1,35 @@
+{
+  "name": "medmate-app",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MedMate D2C — native iOS & Android customer app (frontend)",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=20.11.0"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "start": "npm run start --workspace medmate-mobile",
+    "ios": "npm run ios --workspace medmate-mobile",
+    "android": "npm run android --workspace medmate-mobile",
+    "web": "npm run web --workspace medmate-mobile",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "eslint apps/mobile packages",
+    "test": "npm run test --workspaces --if-present",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\""
+  },
+  "devDependencies": {
+    "eslint": "^9.39.5",
+    "eslint-config-expo": "~10.0.0",
+    "eslint-import-resolver-typescript": "^4.4.5",
+    "prettier": "^3.4.2",
+    "typescript": "~6.0.3"
+  },
+  "dependencies": {
+    "react-native-web": "^0.21.4"
+  }
+}

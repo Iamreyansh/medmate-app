@@ -1,0 +1,695 @@
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Animated,
+  Easing,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+  useWindowDimensions,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Svg, { Path } from 'react-native-svg';
+
+import {
+  brand,
+  elevation,
+  gold,
+  mint,
+  neutral,
+  radii,
+  semantic,
+  spacing,
+} from '@medmate/theme';
+
+import { Icon, type IconName } from '../icons/Icon';
+import { Text } from '../ui/Text';
+import { ArtTile, Button, Gradient, ServiceChip } from '../ui/primitives';
+import { delivery, heroBanners, serviceTabs, trustStrip } from '../data/shop';
+
+const AnimatedPath = Animated.createAnimatedComponent(Path);
+
+/* -------------------------------------------------------------------------- */
+/*  Floating glyphs                                                           */
+/* -------------------------------------------------------------------------- */
+
+type FloatingGlyph = {
+  icon: IconName;
+  /** Left offset as a fraction of the hero width. */
+  x: number;
+  /** Top offset in pt, measured from the top of the brand zone. */
+  y: number;
+  size: number;
+  color: string;
+  opacity: number;
+  /** Drift distance in pt. */
+  drift: number;
+  /** Seconds for one drift cycle. */
+  duration: number;
+  delay: number;
+};
+
+/**
+ * The medical glyphs that drift behind the hero.
+ *
+ * The Figma frame places them by hand; these are the same positions expressed
+ * as fractions so the composition holds on any device width.
+ */
+const FLOATING_GLYPHS: FloatingGlyph[] = [
+  { icon: 'heart', x: 0.02, y: 120, size: 39, color: neutral.surface, opacity: 0.25, drift: 12, duration: 5.4, delay: 0 },
+  { icon: 'pill', x: 0.76, y: 90, size: 36, color: gold[300], opacity: 0.35, drift: 16, duration: 6.2, delay: 0.6 },
+  { icon: 'steth', x: 0.83, y: 300, size: 42, color: neutral.surface, opacity: 0.25, drift: 14, duration: 7.1, delay: 1.2 },
+  { icon: 'flask', x: 0.02, y: 326, size: 32, color: neutral.surface, opacity: 0.25, drift: 10, duration: 6.7, delay: 0.3 },
+  { icon: 'shield', x: 0.41, y: 66, size: 35, color: gold[300], opacity: 0.35, drift: 12, duration: 5.9, delay: 1.5 },
+  { icon: 'plus', x: 0.64, y: 210, size: 26, color: neutral.surface, opacity: 0.25, drift: 18, duration: 4.8, delay: 2.1 },
+  { icon: 'heart', x: 0.15, y: 515, size: 30, color: neutral.surface, opacity: 0.25, drift: 13, duration: 6.4, delay: 2.7 },
+  { icon: 'pill', x: 0.8, y: 560, size: 40, color: gold[300], opacity: 0.35, drift: 15, duration: 5.6, delay: 3.3 },
+];
+
+function FloatingGlyphView({ glyph, width }: { glyph: FloatingGlyph; width: number }) {
+  const drift = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const animation = Animated.loop(
+      Animated.sequence([
+        Animated.delay(glyph.delay * 1000),
+        Animated.timing(drift, {
+          toValue: 1,
+          duration: glyph.duration * 1000,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+        Animated.timing(drift, {
+          toValue: 0,
+          duration: glyph.duration * 1000,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+    animation.start();
+    return () => animation.stop();
+  }, [drift, glyph.delay, glyph.duration]);
+
+  const translateY = drift.interpolate({ inputRange: [0, 1], outputRange: [0, -glyph.drift] });
+  const translateX = drift.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, glyph.drift / 2],
+  });
+
+  return (
+    <Animated.View
+      pointerEvents="none"
+      style={[
+        styles.floating,
+        {
+          left: glyph.x * width,
+          top: glyph.y,
+          opacity: glyph.opacity,
+          transform: [{ translateY }, { translateX }],
+        },
+      ]}
+    >
+      <Icon name={glyph.icon} size={glyph.size} color={glyph.color} strokeWidth={1.6} />
+    </Animated.View>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Heartbeat                                                                 */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The ECG line in the hero.
+ *
+ * The Figma note says it "draws itself every 3.2 s", so the stroke is
+ * revealed with an animated dash offset and then held for the rest of the
+ * cycle.
+ */
+function HeartbeatLine({ width }: { width: number }) {
+  const height = 29;
+  const path =
+    'M0 15 H22 L28 15 L32 6 L38 25 L44 2 L50 22 L54 15 H74 L79 15 L82 9 L86 21 L90 15 H120';
+
+  const progress = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const animation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(progress, {
+          toValue: 1,
+          duration: 3200,
+          easing: Easing.linear,
+          useNativeDriver: false,
+        }),
+        Animated.delay(2400),
+        Animated.timing(progress, {
+          toValue: 0,
+          duration: 400,
+          easing: Easing.out(Easing.quad),
+          useNativeDriver: false,
+        }),
+      ]),
+    );
+    animation.start();
+    return () => animation.stop();
+  }, [progress]);
+
+  const strokeDashoffset = progress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [120, 0],
+  });
+
+  return (
+    <Svg width={width} height={height} viewBox="0 0 120 30">
+      <AnimatedPath
+        d={path}
+        stroke="rgba(255,255,255,0.45)"
+        strokeWidth={1.88}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+        strokeDasharray="120"
+        strokeDashoffset={strokeDashoffset}
+      />
+    </Svg>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Hero                                                                      */
+/* -------------------------------------------------------------------------- */
+
+export type BrandHeroProps = {
+  onSearch?: () => void;
+  onUploadRx?: () => void;
+  onBannerPress?: (id: string) => void;
+};
+
+/**
+ * The brand zone at the top of the Shop screen.
+ *
+ * Forest gradient, drifting medical glyphs, the delivery promise, the health
+ * day, the search bar, the service tabs and the hero carousel - all of it in
+ * one frame, exactly as the Figma composes it.
+ *
+ * The system status bar is not drawn here: on device the OS renders it, so the
+ * zone uses the real safe-area inset instead of the Figma's 54pt mock.
+ */
+export function BrandHero({ onSearch, onUploadRx, onBannerPress }: BrandHeroProps) {
+  const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const contentWidth = width - spacing.lg * 2;
+
+  const [activeTab, setActiveTab] = useState(0);
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  const slideWidth = contentWidth;
+  const tabs = useMemo(() => serviceTabs, []);
+
+  return (
+    <Gradient token="brand" radius={0} style={styles.hero}>
+      <View style={[styles.heroInner, { paddingTop: insets.top + spacing.xs }]}>
+        {/* Drifting glyphs sit behind the content, so they are absolutely placed. */}
+        <View pointerEvents="none" style={styles.glyphLayer}>
+          {FLOATING_GLYPHS.map((glyph, index) => (
+            <FloatingGlyphView key={`${glyph.icon}-${index}`} glyph={glyph} width={width} />
+          ))}
+        </View>
+
+        {/* Top row: wordmark, wallet, bell, avatar */}
+        <View style={styles.topRow}>
+          <Text variant="wordmark" color={neutral.surface} style={styles.wordmark}>
+            Med<Text style={styles.wordmarkAccent}>Mate</Text>
+          </Text>
+          <Pressable style={styles.walletChip} accessibilityRole="button">
+            <Icon name="wallet" size={16} color={gold[300]} />
+            <Text variant="footnoteEmphasized" color={neutral.surface}>
+              {delivery.walletBalance}
+            </Text>
+          </Pressable>
+          <Pressable style={styles.iconChip} accessibilityRole="button" accessibilityLabel="Notifications">
+            <Icon name="bell" size={18} color={neutral.surface} />
+          </Pressable>
+          <Pressable style={styles.avatar} accessibilityRole="button" accessibilityLabel="Profile">
+            <Text variant="tag" color={brand.forest} style={styles.avatarLetter}>
+              P
+            </Text>
+          </Pressable>
+        </View>
+
+        {/* Delivery promise */}
+        <View style={styles.delivery}>
+          <View style={styles.deliveryRow}>
+            <View style={styles.deliveryBadge}>
+              <Icon name="scooter" size={16} color={brand.forest} />
+            </View>
+            <Text variant="title2" color={neutral.surface}>
+              {delivery.window}
+            </Text>
+          </View>
+          <Pressable style={styles.addressRow} accessibilityRole="button">
+            <Icon name="pin" size={14} color={neutral.surface} />
+            <Text variant="footnote" color={neutral.surface} numberOfLines={1} style={styles.addressText}>
+              {delivery.address}
+            </Text>
+            <Icon name="chev-d" size={14} color={neutral.surface} />
+          </Pressable>
+        </View>
+
+        {/* Health day + heartbeat */}
+        <View style={styles.healthRow}>
+          <View style={styles.healthPill}>
+            <Icon name="heart" size={12} color={neutral.surface} />
+            <Text variant="captionStrong" color={neutral.surface}>
+              {delivery.healthDay}
+            </Text>
+          </View>
+          <View style={styles.heartbeat}>
+            <HeartbeatLine width={120} />
+          </View>
+        </View>
+
+        {/* Search bar */}
+        <Pressable
+          accessibilityRole="search"
+          onPress={onSearch}
+          style={({ pressed }) => [styles.searchBar, { opacity: pressed ? 0.92 : 1 }]}
+        >
+          <Icon name="search" size={18} color={semantic.textMuted} />
+          <Text variant="body" color={semantic.textMuted} style={styles.searchPlaceholder}>
+            {delivery.searchPlaceholder}
+          </Text>
+          <Pressable
+            accessibilityRole="button"
+            onPress={onUploadRx}
+            style={styles.uploadRx}
+            hitSlop={8}
+          >
+            <Icon name="rx-up" size={14} color={brand.green700} />
+            <Text variant="captionStrong" color={brand.green700}>
+              Upload Rx
+            </Text>
+          </Pressable>
+        </Pressable>
+
+        {/* Service tabs */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.tabsRow}
+          style={styles.tabsScroll}
+        >
+          {tabs.map((tab, index) => (
+            <ServiceChip
+              key={tab}
+              label={tab}
+              selected={index === activeTab}
+              onPress={() => setActiveTab(index)}
+            />
+          ))}
+        </ScrollView>
+
+        {/* Hero carousel */}
+        <View style={styles.carousel}>
+          <ScrollView
+            horizontal
+            snapToInterval={slideWidth + spacing.md}
+            decelerationRate="fast"
+            showsHorizontalScrollIndicator={false}
+            onMomentumScrollEnd={(event) => {
+              const index = Math.round(event.nativeEvent.contentOffset.x / (slideWidth + spacing.md));
+              setActiveSlide(Math.max(0, Math.min(index, heroBanners.length - 1)));
+            }}
+          >
+            {heroBanners.map((banner) => (
+              <View key={banner.id} style={{ width: slideWidth, marginRight: spacing.md }}>
+                <HeroBanner banner={banner} onPress={() => onBannerPress?.(banner.id)} />
+              </View>
+            ))}
+          </ScrollView>
+          <View style={styles.dots}>
+            {heroBanners.map((banner, index) => (
+              <View
+                key={banner.id}
+                style={[styles.dot, index === activeSlide ? styles.dotActive : styles.dotIdle]}
+              />
+            ))}
+          </View>
+        </View>
+      </View>
+    </Gradient>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Banner                                                                    */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * One hero banner.
+ *
+ * The banner pairs a tinted card with a three-object composition on the right
+ * (product photos, or the pill / search / phone tiles for "Request a medicine").
+ * Product photos are placeholders for now; the art tint carries the initials.
+ */
+function HeroBanner({
+  banner,
+  onPress,
+}: {
+  banner: (typeof heroBanners)[number];
+  onPress: () => void;
+}) {
+  return (
+    <Gradient token={banner.gradient} radius={radii.huge} style={styles.banner}>
+      <View pointerEvents="none" style={styles.bannerArt}>
+        <View style={styles.bannerDisc} />
+        <View style={styles.bannerDiscInner} />
+        {banner.art.map((item, index) => (
+          <View
+            key={`${item.kind}-${index}`}
+            style={[
+              styles.bannerTile,
+              {
+                left: item.x,
+                top: item.y,
+                width: item.size,
+                height: item.size,
+                borderRadius: item.kind === 'glyph' && item.circle ? item.size / 2 : radii.xl,
+                backgroundColor: item.kind === 'glyph' && item.circle ? brand.forest : neutral.surface,
+                alignItems: 'center',
+                justifyContent: 'center',
+              },
+            ]}
+          >
+            {item.kind === 'photo' ? (
+              <ArtTile
+                width={item.size - spacing.md}
+                height={item.size - spacing.md}
+                radius={radii.md}
+                initials={item.initials}
+              />
+            ) : (
+              <Icon
+                name={item.icon}
+                size={item.circle ? 40 : 22}
+                color={item.circle ? neutral.surface : brand.forest}
+              />
+            )}
+          </View>
+        ))}
+      </View>
+
+      <View style={styles.bannerText}>
+        <Text variant="sectionEyebrow" color={brand.forest} style={styles.bannerEyebrow} numberOfLines={1}>
+          {banner.eyebrow}
+        </Text>
+        <Text variant="title3" color={brand.forest} style={styles.bannerTitle}>
+          {banner.title}
+        </Text>
+        <Text variant="caption" color={brand.forest} style={styles.bannerSub}>
+          {banner.body}
+        </Text>
+        <View style={styles.bannerActions}>
+          <Button label={banner.action} tone="forest" chevron />
+          {banner.code ? (
+            <View style={styles.codeChip}>
+              <Text variant="footnoteEmphasized" color={brand.forest}>
+                {banner.code}
+              </Text>
+            </View>
+          ) : null}
+        </View>
+      </View>
+    </Gradient>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Trust strip                                                               */
+/* -------------------------------------------------------------------------- */
+
+/** The reassurance row that closes the hero: genuine, licensed, Rx verified. */
+export function TrustStrip() {
+  return (
+    <View style={styles.trustStrip}>
+      {trustStrip.map((item) => (
+        <View key={item} style={styles.trustItem}>
+          <Icon name="shield" size={14} color={brand.green700} />
+          <Text variant="captionStrong" color={semantic.textSecondary}>
+            {item}
+          </Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  hero: {
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
+    overflow: 'hidden',
+  },
+  heroInner: {
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.lg,
+    gap: 14,
+  },
+  glyphLayer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  floating: {
+    position: 'absolute',
+  },
+  topRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  wordmark: {
+    letterSpacing: -0.91,
+  },
+  wordmarkAccent: {
+    color: gold[300],
+  },
+  walletChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs + 2,
+    height: 36,
+    paddingHorizontal: spacing.md,
+    borderRadius: radii.pill,
+    backgroundColor: 'rgba(255,255,255,0.10)',
+    marginLeft: 'auto',
+  },
+  iconChip: {
+    width: 36,
+    height: 36,
+    borderRadius: radii.circle,
+    backgroundColor: 'rgba(255,255,255,0.10)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatar: {
+    width: 36,
+    height: 36,
+    borderRadius: radii.circle,
+    backgroundColor: gold[300],
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarLetter: {
+    lineHeight: 13,
+  },
+  delivery: {
+    gap: spacing.xs,
+  },
+  deliveryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  deliveryBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: radii.circle,
+    backgroundColor: gold[300],
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  addressRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  addressText: {
+    flexShrink: 1,
+  },
+  healthRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  healthPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs + 2,
+    height: 28,
+    paddingHorizontal: spacing.md - 2,
+    borderRadius: radii.pill,
+    backgroundColor: 'rgba(255,255,255,0.10)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.15)',
+  },
+  heartbeat: {
+    marginLeft: 'auto',
+  },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    height: 44,
+    paddingHorizontal: spacing.md,
+    borderRadius: radii.lg,
+    backgroundColor: neutral.surface,
+  },
+  searchPlaceholder: {
+    flexShrink: 1,
+  },
+  uploadRx: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    height: 30,
+    paddingHorizontal: spacing.md - 2,
+    borderRadius: radii.pill,
+    backgroundColor: mint[100],
+  },
+  tabsScroll: {
+    marginHorizontal: -spacing.lg,
+  },
+  tabsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.lg,
+  },
+  carousel: {
+    gap: 10,
+  },
+  dots: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs + 2,
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  dotActive: {
+    width: 18,
+    backgroundColor: gold[300],
+  },
+  dotIdle: {
+    backgroundColor: 'rgba(255,255,255,0.30)',
+  },
+  banner: {
+    height: 172,
+    justifyContent: 'flex-end',
+    shadowColor: elevation.medium.shadowColor,
+    shadowOffset: elevation.medium.shadowOffset,
+    shadowRadius: elevation.medium.shadowRadius,
+    shadowOpacity: elevation.medium.shadowOpacity,
+    elevation: elevation.medium.elevation,
+  },
+  bannerArt: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  bannerDisc: {
+    position: 'absolute',
+    top: -9,
+    right: -40,
+    width: 190,
+    height: 190,
+    borderRadius: 95,
+    backgroundColor: 'rgba(255,255,255,0.55)',
+  },
+  bannerDiscInner: {
+    position: 'absolute',
+    top: 20,
+    right: -12,
+    width: 132,
+    height: 132,
+    borderRadius: 66,
+    backgroundColor: 'rgba(255,255,255,0.60)',
+  },
+  bannerTile: {
+    position: 'absolute',
+    backgroundColor: neutral.surface,
+    borderRadius: radii.xl,
+    padding: spacing.xs,
+    shadowColor: elevation.medium.shadowColor,
+    shadowOffset: elevation.medium.shadowOffset,
+    shadowRadius: elevation.medium.shadowRadius,
+    shadowOpacity: elevation.medium.shadowOpacity,
+    elevation: elevation.medium.elevation,
+  },
+  bannerText: {
+    width: 201,
+    gap: spacing.xs,
+    paddingLeft: spacing.lg,
+    paddingBottom: spacing.lg,
+  },
+  bannerEyebrow: {
+    opacity: 0.7,
+    lineHeight: 13,
+  },
+  bannerTitle: {
+    lineHeight: 25,
+  },
+  bannerSub: {
+    lineHeight: 16,
+  },
+  bannerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginTop: spacing.xs,
+  },
+  codeChip: {
+    height: 36,
+    paddingHorizontal: spacing.md - 2,
+    borderRadius: radii.sm,
+    backgroundColor: 'rgba(255,255,255,0.40)',
+    borderWidth: 1,
+    borderColor: 'rgba(27,61,41,0.60)',
+    justifyContent: 'center',
+  },
+  trustStrip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.lg,
+    height: 40,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: neutral.line,
+    backgroundColor: neutral.surface,
+  },
+  trustItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+});
