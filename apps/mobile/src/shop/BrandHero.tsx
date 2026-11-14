@@ -324,8 +324,13 @@ export function BrandHero({
           onPress={onSearch}
           style={({ pressed }) => [styles.searchBar, { opacity: pressed ? 0.92 : 1 }]}
         >
-          <Icon name="search" size={18} color={semantic.textMuted} />
-          <Text variant="body" color={semantic.textMuted} style={styles.searchPlaceholder}>
+          <Icon name="search" size={18} color={semantic.textMuted} style={styles.searchIcon} />
+          <Text
+            variant="body"
+            color={semantic.textMuted}
+            style={styles.searchPlaceholder}
+            numberOfLines={1}
+          >
             {delivery.searchPlaceholder}
           </Text>
           <Pressable
@@ -647,8 +652,15 @@ const styles = StyleSheet.create({
     borderRadius: radii.lg,
     backgroundColor: neutral.surface,
   },
+  searchIcon: {
+    // The glyph keeps its shape even when the bar runs out of room.
+    flexShrink: 0,
+  },
   searchPlaceholder: {
-    flexShrink: 1,
+    // The placeholder takes the space that is left over and gives it back
+    // when the text is long, so the action beside it never moves.
+    flex: 1,
+    minWidth: 0,
   },
   uploadRx: {
     flexDirection: 'row',
@@ -658,6 +670,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md - 2,
     borderRadius: radii.pill,
     backgroundColor: mint[100],
+    // The action is never squeezed and always sits against the right edge.
+    flexShrink: 0,
+    marginLeft: 'auto',
   },
   tabsScroll: {
     marginHorizontal: -spacing.lg,

@@ -1147,6 +1147,10 @@ const styles = StyleSheet.create({
   },
   productAdd: {
     alignSelf: 'stretch',
+    // The button sits at the foot of the card. A title that runs to two lines
+    // would otherwise push it down, so the buttons in a row of cards would
+    // not line up with each other.
+    marginTop: 'auto',
   },
   priceRow: {
     flexDirection: 'row',
@@ -1377,7 +1381,8 @@ const styles = StyleSheet.create({
   },
   dealAdd: {
     alignSelf: 'stretch',
-    marginTop: spacing.xs,
+    // The button sits at the foot of the card, whatever the title takes.
+    marginTop: 'auto',
   },
 
   /* Seasonal ------------------------------------------------------------- */

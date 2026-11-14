@@ -1,5 +1,6 @@
 import React from 'react';
 import Svg, { Circle, Path } from 'react-native-svg';
+import type { StyleProp, ViewStyle } from 'react-native';
 
 import { iconGlyphs, type IconName } from './iconPaths';
 
@@ -12,6 +13,13 @@ export type IconProps = {
   color: string;
   /** Stroke width on the 24 x 24 grid. The MVP uses 1.8. */
   strokeWidth?: number;
+  /**
+   * Extra styles for the glyph box.
+   *
+   * Use it to stop the glyph being squeezed when the row it sits in runs out
+   * of room: `style={{ flexShrink: 0 }}`.
+   */
+  style?: StyleProp<ViewStyle>;
 };
 
 /**
@@ -21,11 +29,11 @@ export type IconProps = {
  * product share one icon set. Icons are stroked, never filled, with round caps
  * and joins.
  */
-export function Icon({ name, size = 24, color, strokeWidth = 1.8 }: IconProps) {
+export function Icon({ name, size = 24, color, strokeWidth = 1.8, style }: IconProps) {
   const glyph = iconGlyphs[name];
 
   return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={style}>
       {glyph.paths.map((d, index) => (
         <Path
           key={`${name}-p${index}`}
