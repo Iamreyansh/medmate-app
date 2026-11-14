@@ -1,5 +1,6 @@
 import React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { neutral, platformMetrics, sectionGap, spacing } from '@medmate/theme';
@@ -35,6 +36,7 @@ import {
  */
 export function ShopHomeScreen() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
 
   return (
     <View style={styles.root}>
@@ -43,7 +45,7 @@ export function ShopHomeScreen() {
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 96 }]}
         showsVerticalScrollIndicator={false}
       >
-        <BrandHero />
+        <BrandHero onSearch={() => router.push({ pathname: '/search', params: { q: 'paracetamol' } })} />
 
         <View style={styles.sections}>
           <TrustStrip />

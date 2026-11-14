@@ -27,6 +27,13 @@ export const iconGlyphs = {
     ],
     circles: [],
   },
+  'arrow-left': {
+    paths: [
+      'M19 12H5',
+      'm12 19-7-7 7-7',
+    ],
+    circles: [],
+  },
   'badge-check': {
     paths: [
       'M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z',
@@ -380,6 +387,12 @@ export const iconGlyphs = {
       'M20 12V8H6a2 2 0 0 1 0-4h12v4',
       'M4 6v12a2 2 0 0 0 2 2h14v-4',
       'M18 12a2 2 0 0 0 0 4h4v-4z',
+    ],
+    circles: [],
+  },
+  'x': {
+    paths: [
+      'M18 6L6 18M6 6l12 12',
     ],
     circles: [],
   },

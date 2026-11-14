@@ -15,7 +15,23 @@ import { Platform } from 'react-native';
 
 export type PlatformKey = 'ios' | 'android';
 
-export const platformKey: PlatformKey = Platform.OS === 'ios' ? 'ios' : 'android';
+/**
+ * The platform the app is running on.
+ *
+ * On device this is simply iOS or Android. The web preview has no platform of
+ * its own, so it mirrors the iOS design unless `EXPO_PUBLIC_PLATFORM` says
+ * otherwise - set it to `android` to check the Material metrics in a browser.
+ */
+const override = process.env.EXPO_PUBLIC_PLATFORM;
+
+export const platformKey: PlatformKey =
+  override === 'ios' || override === 'android'
+    ? override
+    : Platform.OS === 'web'
+      ? 'ios'
+      : Platform.OS === 'ios'
+        ? 'ios'
+        : 'android';
 
 export const metrics = {
   ios: {

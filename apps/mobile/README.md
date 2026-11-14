@@ -8,6 +8,8 @@ against the Figma design system.
 | Screen | Status |
 | --- | --- |
 | **Shop › Home** (`app/index.tsx` → `src/shop/ShopHomeScreen.tsx`) | Implemented, iOS + Android variants |
+| **Shop › Search results** (`app/search/index.tsx` → `src/shop/search/SearchScreen.tsx`) | Implemented, iOS + Android variants |
+| **Shop › Search, no results** (`app/search/no-results.tsx` → `src/shop/search/SearchEmptyScreen.tsx`) | Implemented, iOS + Android variants |
 
 The Shop home screen is the entry point of the Shop section: the brand zone
 (delivery promise, health day, search, service tabs, hero carousel), then the
@@ -22,7 +24,7 @@ floating bottom chrome pinned to the viewport.
 packages/theme/src        design tokens (colour, type, spacing, elevation, platform)
 apps/mobile/src/icons     icon set + the SVG renderer
 apps/mobile/src/ui        typed text and the shared primitives
-apps/mobile/src/shop      the Shop screen and its sections
+apps/mobile/src/shop      the Shop screens, one folder per screen
 apps/mobile/src/data      the screen content (swap for an API client later)
 apps/mobile/app           expo-router routes
 ```
@@ -59,6 +61,13 @@ npx expo run:android
 EAS needs `expo login` once and a project id. Add one with
 `npx eas-cli init` (it writes `extra.eas.projectId` into `app.json`).
 
+## Platform metrics
+
+iOS and Android differ in field sizes, chip shapes and type scale. The tokens
+live in `packages/theme/src/platform.ts` and switch on the running platform.
+The web preview mirrors the iOS design; set `EXPO_PUBLIC_PLATFORM=android` to
+check the Material metrics in a browser.
+
 ## Verify the design
 
 ```bash
@@ -80,3 +89,7 @@ npm run format:check           # prettier
   the copy in the banners says so.
 - The bottom bar is part of the screen (a floating pill rather than a system
   tab bar), so it lives in `src/shop/BottomChrome.tsx`.
+- The search results screen closes with a **cart bar** (free-delivery goal plus
+  the cart button), which is a separate component from the tab bar.
+- The sort sheet on the search screen is not drawn in the Figma file yet; it
+  follows the surfaces used elsewhere in the app.

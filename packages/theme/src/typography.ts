@@ -137,6 +137,16 @@ export const typeRoles = {
   navLabel: { ios: 'tabLabel', m3: 'navLabel' },
   /** The trailing "See all" link on a section header. */
   linkLabel: { ios: 'footnoteEmphasized', m3: 'labelLarge' },
+  /** Semibold 13/15pt label - sort, counts, secondary actions. */
+  strong: { ios: 'footnoteEmphasized', m3: 'labelLarge' },
+  /** Filter chip label. */
+  filterLabel: { ios: 'subheadlineEmphasized', m3: 'labelLarge' },
+  /** Product name inside a result row. */
+  resultName: { ios: 'callout', m3: 'titleMedium' },
+  /** Result meta line - result counts, delivery notes. */
+  resultMeta: { ios: 'footnote', m3: 'bodyMedium' },
+  /** Secondary line under a product name. */
+  resultSub: { ios: 'caption1', m3: 'bodySmallMedium' },
   /** A small semibold label, e.g. the category tile caption. */
   tileLabel: { ios: 'captionStrong', m3: 'captionSmall' },
 } as const satisfies Record<string, { ios: IosTypeToken; m3: M3TypeToken }>;
