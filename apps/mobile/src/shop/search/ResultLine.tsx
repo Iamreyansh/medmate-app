@@ -7,7 +7,8 @@ import { Icon } from '../../icons/Icon';
 import { Text } from '../../ui/Text';
 import { StatusTag } from '../../ui/chips';
 import { ArtTile } from '../../ui/primitives';
-import { initialsOf, type SearchResult } from '../../data/search';
+import { initialsOf } from '../../data/catalogue';
+import type { SearchResult } from '../../data/search';
 
 const isAndroid = platformKey === 'android';
 

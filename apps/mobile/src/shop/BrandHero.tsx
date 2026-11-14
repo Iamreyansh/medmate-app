@@ -184,6 +184,8 @@ export type BrandHeroProps = {
   onSearch?: () => void;
   onUploadRx?: () => void;
   onBannerPress?: (id: string) => void;
+  /** Fired when a service tab is picked, so the content below can filter. */
+  onServiceTabChange?: (tab: string) => void;
 };
 
 /**
@@ -196,7 +198,12 @@ export type BrandHeroProps = {
  * The system status bar is not drawn here: on device the OS renders it, so the
  * zone uses the real safe-area inset instead of the Figma's 54pt mock.
  */
-export function BrandHero({ onSearch, onUploadRx, onBannerPress }: BrandHeroProps) {
+export function BrandHero({
+  onSearch,
+  onUploadRx,
+  onBannerPress,
+  onServiceTabChange,
+}: BrandHeroProps) {
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const contentWidth = width - spacing.lg * 2;
@@ -205,6 +212,8 @@ export function BrandHero({ onSearch, onUploadRx, onBannerPress }: BrandHeroProp
   const [activeSlide, setActiveSlide] = useState(0);
 
   const slideWidth = contentWidth;
+  const slideStride = slideWidth + spacing.md;
+  const carousel = useRef<React.ComponentRef<typeof ScrollView>>(null);
   const tabs = useMemo(() => serviceTabs, []);
 
   return (
@@ -305,7 +314,10 @@ export function BrandHero({ onSearch, onUploadRx, onBannerPress }: BrandHeroProp
               key={tab}
               label={tab}
               selected={index === activeTab}
-              onPress={() => setActiveTab(index)}
+              onPress={() => {
+                setActiveTab(index);
+                onServiceTabChange?.(tab);
+              }}
             />
           ))}
         </ScrollView>
@@ -313,12 +325,20 @@ export function BrandHero({ onSearch, onUploadRx, onBannerPress }: BrandHeroProp
         {/* Hero carousel */}
         <View style={styles.carousel}>
           <ScrollView
+            ref={carousel}
             horizontal
-            snapToInterval={slideWidth + spacing.md}
+            snapToInterval={slideStride}
             decelerationRate="fast"
             showsHorizontalScrollIndicator={false}
+            scrollEventThrottle={32}
+            onScroll={(event) => {
+              // The dot follows the swipe, not just the end of the fling, so a
+              // slow drag still tracks the slide under the finger.
+              const index = Math.round(event.nativeEvent.contentOffset.x / slideStride);
+              setActiveSlide(Math.max(0, Math.min(index, heroBanners.length - 1)));
+            }}
             onMomentumScrollEnd={(event) => {
-              const index = Math.round(event.nativeEvent.contentOffset.x / (slideWidth + spacing.md));
+              const index = Math.round(event.nativeEvent.contentOffset.x / slideStride);
               setActiveSlide(Math.max(0, Math.min(index, heroBanners.length - 1)));
             }}
           >
@@ -330,10 +350,20 @@ export function BrandHero({ onSearch, onUploadRx, onBannerPress }: BrandHeroProp
           </ScrollView>
           <View style={styles.dots}>
             {heroBanners.map((banner, index) => (
-              <View
+              <Pressable
                 key={banner.id}
-                style={[styles.dot, index === activeSlide ? styles.dotActive : styles.dotIdle]}
-              />
+                accessibilityRole="button"
+                accessibilityLabel={`Slide ${index + 1} of ${heroBanners.length}`}
+                hitSlop={10}
+                onPress={() => {
+                  setActiveSlide(index);
+                  carousel.current?.scrollTo({ x: index * slideStride, animated: true });
+                }}
+              >
+                <View
+                  style={[styles.dot, index === activeSlide ? styles.dotActive : styles.dotIdle]}
+                />
+              </Pressable>
             ))}
           </View>
         </View>

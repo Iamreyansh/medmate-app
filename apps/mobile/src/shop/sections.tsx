@@ -73,6 +73,34 @@ function Rail({
   );
 }
 
+/**
+ * A rail that says so when a filter leaves it empty.
+ *
+ * The service tabs narrow the rails below, and a category with nothing in it
+ * should read as empty rather than as a broken layout.
+ */
+function FilteredRail({
+  products,
+  render,
+  emptyLabel = 'Nothing in this category yet',
+}: {
+  products: Product[];
+  render: (product: Product) => React.ReactNode;
+  emptyLabel?: string;
+}) {
+  if (products.length === 0) {
+    return (
+      <View style={styles.emptyRail}>
+        <Text variant="resultSub" color={semantic.textMuted}>
+          {emptyLabel}
+        </Text>
+      </View>
+    );
+  }
+
+  return <Rail>{products.map(render)}</Rail>;
+}
+
 /** The discount tag that sits on the art tile. */
 function OffTag({ label }: { label: string }) {
   return (
@@ -126,7 +154,10 @@ export type ProductCardProps = {
   product: Product;
   /** Card width. The art tile and the ADD button follow the card width. */
   width?: number;
+  /** Opens the product. */
   onPress?: () => void;
+  /** Adds the product to the cart. */
+  onAdd?: () => void;
 };
 
 /**
@@ -136,7 +167,7 @@ export type ProductCardProps = {
  * the Figma proportions: a square art tint on the mint gradient, the pack
  * size, the name, the delivery window, the price and the ADD button.
  */
-export function ProductCard({ product, width = 132, onPress }: ProductCardProps) {
+export function ProductCard({ product, width = 132, onPress, onAdd }: ProductCardProps) {
   const art = width - spacing.md;
 
   return (
@@ -168,7 +199,7 @@ export function ProductCard({ product, width = 132, onPress }: ProductCardProps)
       </View>
       </Pressable>
 
-      <AddButton style={styles.productAdd} />
+      <AddButton style={styles.productAdd} onPress={onAdd} />
     </View>
   );
 }
@@ -180,7 +211,10 @@ export function ProductCard({ product, width = 132, onPress }: ProductCardProps)
 export type ProductTileProps = {
   product: Product;
   width?: number;
+  /** Opens the product. */
   onPress?: () => void;
+  /** Adds the product to the cart. */
+  onAdd?: () => void;
 };
 
 /**
@@ -188,7 +222,7 @@ export type ProductTileProps = {
  * band with the discount tag and the ADD affordance on top of it, then the
  * details underneath.
  */
-export function ProductTile({ product, width = 174, onPress }: ProductTileProps) {
+export function ProductTile({ product, width = 174, onPress, onAdd }: ProductTileProps) {
   const photoHeight = 132;
 
   return (
@@ -208,7 +242,7 @@ export function ProductTile({ product, width = 174, onPress }: ProductTileProps)
         </Pressable>
         {!product.rx && product.off ? <OffTag label={`${product.off}% OFF`} /> : null}
         {/* The ADD affordance sits on the photo, bottom right, like the design. */}
-        <AddButton label="ADD" onPress={onPress} style={styles.tileAdd} />
+        <AddButton label="ADD" onPress={onAdd ?? onPress} style={styles.tileAdd} />
       </View>
       <View style={styles.tileInfo}>
         <Text variant="cardName" color={semantic.text} numberOfLines={2}>
@@ -273,12 +307,25 @@ export function CategoryGroups() {
 /* -------------------------------------------------------------------------- */
 
 /** "Order again" - the products you bought last time, ready to re-add. */
-export function OrderAgainCard() {
+export function OrderAgainCard({
+  products = orderAgain,
+  onAdd,
+  onPress,
+}: {
+  products?: Product[];
+  onAdd?: (product: Product) => void;
+  onPress?: (product: Product) => void;
+}) {
   return (
     <View style={styles.section}>
       <SectionHeader title="Order again" actionLabel="My orders" />
       <View style={styles.orderAgainCard}>
-        {orderAgain.map((product, index) => (
+        {products.length === 0 ? (
+          <Text variant="resultSub" color={semantic.textMuted} style={styles.orderEmpty}>
+            Nothing in this category yet
+          </Text>
+        ) : null}
+        {products.map((product, index) => (
           <View key={product.id}>
             {index > 0 ? <Divider /> : null}
             <View style={styles.orderRow}>
@@ -311,7 +358,7 @@ export function OrderAgainCard() {
                   ) : null}
                 </View>
               </View>
-              <AddButton style={styles.orderAdd} />
+              <AddButton style={styles.orderAdd} onPress={() => onAdd?.(product)} />
             </View>
           </View>
         ))}
@@ -340,11 +387,19 @@ export function OrderAgainCard() {
 /* -------------------------------------------------------------------------- */
 
 /** A coupon card with a perforation and a notch, like a paper ticket. */
-function CouponCard({ coupon }: { coupon: (typeof coupons)[number] }) {
+function CouponCard({
+  coupon,
+  onPress,
+}: {
+  coupon: (typeof coupons)[number];
+  onPress?: (coupon: (typeof coupons)[number]) => void;
+}) {
   const isForest = coupon.tone === 'forest';
 
   return (
-    <View
+    <Pressable
+      accessibilityRole="button"
+      onPress={() => onPress?.(coupon)}
       style={[
         styles.coupon,
         isForest ? styles.couponForest : styles.couponGold,
@@ -383,18 +438,22 @@ function CouponCard({ coupon }: { coupon: (typeof coupons)[number] }) {
       </View>
 
       <View style={styles.notch} />
-    </View>
+    </Pressable>
   );
 }
 
 /** The coupons rail plus the one-coupon-per-order footnote. */
-export function CouponsSection() {
+export function CouponsSection({
+  onPress,
+}: {
+  onPress?: (coupon: (typeof coupons)[number]) => void;
+}) {
   return (
     <View style={styles.section}>
       <SectionHeader title="Offers & coupons" actionLabel="See all" />
       <Rail>
         {coupons.map((coupon) => (
-          <CouponCard key={coupon.id} coupon={coupon} />
+          <CouponCard key={coupon.id} coupon={coupon} onPress={onPress} />
         ))}
       </Rail>
       <Text variant="caption" color={semantic.textMuted}>
@@ -409,11 +468,21 @@ export function CouponsSection() {
 /* -------------------------------------------------------------------------- */
 
 /** One tinted health-store tile with three product photos. */
-function HealthStoreTile({ store }: { store: HealthStore }) {
+function HealthStoreTile({
+  store,
+  onPress,
+}: {
+  store: HealthStore;
+  onPress?: (store: HealthStore) => void;
+}) {
   const accent = storeAccents[store.accent];
 
   return (
-    <View style={[styles.storeTile, { backgroundColor: accent.bg }]}>
+    <Pressable
+      accessibilityRole="button"
+      onPress={() => onPress?.(store)}
+      style={[styles.storeTile, { backgroundColor: accent.bg }]}
+    >
       <Text variant="buttonSmall" color={accent.ink}>
         {store.name}
       </Text>
@@ -432,18 +501,22 @@ function HealthStoreTile({ store }: { store: HealthStore }) {
           </View>
         ))}
       </View>
-    </View>
+    </Pressable>
   );
 }
 
 /** The "Health stores" grid - two columns of tinted tiles. */
-export function HealthStoresSection() {
+export function HealthStoresSection({
+  onPress,
+}: {
+  onPress?: (store: HealthStore) => void;
+}) {
   return (
     <View style={styles.section}>
       <SectionHeader title="Health stores" />
       <View style={styles.storeGrid}>
         {healthStores.map((store) => (
-          <HealthStoreTile key={store.id} store={store} />
+          <HealthStoreTile key={store.id} store={store} onPress={onPress} />
         ))}
       </View>
     </View>
@@ -455,7 +528,15 @@ export function HealthStoresSection() {
 /* -------------------------------------------------------------------------- */
 
 /** "Today's deals" - the deal of the day plus a rail of products. */
-export function DealsSection() {
+export function DealsSection({
+  products = dealRail,
+  onAdd,
+  onPress,
+}: {
+  products?: Product[];
+  onAdd?: (product: Product) => void;
+  onPress?: (product: Product) => void;
+}) {
   const product = dealOfTheDay.product;
 
   return (
@@ -479,15 +560,21 @@ export function DealsSection() {
           </Text>
           <DeliveryLine eta={product.eta} />
           <PriceRow product={product} />
-          <AddButton style={styles.dealAdd} />
+          <AddButton style={styles.dealAdd} onPress={() => onAdd?.(product)} />
         </View>
       </View>
 
-      <Rail>
-        {dealRail.map((item) => (
-          <ProductCard key={item.id} product={item} />
-        ))}
-      </Rail>
+      <FilteredRail
+        products={products}
+        render={(item) => (
+          <ProductCard
+            key={item.id}
+            product={item}
+            onAdd={() => onAdd?.(item)}
+            onPress={() => onPress?.(item)}
+          />
+        )}
+      />
     </View>
   );
 }
@@ -497,7 +584,15 @@ export function DealsSection() {
 /* -------------------------------------------------------------------------- */
 
 /** "Seasonal picks" - filters plus a 2 x 2 grid of product tiles. */
-export function SeasonalSection() {
+export function SeasonalSection({
+  products = seasonal.products,
+  onAdd,
+  onPress,
+}: {
+  products?: Product[];
+  onAdd?: (product: Product) => void;
+  onPress?: (product: Product) => void;
+}) {
   const [filter, setFilter] = React.useState(0);
 
   return (
@@ -535,8 +630,13 @@ export function SeasonalSection() {
       </Rail>
 
       <View style={styles.seasonalGrid}>
-        {seasonal.products.map((product) => (
-          <ProductTile key={product.id} product={product} />
+        {products.map((product) => (
+          <ProductTile
+            key={product.id}
+            product={product}
+            onAdd={() => onAdd?.(product)}
+            onPress={() => onPress?.(product)}
+          />
         ))}
       </View>
     </View>
@@ -548,9 +648,19 @@ export function SeasonalSection() {
 /* -------------------------------------------------------------------------- */
 
 /** A pharmacy card: avatar, name, locality, delivery tag and perks. */
-function PharmacyCard({ store }: { store: Store }) {
+function PharmacyCard({
+  store,
+  onPress,
+}: {
+  store: Store;
+  onPress?: (store: Store) => void;
+}) {
   return (
-    <View style={styles.pharmacyCard}>
+    <Pressable
+      accessibilityRole="button"
+      onPress={() => onPress?.(store)}
+      style={styles.pharmacyCard}
+    >
       <View style={styles.pharmacyTop}>
         <View style={styles.pharmacyAvatar}>
           <Text variant="footnoteEmphasized" color={brand.forest}>
@@ -588,18 +698,22 @@ function PharmacyCard({ store }: { store: Store }) {
           {store.perkLabel}
         </Text>
       </View>
-    </View>
+    </Pressable>
   );
 }
 
 /** "Pharmacies near you" - a rail of pharmacy cards. */
-export function PharmaciesSection() {
+export function PharmaciesSection({
+  onPress,
+}: {
+  onPress?: (store: Store) => void;
+}) {
   return (
     <View style={styles.section}>
       <SectionHeader title="Pharmacies near you" actionLabel="See all" />
       <Rail>
         {pharmacies.map((store) => (
-          <PharmacyCard key={store.id} store={store} />
+          <PharmacyCard key={store.id} store={store} onPress={onPress} />
         ))}
       </Rail>
     </View>
@@ -613,7 +727,15 @@ export function PharmaciesSection() {
 /**
  * A care block: a tinted store header followed by a 2 column product grid.
  */
-export function CareBlock({ store }: { store: HealthStore }) {
+export function CareBlock({
+  store,
+  onAdd,
+  onPress,
+}: {
+  store: HealthStore;
+  onAdd?: (product: Product) => void;
+  onPress?: (product: Product) => void;
+}) {
   const accent = storeAccents[store.accent];
 
   return (
@@ -640,7 +762,13 @@ export function CareBlock({ store }: { store: HealthStore }) {
       <View style={styles.careBody}>
         <View style={styles.careGrid}>
           {store.products.map((product) => (
-            <ProductCard key={product.id} product={product} width={163} />
+            <ProductCard
+              key={product.id}
+              product={product}
+              width={163}
+              onAdd={() => onAdd?.(product)}
+              onPress={() => onPress?.(product)}
+            />
           ))}
         </View>
       </View>
@@ -649,12 +777,18 @@ export function CareBlock({ store }: { store: HealthStore }) {
 }
 
 /** The three care blocks (ortho, baby, women) with their product grids. */
-export function CareBlocks() {
+export function CareBlocks({
+  onAdd,
+  onPress,
+}: {
+  onAdd?: (product: Product) => void;
+  onPress?: (product: Product) => void;
+}) {
   return (
     <>
       {healthStores.slice(0, 3).map((store) => (
         <View key={store.id} style={styles.section}>
-          <CareBlock store={store} />
+          <CareBlock store={store} onAdd={onAdd} onPress={onPress} />
         </View>
       ))}
     </>
@@ -738,13 +872,27 @@ export function CareCornersSection() {
 /* -------------------------------------------------------------------------- */
 
 /** "Best offers near you" - a three column grid. */
-export function BestOffersSection() {
+export function BestOffersSection({
+  products = bestOffers,
+  onAdd,
+  onPress,
+}: {
+  products?: Product[];
+  onAdd?: (product: Product) => void;
+  onPress?: (product: Product) => void;
+}) {
   return (
     <View style={styles.section}>
       <SectionHeader title="Best offers near you" actionLabel="See all" />
       <View style={styles.offerGrid}>
-        {bestOffers.map((product) => (
-          <ProductCard key={product.id} product={product} width={114} />
+        {products.map((product) => (
+          <ProductCard
+            key={product.id}
+            product={product}
+            width={114}
+            onAdd={() => onAdd?.(product)}
+            onPress={() => onPress?.(product)}
+          />
         ))}
       </View>
     </View>
@@ -752,15 +900,29 @@ export function BestOffersSection() {
 }
 
 /** "Everyday essentials" - a rail plus the prescription nudge. */
-export function EverydayEssentialsSection() {
+export function EverydayEssentialsSection({
+  products = everydayEssentials,
+  onAdd,
+  onPress,
+}: {
+  products?: Product[];
+  onAdd?: (product: Product) => void;
+  onPress?: (product: Product) => void;
+}) {
   return (
     <View style={styles.section}>
       <SectionHeader title="Everyday essentials" actionLabel="See all" />
-      <Rail>
-        {everydayEssentials.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </Rail>
+      <FilteredRail
+        products={products}
+        render={(product) => (
+          <ProductCard
+            key={product.id}
+            product={product}
+            onAdd={() => onAdd?.(product)}
+            onPress={() => onPress?.(product)}
+          />
+        )}
+      />
       <View style={styles.prescriptionNote}>
         <Icon name="shield" size={16} color={brand.green700} />
         <Text variant="caption" color={semantic.textSecondary} style={styles.prescriptionText}>
@@ -842,6 +1004,16 @@ const styles = StyleSheet.create({
   /* Sections ------------------------------------------------------------- */
   section: {
     gap: 14,
+  },
+  emptyRail: {
+    height: 64,
+    justifyContent: 'center',
+    paddingHorizontal: spacing.md,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: neutral.line2,
+    backgroundColor: neutral.surface2,
   },
 
   /* Product card --------------------------------------------------------- */
@@ -938,6 +1110,10 @@ const styles = StyleSheet.create({
     borderColor: neutral.line,
     backgroundColor: neutral.surface,
     paddingVertical: spacing.xxs,
+  },
+  orderEmpty: {
+    paddingHorizontal: spacing.md - 2,
+    paddingVertical: spacing.md,
   },
   orderRow: {
     flexDirection: 'row',

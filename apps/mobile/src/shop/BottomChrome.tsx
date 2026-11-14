@@ -27,9 +27,15 @@ const TABS: Tab[] = [
 export function BottomChrome({
   active = 'home',
   onTabPress,
+  onChatPress,
+  onAdPress,
 }: {
   active?: string;
   onTabPress?: (id: string) => void;
+  /** Opens the chat sheet. */
+  onChatPress?: () => void;
+  /** Opens the promoted slot. */
+  onAdPress?: () => void;
 }) {
   const isAndroid = platformKey === 'android';
 
@@ -64,7 +70,7 @@ export function BottomChrome({
           })}
 
           {/* Ad slot that takes the third tab position. */}
-          <Pressable accessibilityRole="button" style={styles.adSlot}>
+          <Pressable accessibilityRole="button" onPress={onAdPress} style={styles.adSlot}>
             <View style={styles.adArt} />
             <View style={styles.adTag}>
               <Text variant="tag" color={gold[300]}>
@@ -74,7 +80,7 @@ export function BottomChrome({
           </Pressable>
         </View>
 
-        <Pressable accessibilityRole="button" style={styles.chatTile}>
+        <Pressable accessibilityRole="button" onPress={onChatPress} style={styles.chatTile}>
           <Icon name="chat" size={20} color={neutral.surface} />
           <Text variant="navLabel" color={neutral.surface} style={styles.chatLabel}>
             Chat

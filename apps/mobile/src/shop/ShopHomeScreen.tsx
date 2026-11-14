@@ -1,10 +1,21 @@
-import React from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { neutral, platformMetrics, sectionGap, spacing } from '@medmate/theme';
 
+import { useCart } from '../state/cart';
+import { useNotice } from '../state/notice';
+import { catalogue } from '../data/catalogue';
+import {
+  bestOffers,
+  dealRail,
+  everydayEssentials,
+  orderAgain,
+  serviceTabCategories,
+  type Product,
+} from '../data/shop';
 import { BrandHero, TrustStrip } from './BrandHero';
 import { BottomChrome } from './BottomChrome';
 import {
@@ -24,6 +35,13 @@ import {
   SeasonalSection,
 } from './sections';
 
+/** What each service tab narrows the content below it to. */
+const BANNER_MESSAGES: Record<string, string> = {
+  'first-order': 'Use code MEDMATE25 on your first order',
+  'request-medicine': 'We will call back with the price and delivery time',
+  'health-stores': 'Health stores are listed below',
+};
+
 /**
  * The Shop home screen.
  *
@@ -32,11 +50,67 @@ import {
  * composes it: the brand zone, then the content sections, then the footer,
  * with the floating bottom chrome pinned to the bottom of the viewport.
  *
- * Content comes from `src/data/shop` - the screen never hard-codes a string.
+ * The service tabs narrow the rails below them, the ADD buttons feed the
+ * cart the cart bar counts, and every tap answers the user.
  */
 export function ShopHomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const cart = useCart();
+  const notice = useNotice();
+
+  const [serviceTab, setServiceTab] = useState('All');
+
+  /** The category the selected service tab stands for. */
+  const category = serviceTabCategories[serviceTab] ?? null;
+
+  const inCategory = useCallback(
+    (product: Product) => !category || product.category === category,
+    [category],
+  );
+
+  /** Add a product to the cart and say so. */
+  const addToCart = useCallback(
+    (product: Product) => {
+      cart.add({ id: product.id, name: product.name, price: product.price });
+      notice.notify(`${product.name} added to the cart`);
+    },
+    [cart, notice],
+  );
+
+  /** Open a product. The product page is the next screen in the section. */
+  const openProduct = useCallback(
+    (product: Product) => {
+      notice.notify(`${product.name} - the product page is next in the section`);
+    },
+    [notice],
+  );
+
+  /**
+   * Narrow a rail to the selected category.
+   *
+   * The curated rail wins when it has something in the category; otherwise
+   * the rail falls back to the catalogue so a tab never looks broken.
+   */
+  const narrow = useCallback(
+    (curated: Product[], limit = 6) => {
+      if (!category) return curated;
+      const matching = curated.filter(inCategory);
+      if (matching.length > 0) return matching;
+      return catalogue.filter((product) => product.category === category).slice(0, limit);
+    },
+    [category, inCategory],
+  );
+
+  const narrowed = useMemo(
+    () => ({
+      orderAgain: narrow(orderAgain),
+      deals: narrow(dealRail),
+      offers: narrow(bestOffers, 6),
+      essentials: narrow(everydayEssentials),
+    }),
+    [narrow],
+  );
 
   return (
     <View style={styles.root}>
@@ -45,34 +119,53 @@ export function ShopHomeScreen() {
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 96 }]}
         showsVerticalScrollIndicator={false}
       >
-        <BrandHero onSearch={() => router.push({ pathname: '/search', params: { q: 'paracetamol' } })} />
+        <BrandHero
+          onSearch={() => router.push({ pathname: '/search', params: { q: 'paracetamol' } })}
+          onUploadRx={() => notice.notify('Upload a prescription to unlock Rx medicines')}
+          onBannerPress={(id) => notice.notify(BANNER_MESSAGES[id] ?? 'Opening')}
+          onServiceTabChange={setServiceTab}
+        />
 
         <View style={styles.sections}>
           <TrustStrip />
 
           <CategoryGroups />
 
-          <OrderAgainCard />
+          <OrderAgainCard
+            products={narrowed.orderAgain}
+            onAdd={addToCart}
+            onPress={openProduct}
+          />
 
-          <CouponsSection />
+          <CouponsSection
+            onPress={(coupon) => notice.notify(`${coupon.code} copied`)}
+          />
 
-          <HealthStoresSection />
+          <HealthStoresSection
+            onPress={(store) => notice.notify(`${store.name} - the store page is next in the section`)}
+          />
 
-          <DealsSection />
+          <DealsSection products={narrowed.deals} onAdd={addToCart} onPress={openProduct} />
 
-          <SeasonalSection />
+          <SeasonalSection onAdd={addToCart} onPress={openProduct} />
 
-          <PharmaciesSection />
+          <PharmaciesSection
+            onPress={(store) => notice.notify(`${store.name} - the pharmacy page is next in the section`)}
+          />
 
-          <CareBlocks />
+          <CareBlocks onAdd={addToCart} onPress={openProduct} />
 
           <LabTestsSection />
 
           <CareCornersSection />
 
-          <BestOffersSection />
+          <BestOffersSection products={narrowed.offers} onAdd={addToCart} onPress={openProduct} />
 
-          <EverydayEssentialsSection />
+          <EverydayEssentialsSection
+            products={narrowed.essentials}
+            onAdd={addToCart}
+            onPress={openProduct}
+          />
 
           <ForPharmaciesSection />
         </View>
@@ -83,7 +176,16 @@ export function ShopHomeScreen() {
       </ScrollView>
 
       <View style={[styles.chrome, { paddingBottom: insets.bottom }]}>
-        <BottomChrome active="home" />
+        <BottomChrome
+          active="home"
+          onTabPress={(id) =>
+            id === 'home'
+              ? router.replace('/')
+              : notice.notify('The pharmacy screen is next in the section')
+          }
+          onChatPress={() => notice.notify('Chat opens in the next release')}
+          onAdPress={() => notice.notify('New arrivals - see the seasonal picks below')}
+        />
       </View>
     </View>
   );

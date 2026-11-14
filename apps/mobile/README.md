@@ -25,9 +25,21 @@ packages/theme/src        design tokens (colour, type, spacing, elevation, platf
 apps/mobile/src/icons     icon set + the SVG renderer
 apps/mobile/src/ui        typed text and the shared primitives
 apps/mobile/src/shop      the Shop screens, one folder per screen
-apps/mobile/src/data      the screen content (swap for an API client later)
+apps/mobile/src/data      catalogue.ts (the mock products) + the screen content
+apps/mobile/src/state     the cart store and the notice store
 apps/mobile/app           expo-router routes
 ```
+
+### The mock data
+
+`src/data/catalogue.ts` holds every product once. The home screen rails, the
+search results and the filter counts all read from it, so a product added
+there appears everywhere at once and the counts always describe the results
+that are on screen.
+
+The search screen runs a real query over the catalogue: typing `dolo` returns
+Dolo 650, typing `cetaphil` returns the Cetaphil products, and a query that
+matches nothing falls through to the empty state.
 
 Every value comes from `@medmate/theme`. A hex literal inside a screen is a
 bug - the tokens mirror the Figma colour variables and type scales exactly.
@@ -93,3 +105,6 @@ npm run format:check           # prettier
   the cart button), which is a separate component from the tab bar.
 - The sort sheet on the search screen is not drawn in the Figma file yet; it
   follows the surfaces used elsewhere in the app.
+- The cart and the notice are in memory for the session - there is no backend
+  yet. `src/state/cart.tsx` and `src/state/notice.tsx` are the seam to swap
+  for the API.

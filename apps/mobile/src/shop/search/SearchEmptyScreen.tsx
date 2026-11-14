@@ -67,12 +67,12 @@ export function SearchEmptyScreen({
           </Gradient>
 
           <Text variant="sectionTitle" color={semantic.text} style={styles.center}>
-            {`No results for “${query}”`}
+            {query.trim() ? `No results for “${query.trim()}”` : 'What are you looking for?'}
           </Text>
           <Text variant="resultMeta" color={semantic.textMuted} style={styles.center}>
-            Check the spelling, or try the salt name on the pack. Still can’t find it? Ask MedMate
-            to source it: the team checks with pharmacies and distributors and confirms the price and
-            delivery time first.
+            {query.trim()
+              ? 'Check the spelling, or try the salt name on the pack. Still can’t find it? Ask MedMate to source it: the team checks with pharmacies and distributors and confirms the price and delivery time first.'
+              : 'Search a medicine by its name or by the salt on the pack. Popular searches are below, or ask MedMate to source it for you.'}
           </Text>
 
           <View style={styles.suggestionRow}>

@@ -8,32 +8,27 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import {
-  brand,
-  gold,
-  mint,
-  neutral,
-  radii,
-  semantic,
-  spacing,
-} from '@medmate/theme';
+import { brand, gold, mint, neutral, radii, semantic, spacing } from '@medmate/theme';
 
 import { Icon } from '../../icons/Icon';
 import { Text } from '../../ui/Text';
 import { CategoryChip, StatusTag } from '../../ui/chips';
+import { useCart } from '../../state/cart';
+import { useNotice } from '../../state/notice';
 import {
   filterResults,
   pageSize,
-  searchFilters,
-  searchResults,
+  searchCatalogue,
+  searchFiltersFor,
   searchSorts,
-  searchSummary,
+  searchSummaryFor,
   sortResults,
   type SearchFilterId,
   type SearchSort,
 } from '../../data/search';
 import { CartBar } from './CartBar';
 import { ResultDivider, ResultLine, ResultsCard, ShowMoreRow } from './ResultLine';
+import { SearchEmptyScreen } from './SearchEmptyScreen';
 import { SearchHeader } from './SearchHeader';
 
 export type SearchScreenProps = {
@@ -50,8 +45,9 @@ export type SearchScreenProps = {
 /**
  * The search results screen.
  *
- * The header stays pinned while the results scroll, the rows live in one
- * card exactly as the design draws them, and the cart bar closes the screen.
+ * The query drives everything: the products come from the shared catalogue,
+ * the counts and the copy are derived from the results that are on screen,
+ * and a query that matches nothing falls through to the empty state.
  */
 export function SearchScreen({
   initialQuery = 'paracetamol',
@@ -63,17 +59,30 @@ export function SearchScreen({
   onProductPress,
 }: SearchScreenProps) {
   const insets = useSafeAreaInsets();
+  const cart = useCart();
+  const notice = useNotice();
 
   const [query, setQuery] = useState(initialQuery);
   const [filter, setFilter] = useState<SearchFilterId>('all');
   const [sort, setSort] = useState<SearchSort>('relevance');
   const [visible, setVisible] = useState(pageSize);
   const [sortOpen, setSortOpen] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
+  const [categoryOnly, setCategoryOnly] = useState(false);
+
+  /** Everything in the catalogue that matches the query. */
+  const matched = useMemo(() => searchCatalogue(query), [query]);
+  /** The counts and the copy that describe the matches. */
+  const summary = useMemo(() => searchSummaryFor(query, matched), [query, matched]);
+  /** The chips, with the counts of the current result set. */
+  const filters = useMemo(() => searchFiltersFor(summary), [summary]);
 
   const filtered = useMemo(() => {
-    return sortResults(filterResults(searchResults, filter), sort);
-  }, [filter, sort]);
+    const byFilter = filterResults(matched, filter);
+    const byCategory = categoryOnly
+      ? byFilter.filter((result) => result.category === summary.category)
+      : byFilter;
+    return sortResults(byCategory, sort);
+  }, [matched, filter, categoryOnly, summary.category, sort]);
 
   const rows = filtered.slice(0, visible);
   const remaining = filtered.length - rows.length;
@@ -81,6 +90,8 @@ export function SearchScreen({
   const updateQuery = (value: string) => {
     setQuery(value);
     setVisible(pageSize);
+    setFilter('all');
+    setCategoryOnly(false);
     onQueryChange?.(value);
   };
 
@@ -89,15 +100,33 @@ export function SearchScreen({
     setVisible(pageSize);
   };
 
+  /* A query that matches nothing falls through to the empty state. */
+  if (matched.length === 0) {
+    return (
+      <SearchEmptyScreen
+        query={query}
+        onQueryChange={updateQuery}
+        onClear={() => updateQuery('')}
+        onBack={onBack ?? (() => notice.notify('Back to the shop'))}
+        onUploadRx={onUploadRx ?? (() => notice.notify('Upload a prescription to unlock Rx medicines'))}
+        onRequestMedicine={
+          onRequestMedicine ??
+          (() => notice.notify('We will call back with the price and delivery time'))
+        }
+        onSuggestionPress={(suggestion) => updateQuery(suggestion)}
+      />
+    );
+  }
+
   return (
     <View style={styles.root}>
       <SearchHeader
         query={query}
         onChangeQuery={updateQuery}
         onClear={() => updateQuery('')}
-        onBack={onBack ?? (() => undefined)}
-        onUploadRx={onUploadRx}
-        filters={searchFilters}
+        onBack={onBack ?? (() => notice.notify('Back to the shop'))}
+        onUploadRx={onUploadRx ?? (() => notice.notify('Upload a prescription to unlock Rx medicines'))}
+        filters={filters}
         activeFilter={filter}
         onFilterChange={changeFilter}
       />
@@ -110,25 +139,29 @@ export function SearchScreen({
       >
         <View style={styles.chipRow}>
           <CategoryChip
-            label={searchSummary.category}
-            onPress={() => onCategoryPress?.(searchSummary.category)}
+            label={categoryOnly ? `${summary.category} only` : summary.category}
+            onPress={() => {
+              setCategoryOnly((value) => !value);
+              setVisible(pageSize);
+              onCategoryPress?.(summary.category);
+            }}
           />
         </View>
 
         <Text variant="resultMeta" color={semantic.textMuted}>
-          {searchSummary.hint}
+          {summary.hint}
         </Text>
 
         <View style={styles.note}>
           <Icon name="flask" size={16} color={brand.green700} />
           <Text variant="resultMeta" color={brand.green700} style={styles.noteText}>
-            {searchSummary.note}
+            {summary.note}
           </Text>
         </View>
 
         <View style={styles.metaRow}>
           <Text variant="resultMeta" color={semantic.text}>
-            {`${searchSummary.total} results · pharmacy picked at checkout`}
+            {`${summary.total} ${summary.total === 1 ? 'result' : 'results'} · pharmacy picked at checkout`}
           </Text>
           <Pressable
             accessibilityRole="button"
@@ -143,12 +176,14 @@ export function SearchScreen({
           </Pressable>
         </View>
 
-        <View style={styles.rxRow}>
-          <StatusTag label="Rx" tone="prescription" />
-          <Text variant="resultSub" color={neutral.ink2} style={styles.rxText}>
-            {searchSummary.rxNotice}
-          </Text>
-        </View>
+        {summary.prescription > 0 ? (
+          <View style={styles.rxRow}>
+            <StatusTag label="Rx" tone="prescription" />
+            <Text variant="resultSub" color={neutral.ink2} style={styles.rxText}>
+              {summary.rxNotice}
+            </Text>
+          </View>
+        ) : null}
 
         <ResultsCard>
           {rows.map((result, index) => (
@@ -156,26 +191,37 @@ export function SearchScreen({
               {index > 0 ? <ResultDivider /> : null}
               <ResultLine
                 result={result}
-                onAdd={() => setCartCount((count) => count + 1)}
+                onAdd={() => {
+                  cart.add({ id: result.id, name: result.name, price: result.price });
+                  notice.notify(`${result.name} added to the cart`);
+                }}
                 onPress={() => onProductPress?.(result.id)}
               />
             </React.Fragment>
           ))}
           {remaining > 0 ? (
             <ShowMoreRow
-              label={`Show ${Math.min(pageSize, remaining)} more of ${searchSummary.total}`}
+              label={`Show ${Math.min(pageSize, remaining)} more of ${summary.total}`}
               onPress={() => setVisible((count) => count + pageSize)}
             />
           ) : null}
         </ResultsCard>
 
-        <Text variant="resultMeta" color={semantic.textMuted} style={styles.footer}>
-          {searchSummary.footer}
-        </Text>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() =>
+            onRequestMedicine?.() ?? notice.notify('We will call back with the price and delivery time')
+          }
+          style={({ pressed }) => [styles.footerLink, { opacity: pressed ? 0.8 : 1 }]}
+        >
+          <Text variant="resultMeta" color={semantic.textMuted} style={styles.footer}>
+            {summary.footer}
+          </Text>
+        </Pressable>
       </ScrollView>
 
       <View style={[styles.cartBar, { paddingBottom: insets.bottom }]}>
-        <CartBar count={cartCount} />
+        <CartBar count={cart.count} />
       </View>
 
       <SortSheet
@@ -297,9 +343,11 @@ const styles = StyleSheet.create({
   rxText: {
     flex: 1,
   },
+  footerLink: {
+    paddingTop: spacing.sm,
+  },
   footer: {
     textAlign: 'center',
-    paddingTop: spacing.sm,
   },
   cartBar: {
     position: 'absolute',

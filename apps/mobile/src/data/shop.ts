@@ -6,6 +6,19 @@
  * backend lands - the screen itself never touches a literal.
  */
 
+import { findProduct, initialsOf, type CatalogueProduct } from './catalogue';
+
+export { initialsOf };
+
+/** Look a product up in the catalogue. */
+function byId(id: string): Product {
+  const product = findProduct(id);
+  if (!product) {
+    throw new Error(`Unknown product id: ${id}`);
+  }
+  return product;
+}
+
 export type Category = {
   id: string;
   label: string;
@@ -13,22 +26,11 @@ export type Category = {
   initials: string;
 };
 
-export type Product = {
-  id: string;
-  name: string;
-  /** Pack size, e.g. "Tube of 10 gm Gel". */
-  sub: string;
-  /** Selling price in rupees. */
-  price: number;
-  /** Maximum retail price. Never shown for prescription items. */
-  mrp?: number;
-  /** Discount percentage. Never shown for prescription items. */
-  off?: number;
-  /** Delivery window. */
-  eta?: string;
-  /** Prescription item: price only, no strike-through, no discount. */
-  rx?: boolean;
-};
+/**
+ * Products come from the shared catalogue so the home screen and the search
+ * screen always show the same medicine.
+ */
+export type Product = CatalogueProduct;
 
 export type Store = {
   id: string;
@@ -79,6 +81,22 @@ export const serviceTabs = [
   'Ayurveda',
   'Elderly',
 ] as const;
+
+/**
+ * The category each service tab stands for.
+ *
+ * `All` keeps every product; the other tabs narrow the rails below the hero
+ * to one category of the catalogue.
+ */
+export const serviceTabCategories: Record<string, string | null> = {
+  All: null,
+  'Fever & pain': 'Fever & Pain',
+  Devices: 'Devices',
+  Baby: 'Baby & child care',
+  Women: 'Women’s health',
+  Ayurveda: 'Ayurveda',
+  Elderly: 'Elderly care',
+};
 
 export const trustStrip = ['100% genuine', 'Licensed stores', 'Rx verified'] as const;
 
@@ -195,33 +213,9 @@ export const categoryGroups: { title: string; categories: Category[] }[] = [
 ];
 
 export const orderAgain: Product[] = [
-  {
-    id: 'moov-gel',
-    name: 'Moov Cool Therapy Gel',
-    sub: 'Tube of 10 gm Gel',
-    price: 38,
-    mrp: 44,
-    off: 14,
-    eta: '32–47 min',
-  },
-  {
-    id: 'dettol-liquid',
-    name: 'Dettol Antiseptic Disinfectant Liquid',
-    sub: 'Bottle of 60 ml Liquid',
-    price: 32,
-    mrp: 38,
-    off: 16,
-    eta: '32–47 min',
-  },
-  {
-    id: 'cetaphil-cream',
-    name: 'Cetaphil Optimal Hydration Daily Cream',
-    sub: 'Jar of 50 gm Cream',
-    price: 1124,
-    mrp: 1322,
-    off: 15,
-    eta: '32–47 min',
-  },
+  byId('moov-gel'),
+  byId('dettol-liquid'),
+  byId('cetaphil-cream'),
 ];
 
 export const reorderBanner = {
@@ -263,12 +257,12 @@ export const healthStores: HealthStore[] = [
     sub: 'Belts, supports, hot & cold packs, pain relief gels',
     accent: 'ortho',
     products: [
-      { id: 'tynor-lumbo', name: 'Tynor A 05 Lumbo Sacral Belt Large', sub: 'Box of 1 Belt', price: 740, mrp: 870, off: 15, eta: '32–47 min' },
-      { id: 'aksobha-pack', name: 'Aksobha Long Herbal Hot & Cold Therapy Pack', sub: 'Pack of 2', price: 560, mrp: 660, off: 15, eta: '32–47 min' },
-      { id: 'volini-spray', name: 'Volini Spray Spray for Sprain, Muscle and Joint Pain', sub: 'Bottle of 55 ml', price: 189, mrp: 225, off: 16, eta: '32–47 min' },
-      { id: 'moov-gel-care', name: 'Moov Cool Therapy Gel', sub: 'Tube of 10 gm Gel', price: 38, mrp: 44, off: 14, eta: '32–47 min' },
-      { id: 'leeford-lumbo', name: 'Leeford Contoured Lumbo Sacral Belt Large', sub: 'Box of 1 Belt', price: 799, mrp: 940, off: 15, eta: '32–47 min' },
-      { id: 'tynor-grip', name: 'Tynor Tynogrip Training Gloves with Support', sub: 'Pair', price: 249, mrp: 295, off: 16, eta: '32–47 min' },
+      byId('tynor-lumbo'),
+      byId('aksobha-pack'),
+      byId('volini-spray'),
+      byId('moov-gel-care'),
+      byId('leeford-lumbo'),
+      byId('tynor-grip'),
     ],
   },
   {
@@ -277,12 +271,12 @@ export const healthStores: HealthStore[] = [
     sub: 'Gentle wash, lotion, diapers, mosquito care',
     accent: 'baby',
     products: [
-      { id: 'himalaya-pants', name: 'Himalaya Total Care Baby Pants', sub: 'Packet of 76 diapers', price: 944, mrp: 1110, off: 15, eta: '32–47 min' },
-      { id: 'cetaphil-baby', name: 'Cetaphil Baby Gentle Wash with Organic Calendula', sub: 'Bottle of 200 ml', price: 449, mrp: 529, off: 15, eta: '32–47 min' },
-      { id: 'dabur-baby-cream', name: 'Dabur Baby Cream', sub: 'Jar of 50 gm', price: 199, mrp: 235, off: 15, eta: '32–47 min' },
-      { id: 'himalaya-soap', name: 'Himalaya Gentle Baby Soap (75gm Each)', sub: 'Pack of 2', price: 128, mrp: 150, off: 15, eta: '32–47 min' },
-      { id: 'mamaearth-body-wash', name: 'Mamaearth Body Wash for Kids with Apple Extract', sub: 'Bottle of 200 ml', price: 259, mrp: 305, off: 15, eta: '32–47 min' },
-      { id: 'chicco-roll-on', name: 'Chicco Anti-Mosquito Baby Fabric Roll-On', sub: 'Bottle of 50 ml', price: 299, mrp: 352, off: 15, eta: '32–47 min' },
+      byId('himalaya-pants'),
+      byId('cetaphil-baby'),
+      byId('dabur-baby-cream'),
+      byId('himalaya-soap'),
+      byId('mamaearth-body-wash'),
+      byId('chicco-roll-on'),
     ],
   },
   {
@@ -291,34 +285,26 @@ export const healthStores: HealthStore[] = [
     sub: 'Period care, menstrual cups, menopause support',
     accent: 'women',
     products: [
-      { id: 'fem-pads', name: 'Fem Ultra Care Sanitary Pads XL+', sub: 'Pack of 30', price: 219, mrp: 260, off: 16, eta: '32–47 min' },
-      { id: 'amrutanjan-cup', name: 'Amrutanjan Comfy Snug Fit Period Cup Large', sub: 'Pack of 2', price: 349, mrp: 410, off: 15, eta: '32–47 min' },
-      { id: 'amrutanjan-pads', name: 'Amrutanjan Comfy Snug Fit Sanitary Pads Regular', sub: 'Pack of 20', price: 179, mrp: 210, off: 15, eta: '32–47 min' },
-      { id: 'gytree-menopause', name: 'Gytree Total Menopause Support Cafe Mocha', sub: 'Box of 10 sachets', price: 449, mrp: 529, off: 15, eta: '32–47 min' },
-      { id: 'chicco-breast-pad', name: 'Chicco Breast pad with Antibacterial Fabric', sub: 'Pack of 12', price: 249, mrp: 295, off: 16, eta: '32–47 min' },
-      { id: 'himalaya-pads-women', name: 'Himalaya Ultra Thin Pad with Super Soft Cover', sub: 'Pack of 20', price: 149, mrp: 175, off: 15, eta: '32–47 min' },
+      byId('fem-pads'),
+      byId('amrutanjan-cup'),
+      byId('amrutanjan-pads'),
+      byId('gytree-menopause'),
+      byId('chicco-breast-pad'),
+      byId('himalaya-pads-women'),
     ],
   },
 ];
 
 export const dealOfTheDay = {
   eyebrow: 'Deal of the day',
-  product: {
-    id: 'omron-hem8712',
-    name: 'Omron HEM8712 BP Monitor',
-    sub: 'Box of 1 Unit',
-    price: 1821,
-    mrp: 2142,
-    off: 15,
-    eta: '32–47 min',
-  } as Product,
+  product: byId('omron-hem8712') as Product,
 };
 
 export const dealRail: Product[] = [
-  { id: 'dettol-liquid-deal', name: 'Dettol Antiseptic Disinfectant Liquid', sub: 'Bottle of 60 ml Liquid', price: 32, mrp: 38, off: 16, eta: '32–47 min' },
-  { id: 'moov-gel-deal', name: 'Moov Cool Therapy Gel', sub: 'Tube of 10 gm Gel', price: 38, mrp: 44, off: 14, eta: '32–47 min' },
-  { id: 'cetaphil-cream-deal', name: 'Cetaphil Optimal Hydration Daily Cream', sub: 'Jar of 50 gm Cream', price: 1124, mrp: 1322, off: 15, eta: '32–47 min' },
-  { id: 'zandu-balm', name: 'Zandu Balm', sub: 'Bottle of 25 ml Balm', price: 99, mrp: 116, off: 15, eta: '32–47 min' },
+  byId('dettol-liquid-deal'),
+  byId('moov-gel-deal'),
+  byId('cetaphil-cream-deal'),
+  byId('zandu-balm'),
 ];
 
 export const seasonal = {
@@ -327,10 +313,10 @@ export const seasonal = {
   body: 'Oct–Nov: cold evenings, mosquitoes after the rains, Deepavali',
   filters: ['Cold & cough', 'Mosquito care', 'Deepavali first aid'],
   products: [
-    { id: 'zandu-balm-s', name: 'Zandu Balm', sub: 'Bottle of 25 ml Balm', price: 99, mrp: 116, off: 15, eta: '32–47 min' },
-    { id: 'mamaearth-breathe', name: 'Mamaearth Natural Breathe Easy Vapour Roll-On for Babies', sub: 'Bottle of 40 ml Oil', price: 214, mrp: 252, off: 15, eta: '32–47 min' },
-    { id: 'bakson-b33', name: 'Bakson B33 Cough Drop', sub: 'Bottle of 30 ml Drop', price: 144, mrp: 169, off: 15, eta: '32–47 min' },
-    { id: 'amrutanjan-cold-rub', name: 'Amrutanjan Cold Rub', sub: 'Jar of 30 gm Balm', price: 40, mrp: 47, off: 15, eta: '32–47 min' },
+    byId('zandu-balm-s'),
+    byId('mamaearth-breathe'),
+    byId('bakson-b33'),
+    byId('amrutanjan-cold-rub'),
   ] satisfies Product[],
 };
 
@@ -405,16 +391,16 @@ export const careCorners = [
 ];
 
 export const bestOffers: Product[] = [
-  { id: 'beato-glucometer', name: 'Beato CURV Smartphone Glucometer', sub: 'Box of 1 Unit', price: 1049, mrp: 1235, off: 15, eta: '32–47 min' },
-  { id: 'digene-shots', name: 'Digene Insta On The Go Shots (10ml Each) No Added Sugar Orange', sub: 'Pack of 15 shots', price: 299, mrp: 352, off: 15, eta: '32–47 min' },
-  { id: 'morepen-calcium', name: 'Dr Morepen Calcium + Advanced Tablet', sub: 'Strip of 15 tablets', price: 189, mrp: 225, off: 16, eta: '32–47 min' },
+  byId('beato-glucometer'),
+  byId('digene-shots'),
+  byId('morepen-calcium'),
 ];
 
 export const everydayEssentials: Product[] = [
-  { id: 'dettol-everyday', name: 'Dettol Antiseptic Disinfectant Liquid', sub: 'Bottle of 60 ml Liquid', price: 32, mrp: 38, off: 16, eta: '32–47 min' },
-  { id: 'hansaplast', name: 'Hansaplast Antiseptic Washproof Bandage For Wound Protection Bandage', sub: 'Box of 20 plasters', price: 149, mrp: 175, off: 15, eta: '32–47 min' },
-  { id: 'zandu-balm-everyday', name: 'Zandu Balm', sub: 'Bottle of 25 ml Balm', price: 99, mrp: 116, off: 15, eta: '32–47 min' },
-  { id: 'digene-shots-2', name: 'Digene Insta On The Go Shots (10ml Each) No Added Sugar Orange', sub: 'Pack of 15 shots', price: 299, mrp: 352, off: 15, eta: '32–47 min' },
+  byId('dettol-everyday'),
+  byId('hansaplast'),
+  byId('zandu-balm-everyday'),
+  byId('digene-shots-2'),
 ];
 
 export const prescriptionNote =
@@ -443,10 +429,3 @@ export const footer = {
   legal: '© 2026 Medmate India Technology Private Limited · Terms · Privacy',
 };
 
-/** Initials helper used by the art tiles while product photos are pending. */
-export function initialsOf(name: string): string {
-  const words = name.split(/\s+/).filter(Boolean);
-  if (words.length === 0) return '';
-  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
-  return (words[0][0] + words[1][0]).toUpperCase();
-}
