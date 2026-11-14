@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
+import { pharmacies } from '../../src/data/pharmacy';
 import { ProductScreen } from '../../src/shop/product/ProductScreen';
 import { useNotice } from '../../src/state/notice';
 
@@ -26,7 +27,16 @@ export default function ProductRoute() {
       onUploadPrescription={() => notice.notify('Upload a prescription to unlock Rx medicines')}
       onCouponApply={(code) => notice.notify(`${code} applied`)}
       onSimilarPress={(other) => router.push({ pathname: '/product/[id]', params: { id: other } })}
-      onPharmacyPress={(name) => notice.notify(`${name} - the pharmacy page is next in the section`)}
+      onPharmacyPress={(name) => {
+        const pharmacy = pharmacies.find(
+          (candidate) => candidate.name.toLowerCase() === name.toLowerCase(),
+        );
+        if (pharmacy) {
+          router.push({ pathname: '/pharmacies/[id]', params: { id: pharmacy.id } });
+          return;
+        }
+        notice.notify(`${name} - the pharmacy page is next in the section`);
+      }}
     />
   );
 }

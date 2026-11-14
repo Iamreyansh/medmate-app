@@ -15,6 +15,9 @@ against the Figma design system.
 | **Shop › New arrivals** (`app/new-arrivals.tsx` → `src/shop/newarrivals/NewArrivalsScreen.tsx`) | Implemented, iOS + Android variants |
 | **Shop › Product (OTC)** (`app/product/[id].tsx` → `src/shop/product/ProductScreen.tsx`) | Implemented, iOS + Android variants |
 | **Shop › Product (Rx)** (`app/product/[id].tsx` → `src/shop/product/ProductScreen.tsx`) | Implemented, iOS + Android variants |
+| **Shop › Pharmacies** (`app/pharmacies/index.tsx` → `src/shop/pharmacies/PharmaciesScreen.tsx`) | Implemented, iOS + Android variants |
+| **Shop › Pharmacy storefront** (`app/pharmacies/[id].tsx` → `src/shop/pharmacies/PharmacyStorefrontScreen.tsx`) | Implemented, iOS + Android variants |
+| **Shop › Offers** (`app/offers.tsx` → `src/shop/offers/OffersScreen.tsx`) | Implemented, iOS + Android variants |
 
 The Shop home screen is the entry point of the Shop section: the brand zone
 (delivery promise, health day, search, service tabs, hero carousel), then the
@@ -46,6 +49,9 @@ apps/mobile/app           expo-router routes
 | `/care/ortho-pain-care` | A health store - ortho, baby, women's, diabetes, heart, elderly |
 | `/new-arrivals` | The newest products, with a filter per category |
 | `/product/moov-gel` | A product page - the same screen serves OTC and Rx |
+| `/pharmacies` | The stores that deliver, with the categories and the filters |
+| `/pharmacies/healthfirst-chemist` | A single store and the products on its shelves |
+| `/offers` | The rewards balance, the coupons and how the rules work |
 
 ### The mock data
 

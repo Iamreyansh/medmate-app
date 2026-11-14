@@ -9,6 +9,7 @@ import { useCart } from '../state/cart';
 import { useNotice } from '../state/notice';
 import { catalogue } from '../data/catalogue';
 import { careStores } from '../data/care';
+import { pharmacies } from '../data/pharmacy';
 import { categoryList, slugFor } from '../data/category';
 import {
   bestOffers,
@@ -148,9 +149,7 @@ export function ShopHomeScreen() {
             onPress={openProduct}
           />
 
-          <CouponsSection
-            onPress={(coupon) => notice.notify(`${coupon.code} copied`)}
-          />
+          <CouponsSection onPress={() => router.push('/offers')} />
 
           <HealthStoresSection
             onPress={(store) =>
@@ -163,7 +162,16 @@ export function ShopHomeScreen() {
           <SeasonalSection onAdd={addToCart} onPress={openProduct} />
 
           <PharmaciesSection
-            onPress={(store) => notice.notify(`${store.name} - the pharmacy page is next in the section`)}
+            onPress={(store) => {
+              const pharmacy = pharmacies.find(
+                (candidate) => candidate.name.toLowerCase() === store.name.toLowerCase(),
+              );
+              if (pharmacy) {
+                router.push({ pathname: '/pharmacies/[id]', params: { id: pharmacy.id } });
+                return;
+              }
+              router.push('/pharmacies');
+            }}
           />
 
           <CareBlocks onAdd={addToCart} onPress={openProduct} />
@@ -202,11 +210,7 @@ export function ShopHomeScreen() {
       <View style={[styles.chrome, { paddingBottom: insets.bottom }]}>
         <BottomChrome
           active="home"
-          onTabPress={(id) =>
-            id === 'home'
-              ? router.replace('/')
-              : notice.notify('The pharmacy screen is next in the section')
-          }
+          onTabPress={(id) => (id === 'home' ? router.replace('/') : router.push('/pharmacies'))}
           onChatPress={() => notice.notify('Chat opens in the next release')}
           onAdPress={() => router.push('/new-arrivals')}
         />
