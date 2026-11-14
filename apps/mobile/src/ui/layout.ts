@@ -54,7 +54,8 @@ export function useGrid(
   }
 
   // Still not enough: the cards give up the width.
-  const cardWidth = Math.max(72, (available - tightGap * (columns - 1)) / columns);
+  // The floor keeps a card tappable and legible; below it the row wraps.
+  const cardWidth = Math.max(56, (available - tightGap * (columns - 1)) / columns);
   return { slot: cardWidth, width: cardWidth, gap: tightGap };
 }
 
