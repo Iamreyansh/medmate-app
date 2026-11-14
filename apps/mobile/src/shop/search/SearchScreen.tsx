@@ -1,11 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import {
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { brand, gold, mint, neutral, radii, semantic, spacing } from '@medmate/theme';
@@ -26,6 +20,7 @@ import {
   type SearchFilterId,
   type SearchSort,
 } from '../../data/search';
+import { SortSheet } from '../SortSheet';
 import { CartBar } from './CartBar';
 import { ResultDivider, ResultLine, ResultsCard, ShowMoreRow } from './ResultLine';
 import { SearchEmptyScreen } from './SearchEmptyScreen';
@@ -226,64 +221,16 @@ export function SearchScreen({
 
       <SortSheet
         visible={sortOpen}
+        options={searchSorts}
         active={sort}
         onSelect={(id) => {
-          setSort(id);
+          setSort(id as SearchSort);
           setSortOpen(false);
           setVisible(pageSize);
         }}
         onClose={() => setSortOpen(false)}
       />
     </View>
-  );
-}
-
-/**
- * The sort sheet.
- *
- * The design only draws the sort chip, so this sheet follows the same
- * surfaces as the rest of the app and is flagged as a not-yet-designed
- * surface.
- */
-function SortSheet({
-  visible,
-  active,
-  onSelect,
-  onClose,
-}: {
-  visible: boolean;
-  active: SearchSort;
-  onSelect: (id: SearchSort) => void;
-  onClose: () => void;
-}) {
-  return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <Pressable style={styles.scrim} onPress={onClose} />
-      <View style={styles.sheet}>
-        <Text variant="sectionTitle" color={semantic.text}>
-          Sort by
-        </Text>
-        {searchSorts.map((option) => (
-          <Pressable
-            key={option.id}
-            accessibilityRole="radio"
-            accessibilityState={{ selected: option.id === active }}
-            onPress={() => onSelect(option.id)}
-            style={({ pressed }) => [styles.sortOption, { opacity: pressed ? 0.8 : 1 }]}
-          >
-            <Text variant="body" color={semantic.text}>
-              {option.label}
-            </Text>
-            {option.id === active ? <Icon name="check" size={16} color={semantic.action} /> : null}
-          </Pressable>
-        ))}
-        <Pressable accessibilityRole="button" onPress={onClose} style={styles.sortCancel}>
-          <Text variant="button" color={semantic.action}>
-            Cancel
-          </Text>
-        </Pressable>
-      </View>
-    </Modal>
   );
 }
 

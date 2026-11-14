@@ -78,6 +78,8 @@ export const iosType = {
   statusBarTime: { fontSize: 17, lineHeight: 22, fontWeight: '600', letterSpacing: 0 },
   /** Screen footer headline. */
   footer: { fontSize: 44, lineHeight: 46, fontWeight: '800', letterSpacing: -0.88 },
+  /** The category name in the brand zone - the same on both platforms. */
+  categoryTitle: { fontSize: 30, lineHeight: 34, fontWeight: '800', letterSpacing: -0.6 },
   /** Hero wordmark. */
   wordmark: { fontSize: 26, lineHeight: 26, fontWeight: '700', letterSpacing: -0.91 },
 } as const satisfies Record<string, TypeStyle>;
@@ -101,6 +103,8 @@ export const m3Type = {
   /** Android counterpart of the iOS 11pt semibold caption. */
   captionSmall: { fontSize: 11, lineHeight: 16, fontWeight: '600', letterSpacing: 0 },
   overline: { fontSize: 11, lineHeight: 16, fontWeight: '700', letterSpacing: 0.88, textTransform: 'uppercase' },
+  /** The category name in the brand zone - the same on both platforms. */
+  categoryTitle: { fontSize: 30, lineHeight: 34, fontWeight: '800', letterSpacing: -0.6 },
   price: { fontSize: 16, lineHeight: 24, fontWeight: '800', letterSpacing: 0 },
   amount: { fontSize: 20, lineHeight: 28, fontWeight: '800', letterSpacing: 0 },
   button: { fontSize: 14, lineHeight: 20, fontWeight: '600', letterSpacing: 0.14 },
@@ -149,6 +153,10 @@ export const typeRoles = {
   resultSub: { ios: 'caption1', m3: 'bodySmallMedium' },
   /** A small semibold label, e.g. the category tile caption. */
   tileLabel: { ios: 'captionStrong', m3: 'captionSmall' },
+  /** The category title in the brand zone. */
+  categoryTitle: { ios: 'categoryTitle', m3: 'categoryTitle' },
+  /** The product count under the category title. */
+  countLine: { ios: 'footnote', m3: 'bodySmall' },
 } as const satisfies Record<string, { ios: IosTypeToken; m3: M3TypeToken }>;
 
 export type TypeRole = keyof typeof typeRoles;

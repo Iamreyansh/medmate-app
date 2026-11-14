@@ -10,6 +10,7 @@ against the Figma design system.
 | **Shop › Home** (`app/index.tsx` → `src/shop/ShopHomeScreen.tsx`) | Implemented, iOS + Android variants |
 | **Shop › Search results** (`app/search/index.tsx` → `src/shop/search/SearchScreen.tsx`) | Implemented, iOS + Android variants |
 | **Shop › Search, no results** (`app/search/no-results.tsx` → `src/shop/search/SearchEmptyScreen.tsx`) | Implemented, iOS + Android variants |
+| **Shop › Category** (`app/category/[slug].tsx` → `src/shop/category/CategoryScreen.tsx`) | Implemented, iOS + Android variants |
 
 The Shop home screen is the entry point of the Shop section: the brand zone
 (delivery promise, health day, search, service tabs, hero carousel), then the
@@ -30,6 +31,15 @@ apps/mobile/src/state     the cart store and the notice store
 apps/mobile/app           expo-router routes
 ```
 
+### Routes
+
+| Route | Screen |
+| --- | --- |
+| `/` | Shop home |
+| `/search?q=paracetamol` | Search results (falls through to the empty state when nothing matches) |
+| `/search/no-results` | The empty state on its own |
+| `/category/fever-pain` | A category, with the prescription, price and brand filters |
+
 ### The mock data
 
 `src/data/catalogue.ts` holds every product once. The home screen rails, the
@@ -40,6 +50,10 @@ that are on screen.
 The search screen runs a real query over the catalogue: typing `dolo` returns
 Dolo 650, typing `cetaphil` returns the Cetaphil products, and a query that
 matches nothing falls through to the empty state.
+
+The category screen filters the same catalogue by prescription status, price
+band and brand, and counts what is left, so the chips always agree with the
+products below them.
 
 Every value comes from `@medmate/theme`. A hex literal inside a screen is a
 bug - the tokens mirror the Figma colour variables and type scales exactly.

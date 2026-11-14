@@ -8,6 +8,7 @@ import { neutral, platformMetrics, sectionGap, spacing } from '@medmate/theme';
 import { useCart } from '../state/cart';
 import { useNotice } from '../state/notice';
 import { catalogue } from '../data/catalogue';
+import { categoryList, slugFor } from '../data/category';
 import {
   bestOffers,
   dealRail,
@@ -129,7 +130,16 @@ export function ShopHomeScreen() {
         <View style={styles.sections}>
           <TrustStrip />
 
-          <CategoryGroups />
+          <CategoryGroups
+            onCategoryPress={(label) => {
+              const category = categoryList().find((name) => name === label);
+              if (category) {
+                router.push({ pathname: '/category/[slug]', params: { slug: slugFor(category) } });
+                return;
+              }
+              notice.notify(`${label} is on the way`);
+            }}
+          />
 
           <OrderAgainCard
             products={narrowed.orderAgain}

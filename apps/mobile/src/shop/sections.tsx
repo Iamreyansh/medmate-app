@@ -167,11 +167,13 @@ export type ProductCardProps = {
  * the Figma proportions: a square art tint on the mint gradient, the pack
  * size, the name, the delivery window, the price and the ADD button.
  */
-export function ProductCard({ product, width = 132, onPress, onAdd }: ProductCardProps) {
-  const art = width - spacing.md;
+export function ProductCard({ product, width, onPress, onAdd }: ProductCardProps) {
+  // A card with no width fills its row and keeps the 120pt art; a fixed width
+  // card takes the art that fits inside it.
+  const art = width ? width - spacing.md : 120;
 
   return (
-    <View style={[styles.productCard, { width }]}>
+    <View style={[styles.productCard, width ? { width } : null]}>
       <Pressable
         accessibilityRole="button"
         onPress={onPress}
@@ -267,11 +269,22 @@ export function ProductTile({ product, width = 174, onPress, onAdd }: ProductTil
  * Four columns of 76pt tiles with a 19pt gap, wrapping onto as many rows as
  * the group needs.
  */
-function CategoryGrid({ categories }: { categories: { id: string; label: string; initials: string }[] }) {
+function CategoryGrid({
+  categories,
+  onPress,
+}: {
+  categories: { id: string; label: string; initials: string }[];
+  onPress?: (label: string) => void;
+}) {
   return (
     <View style={styles.categoryGrid}>
       {categories.map((category) => (
-        <Pressable key={category.id} accessibilityRole="button" style={styles.category}>
+        <Pressable
+          key={category.id}
+          accessibilityRole="button"
+          onPress={() => onPress?.(category.label)}
+          style={styles.category}
+        >
           <ArtTile
             width={76}
             height={76}
@@ -289,13 +302,13 @@ function CategoryGrid({ categories }: { categories: { id: string; label: string;
 }
 
 /** The three category groups of the Shop screen. */
-export function CategoryGroups() {
+export function CategoryGroups({ onCategoryPress }: { onCategoryPress?: (label: string) => void }) {
   return (
     <>
       {categoryGroups.map((group) => (
         <View key={group.title} style={styles.section}>
           <SectionHeader title={group.title} actionLabel="See all" />
-          <CategoryGrid categories={group.categories} />
+          <CategoryGrid categories={group.categories} onPress={onCategoryPress} />
         </View>
       ))}
     </>
