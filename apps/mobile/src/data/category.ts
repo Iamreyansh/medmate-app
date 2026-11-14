@@ -44,24 +44,41 @@ export function productsInCategory(category: string): CatalogueProduct[] {
 }
 
 /** The categories of the catalogue, in the order the rail shows them. */
+/**
+ * The order the categories appear in.
+ *
+ * The list is kept in code so the rail and the routes agree, but any category
+ * the catalogue grows that is missing from here still shows up, at the end.
+ */
+const CATEGORY_ORDER = [
+  'Fever & Pain',
+  'Cough & Cold',
+  'Stomach',
+  'Devices',
+  'Diabetes care',
+  'Heart & BP',
+  'Ortho & pain care',
+  'First Aid',
+  'Ayurveda',
+  'Skin Care',
+  'Baby & child care',
+  'Women’s health',
+  'Vitamins & immunity',
+  'Sports Nutrition',
+  'Hair Care',
+  'Personal',
+  'Eye Care',
+  'Elderly care',
+  'Everyday essentials',
+];
+
 export function categoryList(): string[] {
-  const order = [
-    'Fever & Pain',
-    'Cough & Cold',
-    'Stomach',
-    'Devices',
-    'Diabetes care',
-    'Ortho & pain care',
-    'First Aid',
-    'Ayurveda',
-    'Skin Care',
-    'Baby & child care',
-    'Women’s health',
-    'Vitamins & immunity',
-    'Everyday essentials',
-  ];
   const present = new Set(catalogue.map((product) => product.category));
-  return order.filter((category) => present.has(category));
+  const ordered = CATEGORY_ORDER.filter((category) => present.has(category));
+  const extra = [...present]
+    .filter((category) => !CATEGORY_ORDER.includes(category))
+    .sort((a, b) => a.localeCompare(b));
+  return [...ordered, ...extra];
 }
 
 /** Apply the prescription filter. */

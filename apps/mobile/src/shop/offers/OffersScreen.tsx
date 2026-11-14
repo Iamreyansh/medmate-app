@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
@@ -8,6 +8,7 @@ import {
   gold,
   mint,
   neutral,
+  platformKey,
   radii,
   semantic,
   spacing,
@@ -15,7 +16,7 @@ import {
 
 import { Icon } from '../../icons/Icon';
 import { Text } from '../../ui/Text';
-import { Gradient } from '../../ui/primitives';
+import { Button, Gradient } from '../../ui/primitives';
 import { useNotice } from '../../state/notice';
 import {
   couponRules,
@@ -24,6 +25,9 @@ import {
   rewards,
 } from '../../data/pharmacy';
 import { BottomChrome } from '../BottomChrome';
+import { NavBar } from '../BrandZone';
+
+const isAndroid = platformKey === 'android';
 
 export type OffersScreenProps = {
   onBack?: () => void;
@@ -61,21 +65,12 @@ export function OffersScreen({ onBack, onApplyCoupon }: OffersScreenProps) {
       >
         {/* Brand zone */}
         <View style={[styles.zone, { paddingTop: insets.top }]}>
-          <View style={styles.navBar}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Back"
-              onPress={onBack}
-              hitSlop={10}
-              style={styles.back}
-            >
-              <Icon name="chev-l" size={20} color={neutral.surface} strokeWidth={2.2} />
-            </Pressable>
-            <Text variant="storeNavTitle" color={neutral.surface} style={styles.navTitle}>
-              Offers and coupons
-            </Text>
-            <View style={styles.help} />
-          </View>
+          <NavBar
+            title="Offers and coupons"
+            onBack={onBack}
+            onAction={onBack}
+            actionLabel="Help"
+          />
 
           <View style={styles.zoneContent}>
             <Text variant="storeTitle" color={neutral.surface}>
@@ -127,16 +122,13 @@ export function OffersScreen({ onBack, onApplyCoupon }: OffersScreenProps) {
                 style={styles.codeField}
                 accessibilityLabel="Coupon code"
               />
-              <Pressable
-                accessibilityRole="button"
+              <Button
+                label="Apply"
+                tone="filled"
+                size="large"
                 onPress={() => apply(code)}
-                style={({ pressed }) => [styles.applyButton, { opacity: pressed ? 0.85 : 1 }]}
-              >
-                <Text variant="button" color={neutral.surface}>
-                  Apply
-                </Text>
-                <Icon name="chev-r" size={16} color={neutral.surface} />
-              </Pressable>
+                style={styles.applyButton}
+              />
             </View>
             <Text variant="resultSub" color={semantic.textSecondary}>
               {emptyCartNote}
@@ -148,12 +140,7 @@ export function OffersScreen({ onBack, onApplyCoupon }: OffersScreenProps) {
           </Text>
 
           {offerCoupons.map((coupon) => (
-            <Pressable
-              key={coupon.id}
-              accessibilityRole="button"
-              onPress={() => apply(coupon.code)}
-              style={({ pressed }) => [styles.couponCard, { opacity: pressed ? 0.94 : 1 }]}
-            >
+            <View key={coupon.id} style={styles.couponCard}>
               <View
                 style={[
                   styles.stub,
@@ -196,13 +183,18 @@ export function OffersScreen({ onBack, onApplyCoupon }: OffersScreenProps) {
                   </Text>
                 </View>
                 <View style={styles.couponFoot}>
-                  <Text variant="strong" color={semantic.action}>
-                    Tap to apply
+                  <Text variant="resultSub" color={semantic.textMuted}>
+                    {coupon.code}
                   </Text>
-                  <Icon name="chev-r" size={14} color={semantic.action} />
+                  <Button
+                    label="Apply"
+                    tone="forest"
+                    size="small"
+                    onPress={() => apply(coupon.code)}
+                  />
                 </View>
               </View>
-            </Pressable>
+            </View>
           ))}
 
           {/* How coupons work */}
@@ -222,16 +214,20 @@ export function OffersScreen({ onBack, onApplyCoupon }: OffersScreenProps) {
         </View>
       </ScrollView>
 
-      <View style={[styles.chrome, { paddingBottom: insets.bottom }]}>
-        <BottomChrome
-          active="home"
-          onTabPress={(id) =>
-            id === 'home' ? undefined : notice.notify('The pharmacy screen is next in the section')
-          }
-          onChatPress={() => notice.notify('Chat opens in the next release')}
-          onAdPress={() => notice.notify('New arrivals are on the offers screen')}
-        />
-      </View>
+      {/* iOS closes the screen with the tab bar; Android leaves the system
+          gesture handle alone. */}
+      {isAndroid ? null : (
+        <View style={[styles.chrome, { paddingBottom: insets.bottom }]}>
+          <BottomChrome
+            active="home"
+            onTabPress={(id) =>
+              id === 'home' ? undefined : notice.notify('The pharmacy screen is next in the section')
+            }
+            onChatPress={() => notice.notify('Chat opens in the next release')}
+            onAdPress={() => notice.notify('New arrivals are on the offers screen')}
+          />
+        </View>
+      )}
     </View>
   );
 }
@@ -336,13 +332,7 @@ const styles = StyleSheet.create({
     color: semantic.text,
   },
   applyButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    height: 48,
-    paddingHorizontal: spacing.lg,
-    borderRadius: radii.md,
-    backgroundColor: brand.forest,
+    minWidth: 86,
   },
   couponCard: {
     flexDirection: 'row',

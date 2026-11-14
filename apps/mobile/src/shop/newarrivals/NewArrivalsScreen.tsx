@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { neutral, semantic, spacing } from '@medmate/theme';
 
 import { Text } from '../../ui/Text';
-import { FilterChip } from '../../ui/primitives';
+import { EmptyState, FilterChip } from '../../ui/primitives';
 import { useCart } from '../../state/cart';
 import { useNotice } from '../../state/notice';
 import {
@@ -80,6 +80,12 @@ export function NewArrivalsScreen({
             ))}
           </ScrollView>
 
+          {products.length === 0 ? (
+            <EmptyState
+              title="Nothing new in this category yet"
+              body="New products land every week - try another category."
+            />
+          ) : null}
           <View style={styles.grid}>
             {products.map((product) => (
               <ProductCard

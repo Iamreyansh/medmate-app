@@ -15,7 +15,7 @@ import {
 
 import { Icon } from '../../icons/Icon';
 import { Text } from '../../ui/Text';
-import { FilterChip } from '../../ui/primitives';
+import { EmptyState, FilterChip } from '../../ui/primitives';
 import { useCart } from '../../state/cart';
 import { useNotice } from '../../state/notice';
 import { initialsOf } from '../../data/catalogue';
@@ -315,7 +315,13 @@ export function CategoryScreen({
         </View>
 
         {/* Products */}
-        {layout === 'grid' ? (
+        {products.length === 0 ? (
+          <EmptyState
+            title="No products match these filters"
+            body="Try another filter, or clear the price band and the brand."
+          />
+        ) : null}
+        {layout === 'grid' && products.length > 0 ? (
           <View style={styles.grid}>
             {products.map((product) => (
               <ProductCard
@@ -327,7 +333,7 @@ export function CategoryScreen({
               />
             ))}
           </View>
-        ) : (
+        ) : products.length > 0 ? (
           <View style={styles.list}>
             {products.map((product) => (
               <ProductCard
@@ -339,7 +345,7 @@ export function CategoryScreen({
               />
             ))}
           </View>
-        )}
+        ) : null}
 
         <Text variant="resultSub" color={semantic.textMuted} style={styles.footerNote}>
           {categoryFooterNote}

@@ -15,12 +15,13 @@ import {
 
 import { Icon } from '../../icons/Icon';
 import { Text } from '../../ui/Text';
-import { FilterChip } from '../../ui/primitives';
+import { EmptyState, FilterChip } from '../../ui/primitives';
 import { useCart } from '../../state/cart';
 import { useNotice } from '../../state/notice';
 import { catalogue } from '../../data/catalogue';
 import { offerCoupons, type Pharmacy } from '../../data/pharmacy';
-import { BottomChrome } from '../BottomChrome';
+import { CartBar } from '../search/CartBar';
+import { NavBar } from '../BrandZone';
 import { ProductCard } from '../sections';
 
 export type PharmacyStorefrontScreenProps = {
@@ -74,28 +75,12 @@ export function PharmacyStorefrontScreen({
       >
         {/* Brand zone */}
         <View style={[styles.zone, { paddingTop: insets.top }]}>
-          <View style={styles.navBar}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Back to pharmacies"
-              onPress={onBack}
-              hitSlop={10}
-              style={styles.back}
-            >
-              <Icon name="chev-l" size={20} color={neutral.surface} strokeWidth={2.2} />
-              <Text variant="body" color={neutral.surface}>
-                Pharmacies
-              </Text>
-            </Pressable>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Help and support"
-              onPress={onHelp}
-              style={styles.help}
-            >
-              <Icon name="search" size={18} color={neutral.surface} />
-            </Pressable>
-          </View>
+          <NavBar
+            backLabel="Pharmacies"
+            onBack={onBack}
+            onAction={onHelp}
+            actionLabel="Help"
+          />
         </View>
 
         {/* The store card overlaps the brand zone. */}
@@ -219,6 +204,12 @@ export function PharmacyStorefrontScreen({
             Everyday essentials
           </Text>
 
+          {products.length === 0 ? (
+            <EmptyState
+              title="This store has nothing in that filter"
+              body="Try another filter, or search the whole of MedMate."
+            />
+          ) : null}
           <View style={styles.grid}>
             {products.map((product) => (
               <ProductCard
@@ -237,14 +228,19 @@ export function PharmacyStorefrontScreen({
       </ScrollView>
 
       <View style={[styles.chrome, { paddingBottom: insets.bottom }]}>
-        <BottomChrome
-          active="home"
-          onTabPress={(id) =>
-            id === 'home' ? undefined : notice.notify('The pharmacy screen is next in the section')
-          }
-          onChatPress={() => notice.notify('Chat opens in the next release')}
-          onAdPress={() => notice.notify('New arrivals are on the offers screen')}
-        />
+        <View style={styles.floatingRow}>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => notice.notify('The category screen is next in the section')}
+            style={({ pressed }) => [styles.categoriesPill, { opacity: pressed ? 0.85 : 1 }]}
+          >
+            <Icon name="store" size={18} color={neutral.surface} />
+            <Text variant="strong" color={neutral.surface}>
+              Categories
+            </Text>
+          </Pressable>
+        </View>
+        <CartBar count={cart.count} />
       </View>
     </View>
   );
@@ -404,5 +400,25 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
+  },
+  floatingRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.sm,
+  },
+  categoriesPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs + 2,
+    height: 44,
+    paddingHorizontal: spacing.lg,
+    borderRadius: radii.pill,
+    backgroundColor: brand.forest,
+    shadowColor: elevation.medium.shadowColor,
+    shadowOffset: elevation.medium.shadowOffset,
+    shadowRadius: elevation.medium.shadowRadius,
+    shadowOpacity: elevation.medium.shadowOpacity,
+    elevation: elevation.medium.elevation,
   },
 });

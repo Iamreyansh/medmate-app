@@ -16,7 +16,7 @@ import {
 
 import { Icon } from '../../icons/Icon';
 import { Text } from '../../ui/Text';
-import { Gradient } from '../../ui/primitives';
+import { Button, Gradient } from '../../ui/primitives';
 import { useCart } from '../../state/cart';
 import { useNotice } from '../../state/notice';
 import { catalogue, findProduct, initialsOf } from '../../data/catalogue';
@@ -268,7 +268,7 @@ export function ProductScreen({
       <View style={[styles.actionBar, { paddingBottom: insets.bottom + spacing.sm }]}>
         <View style={styles.buyRow}>
           <View style={styles.buyPrice}>
-            <Text variant="amount" color={semantic.text}>
+            <Text variant="amount" color="#65726B">
               {`from ₹${product.price.toLocaleString('en-IN')}`}
             </Text>
             {product.rx ? (
@@ -281,18 +281,16 @@ export function ProductScreen({
               </Text>
             ) : null}
           </View>
-          <Pressable
-            accessibilityRole="button"
+          <Button
+            label="Add to cart"
+            tone="filled"
+            size="large"
             onPress={() => {
               cart.add({ id: product.id, name: product.name, price: product.price });
               notice.notify(`${product.name} added to the cart`);
             }}
-            style={({ pressed }) => [styles.addButton, { opacity: pressed ? 0.85 : 1 }]}
-          >
-            <Text variant="button" color={neutral.surface}>
-              Add to cart
-            </Text>
-          </Pressable>
+            style={styles.addButton}
+          />
         </View>
       </View>
     </View>
@@ -427,13 +425,7 @@ const styles = StyleSheet.create({
     gap: spacing.xxs,
   },
   addButton: {
-    height: 50,
-    minWidth: 130,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: spacing.lg,
-    borderRadius: radii.lg,
-    backgroundColor: brand.forest,
+    minWidth: 153,
   },
 });
 

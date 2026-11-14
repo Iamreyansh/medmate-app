@@ -14,6 +14,7 @@ import {
   gold,
   mint,
   neutral,
+  platformKey,
   radii,
   semantic,
   spacing,
@@ -22,6 +23,8 @@ import {
 
 import { Icon, type IconName } from '../icons/Icon';
 import { Text } from './Text';
+
+const isAndroidButton = platformKey === 'android';
 
 /* -------------------------------------------------------------------------- */
 /*  Gradient                                                                  */
@@ -134,11 +137,18 @@ export function ArtTile({
 
 export type ButtonProps = {
   label: string;
-  /** `gold` is the premium action, `forest` sits on light surfaces. */
-  tone?: 'gold' | 'forest';
-  /** Leading icon. */
-  icon?: IconName;
-  /** Trailing chevron. */
+  /**
+   * The three buttons the design has:
+   * - `filled` - green, the primary call to action
+   * - `forest` - the dark button on light surfaces
+   * - `gold`   - the premium action
+   */
+  tone?: 'filled' | 'forest' | 'gold' | 'outline';
+  /** `large` is the 50pt call to action, `small` the 34pt one. */
+  size?: 'small' | 'large';
+  /** Leading icon. Defaults to the plus the design draws on every button. */
+  icon?: IconName | null;
+  /** Trailing chevron. On by default. */
   chevron?: boolean;
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;
@@ -150,8 +160,19 @@ export type ButtonProps = {
  * The design only has two tones: gold for the primary call to action and
  * forest for actions that sit on a light surface.
  */
-export function Button({ label, tone = 'gold', icon, chevron, onPress, style }: ButtonProps) {
+export function Button({
+  label,
+  tone = 'gold',
+  size = 'small',
+  icon = null,
+  chevron = false,
+  onPress,
+  style,
+}: ButtonProps) {
   const isGold = tone === 'gold';
+  const isOutline = tone === 'outline';
+  const isLarge = size === 'large';
+  const ink = isGold || isOutline ? brand.green : neutral.surface;
 
   return (
     <Pressable
@@ -159,18 +180,26 @@ export function Button({ label, tone = 'gold', icon, chevron, onPress, style }: 
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
+        isLarge ? styles.buttonLarge : styles.buttonSmall,
         {
-          backgroundColor: isGold ? gold[300] : brand.forest,
+          backgroundColor: isOutline
+            ? neutral.surface
+            : tone === 'filled'
+              ? brand.green
+              : isGold
+                ? gold[300]
+                : brand.forest,
           opacity: pressed ? 0.85 : 1,
         },
+        isOutline ? styles.buttonOutline : null,
         style,
       ]}
     >
-      {icon ? <Icon name={icon} size={18} color={isGold ? brand.forest : neutral.surface} /> : null}
-      <Text variant="buttonSmall" color={isGold ? brand.forest : neutral.surface}>
+      {icon ? <Icon name={icon} size={18} color={ink} /> : null}
+      <Text variant={isLarge ? 'button' : 'buttonSmall'} color={ink}>
         {label}
       </Text>
-      {chevron ? <Icon name="chev-r" size={16} color={isGold ? brand.forest : neutral.surface} /> : null}
+      {chevron ? <Icon name="chev-r" size={16} color={ink} /> : null}
     </Pressable>
   );
 }
@@ -250,6 +279,7 @@ export function FilterChip({ label, selected, onPress }: FilterChipProps) {
       onPress={onPress}
       style={({ pressed }) => [
         styles.filterChip,
+        isAndroidButton ? styles.filterChipAndroid : styles.filterChipIOS,
         {
           backgroundColor: selected ? brand.forest : neutral.surface,
           borderColor: selected ? brand.forest : neutral.line2,
@@ -257,11 +287,52 @@ export function FilterChip({ label, selected, onPress }: FilterChipProps) {
         },
       ]}
     >
-      {selected ? <Icon name="check" size={14} color={gold[300]} /> : null}
-      <Text variant="buttonSmall" color={selected ? neutral.surface : neutral.ink2}>
+      {selected ? (
+        <Icon name="check" size={isAndroidButton ? 18 : 14} color={gold[300]} />
+      ) : null}
+      <Text
+        variant={isAndroidButton ? 'filterLabel' : 'buttonSmall'}
+        color={selected ? neutral.surface : neutral.ink2}
+      >
         {label}
       </Text>
     </Pressable>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Empty state                                                               */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * What a screen shows when a filter leaves nothing behind.
+ *
+ * Every list in the app filters live, so every list needs to say so when it
+ * comes up empty.
+ */
+export function EmptyState({
+  title,
+  body,
+  icon = 'search',
+}: {
+  title: string;
+  body?: string;
+  icon?: IconName;
+}) {
+  return (
+    <View style={styles.emptyState}>
+      <View style={styles.emptyIcon}>
+        <Icon name={icon} size={24} color={neutral.faint} />
+      </View>
+      <Text variant="strong" color={semantic.textSecondary} style={styles.emptyTitle}>
+        {title}
+      </Text>
+      {body ? (
+        <Text variant="resultSub" color={semantic.textMuted} style={styles.emptyBody}>
+          {body}
+        </Text>
+      ) : null}
+    </View>
   );
 }
 
@@ -343,9 +414,40 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing.sm,
+  },
+  buttonSmall: {
     height: 34,
     paddingHorizontal: spacing.lg,
     borderRadius: radii.pill,
+  },
+  buttonLarge: {
+    height: 50,
+    paddingHorizontal: spacing.xl,
+    borderRadius: isAndroidButton ? radii.pill : radii.lg,
+  },
+  buttonOutline: {
+    borderWidth: 1.5,
+    borderColor: brand.green,
+  },
+  emptyState: {
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingVertical: spacing.xxl,
+    paddingHorizontal: spacing.lg,
+  },
+  emptyIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: radii.circle,
+    backgroundColor: neutral.surface2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyTitle: {
+    textAlign: 'center',
+  },
+  emptyBody: {
+    textAlign: 'center',
   },
   addButton: {
     alignItems: 'center',
@@ -369,11 +471,20 @@ const styles = StyleSheet.create({
   filterChip: {
     flexDirection: 'row',
     alignItems: 'center',
+    borderWidth: 1,
+  },
+  filterChipIOS: {
     gap: spacing.xs + 2,
     height: 34,
     paddingHorizontal: spacing.lg,
     borderRadius: radii.pill,
-    borderWidth: 1,
+  },
+  filterChipAndroid: {
+    gap: spacing.sm,
+    height: 32,
+    paddingLeft: spacing.sm,
+    paddingRight: spacing.lg,
+    borderRadius: radii.sm,
   },
   sectionHeader: {
     flexDirection: 'row',

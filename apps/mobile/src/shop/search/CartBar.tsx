@@ -130,10 +130,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-    height: 44,
+    height: isAndroid ? 48 : 44,
     paddingLeft: spacing.lg,
     paddingRight: spacing.md - 2,
-    borderRadius: radii.lg,
+    // Android draws the cart button as a pill.
+    borderRadius: isAndroid ? radii.pill : radii.lg,
     backgroundColor: brand.forest,
   },
   bubble: {

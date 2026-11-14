@@ -15,7 +15,7 @@ import {
 
 import { Icon } from '../../icons/Icon';
 import { Text } from '../../ui/Text';
-import { ArtTile, FilterChip, Gradient } from '../../ui/primitives';
+import { ArtTile, EmptyState, FilterChip, Gradient } from '../../ui/primitives';
 import { useNotice } from '../../state/notice';
 import { categoryList } from '../../data/category';
 import { initialsOf } from '../../data/catalogue';
@@ -209,6 +209,12 @@ export function PharmaciesScreen({
             {`${searched.length} pharmacies delivering to you`}
           </Text>
 
+          {searched.length === 0 ? (
+            <EmptyState
+              title="No pharmacy matches that search"
+              body="Try a different area, speciality or store name."
+            />
+          ) : null}
           {searched.map((pharmacy) => (
             <PharmacyCard
               key={pharmacy.id}

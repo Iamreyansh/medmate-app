@@ -168,9 +168,9 @@ export type ProductCardProps = {
  * size, the name, the delivery window, the price and the ADD button.
  */
 export function ProductCard({ product, width, onPress, onAdd }: ProductCardProps) {
-  // A card with no width fills its row and keeps the 120pt art; a fixed width
-  // card takes the art that fits inside it.
-  const art = width ? width - spacing.md : 120;
+  // The design component draws a fixed 120pt art, so the card keeps it whether
+  // it fills its row or sits in a three column grid.
+  const art = 120;
 
   return (
     <View style={[styles.productCard, width ? { width } : null]}>

@@ -142,3 +142,5 @@ npm run format:check           # prettier
 - The cart and the notice are in memory for the session - there is no backend
   yet. `src/state/cart.tsx` and `src/state/notice.tsx` are the seam to swap
   for the API.
+- Every list filters live, so every list says so when it comes up empty -
+  `EmptyState` in `src/ui/primitives.tsx` covers it.

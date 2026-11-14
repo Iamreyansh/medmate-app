@@ -6,7 +6,7 @@ import { brand, mint, neutral, platformKey, radii, semantic, spacing } from '@me
 
 import { Icon } from '../../icons/Icon';
 import { Text } from '../../ui/Text';
-import { Gradient } from '../../ui/primitives';
+import { Button, Gradient } from '../../ui/primitives';
 import { SearchHeader } from './SearchHeader';
 
 const isAndroid = platformKey === 'android';
@@ -90,25 +90,25 @@ export function SearchEmptyScreen({
             ))}
           </View>
 
-          <Pressable
-            accessibilityRole="button"
+          <Button
+            label="Request MedMate to get it"
+            tone="filled"
+            size="large"
+            icon="search"
+            chevron
             onPress={onRequestMedicine}
-            style={({ pressed }) => [styles.primaryButton, { opacity: pressed ? 0.85 : 1 }]}
-          >
-            <Text variant="button" color={neutral.surface}>
-              Request MedMate to get it
-            </Text>
-          </Pressable>
+            style={styles.primaryButton}
+          />
 
-          <Pressable
-            accessibilityRole="button"
+          <Button
+            label="Upload prescription"
+            tone="outline"
+            size="large"
+            icon="rx-up"
+            chevron
             onPress={onUploadRx}
-            style={({ pressed }) => [styles.secondaryButton, { opacity: pressed ? 0.85 : 1 }]}
-          >
-            <Text variant="button" color={semantic.action}>
-              Upload prescription
-            </Text>
-          </Pressable>
+            style={styles.secondaryButton}
+          />
         </View>
 
         <Text variant="bodyStrong" color={semantic.text}>
@@ -181,23 +181,9 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     width: '100%',
-    height: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-    borderRadius: radii.lg,
-    backgroundColor: brand.green,
   },
   secondaryButton: {
     width: '100%',
-    height: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-    borderRadius: radii.lg,
-    borderWidth: 1.5,
-    borderColor: brand.green,
-    backgroundColor: neutral.surface,
   },
 });
 
