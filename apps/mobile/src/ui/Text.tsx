@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, Text as RNText, type TextProps as RNTextProps, type TextStyle } from 'react-native';
 
 import {
+  designFontScale,
   fontFamily,
   iosType,
   m3Type,
@@ -74,14 +75,17 @@ export function Text({ variant = 'body', color = neutral.ink, style, children, .
   return (
     <RNText
       {...rest}
+      // The scale is applied here rather than by the system, so the design
+      // holds its proportions whatever the user has set.
+      allowFontScaling={false}
       style={[
         styles.base,
         {
-          fontSize: metrics.fontSize,
-          lineHeight: metrics.lineHeight,
+          fontSize: metrics.fontSize * designFontScale,
+          lineHeight: metrics.lineHeight * designFontScale,
           fontFamily: fontFamily[metrics.fontWeight],
           fontWeight: metrics.fontWeight,
-          letterSpacing: metrics.letterSpacing,
+          letterSpacing: metrics.letterSpacing * designFontScale,
           textTransform: metrics.textTransform,
           color,
         },

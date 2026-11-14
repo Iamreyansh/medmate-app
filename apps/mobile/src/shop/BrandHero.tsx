@@ -653,7 +653,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.30)',
   },
   banner: {
-    height: 172,
+    minHeight: 172,
     justifyContent: 'flex-end',
     shadowColor: elevation.medium.shadowColor,
     shadowOffset: elevation.medium.shadowOffset,

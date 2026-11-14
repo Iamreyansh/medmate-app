@@ -11,9 +11,20 @@
  *   Touch target      44 x 44 pt       48 x 48 dp
  *   Bottom bar        49 + 34 pt       80 + 24 dp
  */
-import { Platform } from 'react-native';
+import { PixelRatio, Platform } from 'react-native';
 
 export type PlatformKey = 'ios' | 'android';
+
+/**
+ * The system font scale, clamped.
+ *
+ * The screens are drawn on a fixed canvas - every box, tile and rule in the
+ * Figma file has a size - so the text is held at the size the design uses and
+ * is never allowed to shrink below it (a smaller system font would leave the
+ * cards with dead space and the layout loose). It can still grow, up to 1.3,
+ * which the flexible rows in the layouts absorb.
+ */
+export const designFontScale = Math.min(1.3, Math.max(1, PixelRatio.getFontScale()));
 
 /**
  * The platform the app is running on.

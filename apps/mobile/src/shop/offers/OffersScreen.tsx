@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
   brand,
+  designFontScale,
   elevation,
   gold,
   mint,
@@ -114,6 +115,7 @@ export function OffersScreen({ onBack, onApplyCoupon }: OffersScreenProps) {
             </Text>
             <View style={styles.codeRow}>
               <TextInput
+                allowFontScaling={false}
                 value={code}
                 onChangeText={setCode}
                 placeholder="Enter code"
@@ -381,8 +383,8 @@ const styles = StyleSheet.create({
     backgroundColor: brand.forest,
   },
   couponTitle: {
-    fontSize: 15,
-    lineHeight: 20,
+    fontSize: 15 * designFontScale,
+    lineHeight: 20 * designFontScale,
   },
   requirementRow: {
     flexDirection: 'row',

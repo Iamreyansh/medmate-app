@@ -12,6 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
   brand,
+  designFontScale,
   fontFamily,
   gold,
   neutral,
@@ -87,6 +88,7 @@ export function SearchHeader({
           <View style={styles.field}>
             <Icon name="search" size={isAndroid ? 24 : 18} color={semantic.textMuted} />
             <TextInput
+              allowFontScaling={false}
               value={query}
               onChangeText={onChangeQuery}
               placeholder="Search a medicine"
@@ -198,7 +200,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: isAndroid ? spacing.md : spacing.sm,
-    height: isAndroid ? 56 : 44,
+    minHeight: isAndroid ? 56 : 44,
     paddingLeft: isAndroid ? spacing.lg : spacing.md,
     paddingRight: isAndroid ? spacing.sm : spacing.md,
     borderRadius: isAndroid ? 28 : radii.lg,
@@ -207,8 +209,8 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontFamily: fontFamily['400'],
-    fontSize: isAndroid ? 16 : 17,
-    lineHeight: isAndroid ? 24 : 22,
+    fontSize: (isAndroid ? 16 : 17) * designFontScale,
+    lineHeight: (isAndroid ? 24 : 22) * designFontScale,
     color: semantic.text,
     padding: 0,
     margin: 0,

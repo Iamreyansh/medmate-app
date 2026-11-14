@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
   brand,
+  designFontScale,
   elevation,
   gold,
   mint,
@@ -111,6 +112,7 @@ export function PharmaciesScreen({
             <View style={styles.searchBar}>
               <Icon name="search" size={18} color={semantic.textMuted} />
               <TextInput
+                allowFontScaling={false}
                 value={query}
                 onChangeText={setQuery}
                 placeholder="Search pharmacy, area or speciality"
@@ -373,7 +375,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: isAndroid ? spacing.md : spacing.sm,
-    height: isAndroid ? 56 : 44,
+    minHeight: isAndroid ? 56 : 44,
     paddingHorizontal: isAndroid ? spacing.lg : spacing.md,
     // Android draws the search field as a Material pill.
     borderRadius: isAndroid ? 28 : radii.lg,
@@ -382,8 +384,8 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontFamily: 'Outfit_400Regular',
-    fontSize: 17,
-    lineHeight: 22,
+    fontSize: 17 * designFontScale,
+    lineHeight: 22 * designFontScale,
     color: semantic.text,
     padding: 0,
     margin: 0,
