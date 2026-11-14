@@ -101,6 +101,27 @@ npx expo run:ios
 npx expo run:android
 ```
 
+### A local Android APK, without an Expo account
+
+The Android SDK and a JDK 17 are the only prerequisites:
+
+```bash
+brew install openjdk@17
+
+cd apps/mobile
+npx expo prebuild --platform android
+
+cd android
+JAVA_HOME=/opt/homebrew/opt/openjdk@17 \
+ANDROID_HOME=$HOME/Library/Android/sdk \
+./gradlew assembleRelease
+
+# -> android/app/build/outputs/apk/release/app-release.apk
+```
+
+The release build is signed with the debug key, so it installs by sideloading
+but cannot go to the Play Store - use EAS for that.
+
 EAS needs `expo login` once and a project id. Add one with
 `npx eas-cli init` (it writes `extra.eas.projectId` into `app.json`).
 
