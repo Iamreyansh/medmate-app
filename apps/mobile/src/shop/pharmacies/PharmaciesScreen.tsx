@@ -15,6 +15,7 @@ import {
 } from '@medmate/theme';
 
 import { Icon } from '../../icons/Icon';
+import { useContentWidth } from '../../ui/layout';
 import { Text } from '../../ui/Text';
 import { ArtTile, EmptyState, FilterChip, Gradient } from '../../ui/primitives';
 import { useNotice } from '../../state/notice';
@@ -67,6 +68,10 @@ export function PharmaciesScreen({
   }, [list, query]);
 
   const highlights = useMemo(() => highlightedPharmacies(), []);
+  // The design draws the highlight card at 330; a narrower phone gets a card
+  // that fits instead of one that is clipped.
+  const contentWidth = useContentWidth();
+  const highlightWidth = Math.min(330, contentWidth);
   const categories = useMemo(() => categoryList().slice(0, 6), []);
 
   return (
@@ -131,6 +136,7 @@ export function PharmaciesScreen({
                 onPress={() => onStorePress?.(pharmacy)}
                 style={({ pressed }) => [
                   styles.highlight,
+                  { width: highlightWidth },
                   pharmacy.highlight?.eyebrow === 'Open all night'
                     ? styles.highlightGold
                     : styles.highlightForest,
@@ -392,7 +398,6 @@ const styles = StyleSheet.create({
     paddingRight: spacing.lg,
   },
   highlight: {
-    width: 330,
     height: 132,
     flexDirection: 'row',
     alignItems: 'center',

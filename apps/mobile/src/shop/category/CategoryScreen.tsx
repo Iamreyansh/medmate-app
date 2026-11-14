@@ -15,6 +15,7 @@ import {
 
 import { Icon } from '../../icons/Icon';
 import { Text } from '../../ui/Text';
+import { useGrid } from '../../ui/layout';
 import { EmptyState, FilterChip } from '../../ui/primitives';
 import { useCart } from '../../state/cart';
 import { useNotice } from '../../state/notice';
@@ -75,6 +76,10 @@ export function CategoryScreen({
   const [brandFilter, setBrandFilter] = useState<string | null>(null);
   const [sort, setSort] = useState<string>('relevance');
   const [layout, setLayout] = useState<'grid' | 'list'>('grid');
+
+  // The grid shares out the width it has, so three columns survive on a
+  // phone narrower than the design canvas.
+  const grid = useGrid(3, { basis: 114 });
   const [sortOpen, setSortOpen] = useState(false);
 
   /** Every product in the category, before any filter. */
@@ -322,12 +327,12 @@ export function CategoryScreen({
           />
         ) : null}
         {layout === 'grid' && products.length > 0 ? (
-          <View style={styles.grid}>
+          <View style={[styles.grid, { gap: grid.gap }]}>
             {products.map((product) => (
               <ProductCard
                 key={product.id}
                 product={product}
-                width={114}
+                width={grid.width}
                 onAdd={() => addToCart(product)}
                 onPress={() => onProductPress?.(product.id)}
               />

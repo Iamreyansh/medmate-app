@@ -247,6 +247,7 @@ export function ServiceChip({ label, selected, onPress }: ServiceChipProps) {
       accessibilityRole="button"
       accessibilityState={{ selected: !!selected }}
       onPress={onPress}
+      hitSlop={8}
       style={({ pressed }) => [
         styles.chip,
         {
@@ -277,6 +278,9 @@ export function FilterChip({ label, selected, onPress }: FilterChipProps) {
       accessibilityRole="button"
       accessibilityState={{ selected: !!selected }}
       onPress={onPress}
+      // The design chips are 32-34pt tall; the tap area is padded out to the
+      // 48dp the platform guidelines ask for.
+      hitSlop={8}
       style={({ pressed }) => [
         styles.filterChip,
         isAndroidButton ? styles.filterChipAndroid : styles.filterChipIOS,

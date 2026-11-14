@@ -395,21 +395,38 @@ function HeroBanner({
   banner: (typeof heroBanners)[number];
   onPress: () => void;
 }) {
+  const { width } = useWindowDimensions();
+  // The banner art is drawn for a 361pt banner. Scale it with the banner so
+  // nothing is clipped on a narrower phone.
+  const scale = (width - spacing.lg * 2) / 361;
+
   return (
     <Gradient token={banner.gradient} radius={radii.huge} style={styles.banner}>
       <View pointerEvents="none" style={styles.bannerArt}>
-        <View style={styles.bannerDisc} />
-        <View style={styles.bannerDiscInner} />
+        <View
+          style={[
+            styles.bannerDisc,
+            { width: 190 * scale, height: 190 * scale, top: -9 * scale, right: -40 * scale },
+          ]}
+        />
+        <View
+          style={[
+            styles.bannerDiscInner,
+            { width: 132 * scale, height: 132 * scale, top: 20 * scale, right: -12 * scale },
+          ]}
+        />
         {banner.art.map((item, index) => (
           <View
             key={`${item.kind}-${index}`}
             style={[
               styles.bannerTile,
               {
-                left: item.x,
-                top: item.y,
-                width: item.size,
-                height: item.size,
+                // The composition is drawn for a 361pt banner; on a narrower
+                // phone it scales down instead of hanging off the edge.
+                left: item.x * scale,
+                top: item.y * scale,
+                width: item.size * scale,
+                height: item.size * scale,
                 borderRadius: item.kind === 'glyph' && item.circle ? item.size / 2 : radii.xl,
                 backgroundColor: item.kind === 'glyph' && item.circle ? brand.forest : neutral.surface,
                 alignItems: 'center',
@@ -419,8 +436,8 @@ function HeroBanner({
           >
             {item.kind === 'photo' ? (
               <ArtTile
-                width={item.size - spacing.md}
-                height={item.size - spacing.md}
+                width={Math.max(0, item.size * scale - spacing.md)}
+                height={Math.max(0, item.size * scale - spacing.md)}
                 radius={radii.md}
                 initials={item.initials}
               />
@@ -653,19 +670,11 @@ const styles = StyleSheet.create({
   },
   bannerDisc: {
     position: 'absolute',
-    top: -9,
-    right: -40,
-    width: 190,
-    height: 190,
     borderRadius: 95,
     backgroundColor: 'rgba(255,255,255,0.55)',
   },
   bannerDiscInner: {
     position: 'absolute',
-    top: 20,
-    right: -12,
-    width: 132,
-    height: 132,
     borderRadius: 66,
     backgroundColor: 'rgba(255,255,255,0.60)',
   },
@@ -682,6 +691,7 @@ const styles = StyleSheet.create({
   },
   bannerText: {
     width: 201,
+    maxWidth: '72%',
     gap: spacing.xs,
     paddingLeft: spacing.lg,
     paddingBottom: spacing.lg,

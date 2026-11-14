@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { neutral, semantic, spacing } from '@medmate/theme';
 
 import { Text } from '../../ui/Text';
+import { useGrid } from '../../ui/layout';
 import { EmptyState, FilterChip } from '../../ui/primitives';
 import { useCart } from '../../state/cart';
 import { useNotice } from '../../state/notice';
@@ -41,6 +42,8 @@ export function NewArrivalsScreen({
   const cart = useCart();
   const notice = useNotice();
   const [category, setCategory] = useState<string | null>(null);
+
+  const grid = useGrid(3, { basis: 114 });
 
   const categories = useMemo(() => newArrivalCategories(), []);
   const products = useMemo(
@@ -86,12 +89,12 @@ export function NewArrivalsScreen({
               body="New products land every week - try another category."
             />
           ) : null}
-          <View style={styles.grid}>
+          <View style={[styles.grid, { gap: grid.gap }]}>
             {products.map((product) => (
               <ProductCard
                 key={product.id}
                 product={product}
-                width={114}
+                width={grid.width}
                 onAdd={() => {
                   cart.add({ id: product.id, name: product.name, price: product.price });
                   notice.notify(`${product.name} added to the cart`);

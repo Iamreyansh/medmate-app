@@ -16,6 +16,7 @@ import {
 
 import { Icon } from '../icons/Icon';
 import { Text } from '../ui/Text';
+import { useGrid } from '../ui/layout';
 import {
   AddButton,
   ArtTile,
@@ -168,9 +169,10 @@ export type ProductCardProps = {
  * size, the name, the delivery window, the price and the ADD button.
  */
 export function ProductCard({ product, width, onPress, onAdd }: ProductCardProps) {
-  // The design component draws a fixed 120pt art, so the card keeps it whether
-  // it fills its row or sits in a three column grid.
-  const art = 120;
+  // The design component draws a 120pt art. A card narrower than that (a
+  // three column grid on a small phone) takes a proportionally smaller art so
+  // it never spills into the next card.
+  const art = Math.min(120, Math.max(0, (width ?? 132) - spacing.md));
 
   return (
     <View style={[styles.productCard, width ? { width } : null]}>
@@ -276,14 +278,17 @@ function CategoryGrid({
   categories: { id: string; label: string; initials: string }[];
   onPress?: (label: string) => void;
 }) {
+  // Four across, whatever the width: the tiles tighten before they wrap.
+  const grid = useGrid(4, { basis: 76, gap: 19, minGap: 8 });
+
   return (
-    <View style={styles.categoryGrid}>
+    <View style={[styles.categoryGrid, { gap: grid.gap }]}>
       {categories.map((category) => (
         <Pressable
           key={category.id}
           accessibilityRole="button"
           onPress={() => onPress?.(category.label)}
-          style={styles.category}
+          style={[styles.category, { width: grid.width }]}
         >
           <ArtTile
             width={76}
@@ -762,6 +767,7 @@ export function CareBlock({
   onAdd?: (product: Product) => void;
   onPress?: (product: Product) => void;
 }) {
+  const grid = useGrid(2, { basis: 163 });
   const accent = storeAccents[store.accent];
 
   return (
@@ -786,12 +792,12 @@ export function CareBlock({
       </View>
 
       <View style={styles.careBody}>
-        <View style={styles.careGrid}>
+        <View style={[styles.careGrid, { gap: grid.gap }]}>
           {store.products.map((product) => (
             <ProductCard
               key={product.id}
               product={product}
-              width={163}
+              width={grid.width}
               onAdd={() => onAdd?.(product)}
               onPress={() => onPress?.(product)}
             />
@@ -918,15 +924,17 @@ export function BestOffersSection({
   onAdd?: (product: Product) => void;
   onPress?: (product: Product) => void;
 }) {
+  const grid = useGrid(3, { basis: 114 });
+
   return (
     <View style={styles.section}>
       <SectionHeader title="Best offers near you" actionLabel="See all" />
-      <View style={styles.offerGrid}>
+      <View style={[styles.offerGrid, { gap: grid.gap }]}>
         {products.map((product) => (
           <ProductCard
             key={product.id}
             product={product}
-            width={114}
+            width={grid.width}
             onAdd={() => onAdd?.(product)}
             onPress={() => onPress?.(product)}
           />
@@ -1128,7 +1136,6 @@ const styles = StyleSheet.create({
     gap: 19,
   },
   category: {
-    width: 76,
     alignItems: 'center',
     gap: spacing.xs + 2,
   },

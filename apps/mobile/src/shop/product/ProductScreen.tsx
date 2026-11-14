@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
@@ -80,6 +80,11 @@ export function ProductScreen({
   const cart = useCart();
   const notice = useNotice();
 
+  const { width } = useWindowDimensions();
+  // The product photo takes 240pt on the design canvas and scales down with
+  // the screen so it never crowds the edges on a small phone.
+  const photoSize = Math.min(240, width - spacing.lg * 2 - spacing.xxl);
+
   const product = findProduct(productId);
   const detail = useMemo(() => (product ? productDetail(product) : null), [product]);
 
@@ -121,7 +126,7 @@ export function ProductScreen({
         <Gradient token="art" radius={0} style={styles.imageArea}>
           {/* The product photo sits on the mint tint; until the photos land it
               is a white card with the initials on it. */}
-          <View style={styles.photo}>
+          <View style={[styles.photo, { width: photoSize, height: photoSize }]}>
             <View style={styles.photoCard}>
               <Text variant="categoryTitle" color={brand.green700}>
                 {initialsOf(product.name)}
@@ -134,39 +139,47 @@ export function ProductScreen({
               accessibilityRole="button"
               accessibilityLabel="Back"
               onPress={onBack}
-              style={styles.iconButton}
+              style={styles.iconTap}
             >
-              <Icon
-                name={isAndroid ? 'arrow-left' : 'chev-l'}
-                size={20}
-                color={semantic.text}
-                strokeWidth={2.2}
-              />
+              <View style={styles.iconButton}>
+                <Icon
+                  name={isAndroid ? 'arrow-left' : 'chev-l'}
+                  size={20}
+                  color={semantic.text}
+                  strokeWidth={2.2}
+                />
+              </View>
             </Pressable>
             <View style={styles.iconButtons}>
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="Search"
                 onPress={onSearch}
-                style={styles.iconButton}
+                style={styles.iconTap}
               >
-                <Icon name="search" size={18} color={semantic.text} />
+                <View style={styles.iconButton}>
+                  <Icon name="search" size={18} color={semantic.text} />
+                </View>
               </Pressable>
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="Save for later"
                 onPress={onFavourite}
-                style={styles.iconButton}
+                style={styles.iconTap}
               >
-                <Icon name="heart" size={18} color={semantic.text} />
+                <View style={styles.iconButton}>
+                  <Icon name="heart" size={18} color={semantic.text} />
+                </View>
               </Pressable>
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="Share"
                 onPress={onShare}
-                style={styles.iconButton}
+                style={styles.iconTap}
               >
-                <Icon name="share" size={18} color={semantic.text} />
+                <View style={styles.iconButton}>
+                  <Icon name="share" size={18} color={semantic.text} />
+                </View>
               </Pressable>
             </View>
           </View>
@@ -348,6 +361,13 @@ const styles = StyleSheet.create({
   iconButtons: {
     flexDirection: 'row',
     gap: spacing.sm,
+  },
+  /** A 48pt tap area around the 40pt button the design draws. */
+  iconTap: {
+    width: 48,
+    height: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   iconButton: {
     width: 40,

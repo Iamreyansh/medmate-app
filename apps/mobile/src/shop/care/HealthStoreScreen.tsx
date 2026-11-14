@@ -5,6 +5,7 @@ import { brand, mint, neutral, platformKey, radii, semantic, spacing, storeAccen
 
 import { Icon } from '../../icons/Icon';
 import { Text } from '../../ui/Text';
+import { useGrid } from '../../ui/layout';
 import { FilterChip } from '../../ui/primitives';
 import { useCart } from '../../state/cart';
 import { useNotice } from '../../state/notice';
@@ -49,6 +50,8 @@ export function HealthStoreScreen({
   const cart = useCart();
   const notice = useNotice();
   const [sort, setSort] = useState<SortId>('recommended');
+
+  const grid = useGrid(3, { basis: 114 });
 
   const products = useMemo(() => {
     const shelf = storeProducts(store);
@@ -97,12 +100,12 @@ export function HealthStoreScreen({
             />
           </ScrollView>
 
-          <View style={styles.grid}>
+          <View style={[styles.grid, { gap: grid.gap }]}>
             {products.map((product) => (
               <ProductCard
                 key={product.id}
                 product={product}
-                width={114}
+                width={grid.width}
                 onAdd={() => {
                   cart.add({ id: product.id, name: product.name, price: product.price });
                   notice.notify(`${product.name} added to the cart`);

@@ -16,6 +16,7 @@ import {
 
 import { Icon } from '../../icons/Icon';
 import { Text } from '../../ui/Text';
+import { useGrid } from '../../ui/layout';
 import { EmptyState, FilterChip } from '../../ui/primitives';
 import { useCart } from '../../state/cart';
 import { useNotice } from '../../state/notice';
@@ -54,6 +55,8 @@ export function PharmacyStorefrontScreen({
   const notice = useNotice();
   const [filter, setFilter] = useState<'all' | 'noPrescription' | 'prescription' | 'discount'>('all');
   const [query, setQuery] = useState('');
+
+  const grid = useGrid(3, { basis: 114 });
 
   const products = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -213,12 +216,12 @@ export function PharmacyStorefrontScreen({
               body="Try another filter, or search the whole of MedMate."
             />
           ) : null}
-          <View style={styles.grid}>
+          <View style={[styles.grid, { gap: grid.gap }]}>
             {products.map((product) => (
               <ProductCard
                 key={product.id}
                 product={product}
-                width={114}
+                width={grid.width}
                 onAdd={() => {
                   cart.add({ id: product.id, name: product.name, price: product.price });
                   notice.notify(`${product.name} added to the cart`);
