@@ -3,7 +3,6 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { categoryFromSlug, slugFor } from '../../src/data/category';
 import { CategoryScreen } from '../../src/shop/category/CategoryScreen';
-import { useNotice } from '../../src/state/notice';
 
 /**
  * The category route.
@@ -13,7 +12,6 @@ import { useNotice } from '../../src/state/notice';
  */
 export default function CategoryRoute() {
   const router = useRouter();
-  const notice = useNotice();
   const { slug } = useLocalSearchParams<{ slug?: string }>();
   const category = categoryFromSlug(slug ?? 'fever-pain');
 
@@ -25,7 +23,7 @@ export default function CategoryRoute() {
       onCategoryChange={(name) =>
         router.push({ pathname: '/category/[slug]', params: { slug: slugFor(name) } })
       }
-      onProductPress={(id) => notice.notify(`${id} - the product page is next in the section`)}
+      onProductPress={(id) => router.push({ pathname: '/product/[id]', params: { id } })}
     />
   );
 }

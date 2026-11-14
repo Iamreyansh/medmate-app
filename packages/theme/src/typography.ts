@@ -84,6 +84,8 @@ export const iosType = {
   categoryTitle: { fontSize: 30, lineHeight: 34, fontWeight: '800', letterSpacing: -0.6 },
   /** The store name in the brand zone. */
   storeTitle: { fontSize: 28, lineHeight: 34, fontWeight: '700', letterSpacing: -0.42 },
+  /** The price on a product page. */
+  displayPrice: { fontSize: 34, lineHeight: 41, fontWeight: '800', letterSpacing: -0.68 },
   /** The title in a store nav bar. */
   storeNavTitle: { fontSize: 17, lineHeight: 22, fontWeight: '600', letterSpacing: -0.085 },
 } as const satisfies Record<string, TypeStyle>;
@@ -120,6 +122,8 @@ export const m3Type = {
   categoryTitle: { fontSize: 30, lineHeight: 34, fontWeight: '800', letterSpacing: -0.6 },
   /** The store name in the brand zone. */
   storeTitle: { fontSize: 24, lineHeight: 32, fontWeight: '700', letterSpacing: -0.24 },
+  /** The price on a product page. */
+  displayPrice: { fontSize: 34, lineHeight: 41, fontWeight: '800', letterSpacing: -0.68 },
   /** The title in a store nav bar. */
   storeNavTitle: { fontSize: 22, lineHeight: 28, fontWeight: '700', letterSpacing: -0.11 },
 } as const satisfies Record<string, TypeStyle>;
@@ -165,6 +169,8 @@ export const typeRoles = {
   categoryTitle: { ios: 'categoryTitle', m3: 'categoryTitle' },
   /** The store title in the brand zone. */
   storeTitle: { ios: 'storeTitle', m3: 'storeTitle' },
+  /** The price on a product page. */
+  displayPrice: { ios: 'displayPrice', m3: 'displayPrice' },
   /** The title in a store nav bar. */
   storeNavTitle: { ios: 'storeNavTitle', m3: 'storeNavTitle' },
   /** The product count under the category title. */

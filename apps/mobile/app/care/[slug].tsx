@@ -3,7 +3,6 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { careStoreFromSlug } from '../../src/data/care';
 import { HealthStoreScreen } from '../../src/shop/care/HealthStoreScreen';
-import { useNotice } from '../../src/state/notice';
 
 /**
  * The health store route.
@@ -13,7 +12,6 @@ import { useNotice } from '../../src/state/notice';
  */
 export default function CareStoreRoute() {
   const router = useRouter();
-  const notice = useNotice();
   const { slug } = useLocalSearchParams<{ slug?: string }>();
   const store = careStoreFromSlug(slug ?? 'ortho-pain-care');
 
@@ -25,7 +23,7 @@ export default function CareStoreRoute() {
       onStoreChange={(next) =>
         router.push({ pathname: '/care/[slug]', params: { slug: next.id } })
       }
-      onProductPress={(id) => notice.notify(`${id} - the product page is next in the section`)}
+      onProductPress={(id) => router.push({ pathname: '/product/[id]', params: { id } })}
     />
   );
 }

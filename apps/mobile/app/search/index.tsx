@@ -20,7 +20,7 @@ export default function SearchRoute() {
       initialQuery={q ?? 'paracetamol'}
       onBack={() => router.back()}
       onUploadRx={() => notice.notify('Upload a prescription to unlock Rx medicines')}
-      onProductPress={(id) => notice.notify(`${id} - the product page is next in the section`)}
+      onProductPress={(id) => router.push({ pathname: '/product/[id]', params: { id } })}
     />
   );
 }

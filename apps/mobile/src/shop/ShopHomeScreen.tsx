@@ -80,12 +80,12 @@ export function ShopHomeScreen() {
     [cart, notice],
   );
 
-  /** Open a product. The product page is the next screen in the section. */
+  /** Open a product page. */
   const openProduct = useCallback(
     (product: Product) => {
-      notice.notify(`${product.name} - the product page is next in the section`);
+      router.push({ pathname: '/product/[id]', params: { id: product.id } });
     },
-    [notice],
+    [router],
   );
 
   /**

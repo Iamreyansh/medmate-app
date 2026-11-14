@@ -13,6 +13,8 @@ against the Figma design system.
 | **Shop › Category** (`app/category/[slug].tsx` → `src/shop/category/CategoryScreen.tsx`) | Implemented, iOS + Android variants |
 | **Shop › Health store** (`app/care/[slug].tsx` → `src/shop/care/HealthStoreScreen.tsx`) | Implemented, iOS + Android variants |
 | **Shop › New arrivals** (`app/new-arrivals.tsx` → `src/shop/newarrivals/NewArrivalsScreen.tsx`) | Implemented, iOS + Android variants |
+| **Shop › Product (OTC)** (`app/product/[id].tsx` → `src/shop/product/ProductScreen.tsx`) | Implemented, iOS + Android variants |
+| **Shop › Product (Rx)** (`app/product/[id].tsx` → `src/shop/product/ProductScreen.tsx`) | Implemented, iOS + Android variants |
 
 The Shop home screen is the entry point of the Shop section: the brand zone
 (delivery promise, health day, search, service tabs, hero carousel), then the
@@ -43,6 +45,7 @@ apps/mobile/app           expo-router routes
 | `/category/fever-pain` | A category, with the prescription, price and brand filters |
 | `/care/ortho-pain-care` | A health store - ortho, baby, women's, diabetes, heart, elderly |
 | `/new-arrivals` | The newest products, with a filter per category |
+| `/product/moov-gel` | A product page - the same screen serves OTC and Rx |
 
 ### The mock data
 
@@ -120,7 +123,10 @@ npm run format:check           # prettier
   zone uses the real safe-area inset instead of the Figma's 54pt mock.
 - **Prescription items** show the selling price only - never a struck MRP and
   never a discount. `PriceRow` in `src/shop/sections.tsx` enforces this, and
-  the copy in the banners says so.
+  the copy in the banners says so. On the product page the same rule holds:
+  the Rx layout drops the discount tab, the savings tag and the struck price,
+  and adds the red prescription notice and the "Prescription required" block
+  instead.
 - The bottom bar is part of the screen (a floating pill rather than a system
   tab bar), so it lives in `src/shop/BottomChrome.tsx`.
 - The search results screen closes with a **cart bar** (free-delivery goal plus
