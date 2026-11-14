@@ -8,6 +8,7 @@ import {
   gold,
   mint,
   neutral,
+  platformKey,
   radii,
   semantic,
   spacing,
@@ -31,6 +32,8 @@ import {
   type PharmacyFilterId,
 } from '../../data/pharmacy';
 import { BottomChrome } from '../BottomChrome';
+
+const isAndroid = platformKey === 'android';
 
 export type PharmaciesScreenProps = {
   onBack?: () => void;
@@ -363,10 +366,11 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
-    height: 44,
-    paddingHorizontal: spacing.md,
-    borderRadius: radii.lg,
+    gap: isAndroid ? spacing.md : spacing.sm,
+    height: isAndroid ? 56 : 44,
+    paddingHorizontal: isAndroid ? spacing.lg : spacing.md,
+    // Android draws the search field as a Material pill.
+    borderRadius: isAndroid ? 28 : radii.lg,
     backgroundColor: neutral.surface,
   },
   searchInput: {
@@ -394,7 +398,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
     padding: spacing.lg,
-    borderRadius: radii.xxl,
+    borderRadius: isAndroid ? 20 : radii.xxl,
   },
   highlightForest: {
     backgroundColor: brand.forest,

@@ -8,6 +8,7 @@ import {
   gold,
   mint,
   neutral,
+  platformKey,
   radii,
   semantic,
   spacing,
@@ -23,6 +24,8 @@ import { offerCoupons, type Pharmacy } from '../../data/pharmacy';
 import { CartBar } from '../search/CartBar';
 import { NavBar } from '../BrandZone';
 import { ProductCard } from '../sections';
+
+const isAndroid = platformKey === 'android';
 
 export type PharmacyStorefrontScreenProps = {
   /** The store on screen. */
@@ -372,10 +375,11 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
-    height: 44,
-    paddingHorizontal: spacing.md,
-    borderRadius: radii.lg,
+    gap: isAndroid ? spacing.md : spacing.sm,
+    height: isAndroid ? 56 : 44,
+    paddingHorizontal: isAndroid ? spacing.lg : spacing.md,
+    // Android draws the search field as a Material pill.
+    borderRadius: isAndroid ? 28 : radii.lg,
     backgroundColor: neutral.surface2,
   },
   searchInput: {

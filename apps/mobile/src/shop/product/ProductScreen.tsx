@@ -16,7 +16,7 @@ import {
 
 import { Icon } from '../../icons/Icon';
 import { Text } from '../../ui/Text';
-import { Button, Gradient } from '../../ui/primitives';
+import { Button, EmptyState, Gradient } from '../../ui/primitives';
 import { useCart } from '../../state/cart';
 import { useNotice } from '../../state/notice';
 import { catalogue, findProduct, initialsOf } from '../../data/catalogue';
@@ -86,9 +86,20 @@ export function ProductScreen({
   if (!product || !detail) {
     return (
       <View style={styles.root}>
-        <Text variant="body" color={semantic.text}>
-          This product is no longer available.
-        </Text>
+        <View style={styles.missingTop}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Back"
+            onPress={onBack}
+            style={styles.missingBack}
+          >
+            <Icon name="chev-l" size={20} color={semantic.text} strokeWidth={2.2} />
+          </Pressable>
+        </View>
+        <EmptyState
+          title="This product is no longer available"
+          body="It may have been replaced by a newer pack. Search for the medicine again, or ask MedMate to source it for you."
+        />
       </View>
     );
   }
@@ -403,6 +414,18 @@ const styles = StyleSheet.create({
   },
   disclaimer: {
     paddingTop: spacing.xs,
+  },
+  missingTop: {
+    paddingTop: spacing.lg,
+    paddingLeft: spacing.lg,
+  },
+  missingBack: {
+    width: 40,
+    height: 40,
+    borderRadius: radii.circle,
+    backgroundColor: neutral.surface2,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   actionBar: {
     position: 'absolute',

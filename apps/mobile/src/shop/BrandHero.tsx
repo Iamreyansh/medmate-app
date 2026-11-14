@@ -42,7 +42,12 @@ type FloatingGlyph = {
   size: number;
   color: string;
   opacity: number;
-  /** Drift distance in pt. */
+  /**
+   * Drift distance in pt.
+   *
+   * The design draws the glyphs still. They drift a little so the hero is not
+   * dead, but not enough to wander onto the copy.
+   */
   drift: number;
   /** Seconds for one drift cycle. */
   duration: number;
@@ -56,14 +61,14 @@ type FloatingGlyph = {
  * as fractions so the composition holds on any device width.
  */
 const FLOATING_GLYPHS: FloatingGlyph[] = [
-  { icon: 'heart', x: 0.02, y: 120, size: 39, color: neutral.surface, opacity: 0.25, drift: 12, duration: 5.4, delay: 0 },
-  { icon: 'pill', x: 0.76, y: 90, size: 36, color: gold[300], opacity: 0.35, drift: 16, duration: 6.2, delay: 0.6 },
-  { icon: 'steth', x: 0.83, y: 300, size: 42, color: neutral.surface, opacity: 0.25, drift: 14, duration: 7.1, delay: 1.2 },
-  { icon: 'flask', x: 0.02, y: 326, size: 32, color: neutral.surface, opacity: 0.25, drift: 10, duration: 6.7, delay: 0.3 },
-  { icon: 'shield', x: 0.41, y: 66, size: 35, color: gold[300], opacity: 0.35, drift: 12, duration: 5.9, delay: 1.5 },
-  { icon: 'plus', x: 0.64, y: 210, size: 26, color: neutral.surface, opacity: 0.25, drift: 18, duration: 4.8, delay: 2.1 },
-  { icon: 'heart', x: 0.15, y: 515, size: 30, color: neutral.surface, opacity: 0.25, drift: 13, duration: 6.4, delay: 2.7 },
-  { icon: 'pill', x: 0.8, y: 560, size: 40, color: gold[300], opacity: 0.35, drift: 15, duration: 5.6, delay: 3.3 },
+  { icon: 'heart', x: 0.02, y: 120, size: 39, color: neutral.surface, opacity: 0.25, drift: 5, duration: 5.4, delay: 0 },
+  { icon: 'pill', x: 0.76, y: 90, size: 36, color: gold[300], opacity: 0.35, drift: 7, duration: 6.2, delay: 0.6 },
+  { icon: 'steth', x: 0.83, y: 300, size: 42, color: neutral.surface, opacity: 0.25, drift: 6, duration: 7.1, delay: 1.2 },
+  { icon: 'flask', x: 0.02, y: 326, size: 32, color: neutral.surface, opacity: 0.25, drift: 4, duration: 6.7, delay: 0.3 },
+  { icon: 'shield', x: 0.41, y: 66, size: 35, color: gold[300], opacity: 0.35, drift: 5, duration: 5.9, delay: 1.5 },
+  { icon: 'plus', x: 0.64, y: 210, size: 26, color: neutral.surface, opacity: 0.25, drift: 8, duration: 4.8, delay: 2.1 },
+  { icon: 'heart', x: 0.15, y: 515, size: 30, color: neutral.surface, opacity: 0.25, drift: 6, duration: 6.4, delay: 2.7 },
+  { icon: 'pill', x: 0.8, y: 560, size: 40, color: gold[300], opacity: 0.35, drift: 7, duration: 5.6, delay: 3.3 },
 ];
 
 function FloatingGlyphView({ glyph, width }: { glyph: FloatingGlyph; width: number }) {

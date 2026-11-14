@@ -255,7 +255,7 @@ export function ServiceChip({ label, selected, onPress }: ServiceChipProps) {
         },
       ]}
     >
-      <Text variant="captionStrong" color={selected ? brand.forest : neutral.surface} style={styles.chipLabel}>
+      <Text variant="serviceTabLabel" color={selected ? brand.forest : neutral.surface} style={styles.chipLabel}>
         {label}
       </Text>
     </Pressable>

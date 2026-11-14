@@ -110,6 +110,8 @@ export const m3Type = {
   labelSmall: { fontSize: 11, lineHeight: 16, fontWeight: '600', letterSpacing: 0 },
   /** Android counterpart of the iOS 11pt semibold caption. */
   captionSmall: { fontSize: 11, lineHeight: 16, fontWeight: '600', letterSpacing: 0 },
+  /** The 12pt label the Material service tabs use. */
+  tabLabelMedium: { fontSize: 12, lineHeight: 16, fontWeight: '600', letterSpacing: 0 },
   overline: { fontSize: 11, lineHeight: 16, fontWeight: '700', letterSpacing: 0.88, textTransform: 'uppercase' },
   price: { fontSize: 16, lineHeight: 24, fontWeight: '800', letterSpacing: 0 },
   amount: { fontSize: 20, lineHeight: 28, fontWeight: '800', letterSpacing: 0 },
@@ -161,6 +163,8 @@ export const typeRoles = {
   strong: { ios: 'footnoteEmphasized', m3: 'labelLarge' },
   /** Filter chip label. */
   filterLabel: { ios: 'subheadlineEmphasized', m3: 'labelLarge' },
+  /** The service tab label in the hero. */
+  serviceTabLabel: { ios: 'captionStrong', m3: 'tabLabelMedium' },
   /** Product name inside a result row. */
   resultName: { ios: 'callout', m3: 'titleMedium' },
   /** Result meta line - result counts, delivery notes. */
