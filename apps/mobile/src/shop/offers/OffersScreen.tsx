@@ -116,6 +116,7 @@ export function OffersScreen({ onBack, onApplyCoupon }: OffersScreenProps) {
             <View style={styles.codeRow}>
               <TextInput
                 allowFontScaling={false}
+            numberOfLines={1}
                 value={code}
                 onChangeText={setCode}
                 placeholder="Enter code"

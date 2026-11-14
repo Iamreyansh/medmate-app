@@ -175,6 +175,8 @@ export function PharmacyStorefrontScreen({
             <Icon name="search" size={18} color={semantic.textMuted} />
             <TextInput
               allowFontScaling={false}
+            numberOfLines={1}
+              
               value={query}
               onChangeText={setQuery}
               placeholder={`Search in ${pharmacy.name}`}

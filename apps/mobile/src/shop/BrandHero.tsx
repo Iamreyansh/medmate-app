@@ -13,8 +13,11 @@ import Svg, { Path } from 'react-native-svg';
 
 import {
   brand,
+  designFontScale,
   elevation,
+  fontFamily,
   gold,
+  iosType,
   mint,
   neutral,
   radii,
@@ -182,6 +185,35 @@ function HeartbeatLine({ width }: { width: number }) {
 }
 
 /* -------------------------------------------------------------------------- */
+/*  Wordmark                                                                  */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The app wordmark.
+ *
+ * "Med" is white and "Mate" is gold, in one run of type at the same size and
+ * weight. A nested text does not inherit the weight from its parent on every
+ * platform, so both halves are set explicitly.
+ */
+function Wordmark() {
+  const metrics = iosType.wordmark;
+  const type = {
+    fontFamily: fontFamily[metrics.fontWeight],
+    fontWeight: metrics.fontWeight,
+    fontSize: metrics.fontSize * designFontScale,
+    lineHeight: metrics.lineHeight * designFontScale,
+    letterSpacing: metrics.letterSpacing * designFontScale,
+  };
+
+  return (
+    <Text style={[styles.wordmark, type]} allowFontScaling={false}>
+      Med
+      <Text style={[type, { color: gold[300] }]}>Mate</Text>
+    </Text>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
 /*  Hero                                                                      */
 /* -------------------------------------------------------------------------- */
 
@@ -233,9 +265,7 @@ export function BrandHero({
 
         {/* Top row: wordmark, wallet, bell, avatar */}
         <View style={styles.topRow}>
-          <Text variant="wordmark" color={neutral.surface} style={styles.wordmark}>
-            Med<Text style={styles.wordmarkAccent}>Mate</Text>
-          </Text>
+          <Wordmark />
           <Pressable style={styles.walletChip} accessibilityRole="button">
             <Icon name="wallet" size={16} color={gold[300]} />
             <Text variant="footnoteEmphasized" color={neutral.surface}>
@@ -524,10 +554,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   wordmark: {
-    letterSpacing: -0.91,
-  },
-  wordmarkAccent: {
-    color: gold[300],
+    flexDirection: 'row',
   },
   walletChip: {
     flexDirection: 'row',

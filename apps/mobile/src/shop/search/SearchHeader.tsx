@@ -89,6 +89,8 @@ export function SearchHeader({
             <Icon name="search" size={isAndroid ? 24 : 18} color={semantic.textMuted} />
             <TextInput
               allowFontScaling={false}
+            numberOfLines={1}
+              
               value={query}
               onChangeText={onChangeQuery}
               placeholder="Search a medicine"
