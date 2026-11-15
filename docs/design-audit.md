@@ -27,7 +27,7 @@ Two things this method separates that eyeballing does not:
 
 ## Screen coverage
 
-| Section | Frames in Figma | In the app | Status |
+| Section | Screens in Figma | In the app | Status |
 |---|---|---|---|
 | 01 Onboarding | 6 | 1 | **5 missing** |
 | 02 Shop | 12 | 12 | complete |
@@ -36,8 +36,14 @@ Two things this method separates that eyeballing does not:
 | 05 Prescriptions & care | 8 | 8 | complete |
 | 06 Health & family | 5 | 5 | complete |
 | 07 Account | 8 | 8 | complete |
-| 08 Overlays | 7 | 1 | **6 missing** |
-| **Total** | **55** | **44** | **11 missing** |
+| 08 Overlays | 8 | 1 | **7 missing** |
+| **Total** | **56** | **43** | **13 without a route** |
+
+Thirteen frames have no route. One of them, `02 Shop / Home - hero banners`
+(`40:134256`), is a 393x879 **pattern frame** - the carousel on its own -
+rather than a screen, and the app already draws that carousel inside Home.
+So **12 screens are genuinely left to build**: the five onboarding screens and
+the seven overlays.
 
 ### Screens the MVP needs and the app does not have
 
@@ -52,7 +58,7 @@ shop. Missing:
 | Consent | `40:132323` | Terms and privacy, with the boxes to tick |
 | Location | `40:132427` | Asking for location, with the reason |
 
-**08 Overlays — only the cancel-order alert is built.** Missing:
+**08 Overlays — only the cancel-order alert is built.** Seven missing:
 
 | Frame | Node id | What it is |
 |---|---|---|
