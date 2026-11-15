@@ -222,6 +222,10 @@ export type BrandHeroProps = {
   onSearch?: () => void;
   onUploadRx?: () => void;
   onBannerPress?: (id: string) => void;
+  /** Fired when the profile avatar is tapped. */
+  onProfilePress?: () => void;
+  /** Fired when the wallet is tapped. */
+  onWalletPress?: () => void;
   /** Fired when a service tab is picked, so the content below can filter. */
   onServiceTabChange?: (tab: string) => void;
 };
@@ -240,6 +244,8 @@ export function BrandHero({
   onSearch,
   onUploadRx,
   onBannerPress,
+  onProfilePress,
+  onWalletPress,
   onServiceTabChange,
 }: BrandHeroProps) {
   const insets = useSafeAreaInsets();
@@ -270,7 +276,12 @@ export function BrandHero({
         {/* Top row: wordmark, wallet, bell, avatar */}
         <View style={styles.topRow}>
           <Wordmark />
-          <Pressable style={styles.walletChip} accessibilityRole="button">
+          <Pressable
+            style={styles.walletChip}
+            accessibilityRole="button"
+            accessibilityLabel="MedMate Money"
+            onPress={onWalletPress}
+          >
             <Icon name="wallet" size={16} color={gold[300]} />
             <Text variant="footnoteEmphasized" color={neutral.surface}>
               {delivery.walletBalance}
@@ -279,7 +290,12 @@ export function BrandHero({
           <Pressable style={styles.iconChip} accessibilityRole="button" accessibilityLabel="Notifications">
             <Icon name="bell" size={18} color={neutral.surface} />
           </Pressable>
-          <Pressable style={styles.avatar} accessibilityRole="button" accessibilityLabel="Profile">
+          <Pressable
+            style={styles.avatar}
+            accessibilityRole="button"
+            accessibilityLabel="Profile"
+            onPress={onProfilePress}
+          >
             <Text variant="tag" color={brand.forest} style={styles.avatarLetter}>
               P
             </Text>

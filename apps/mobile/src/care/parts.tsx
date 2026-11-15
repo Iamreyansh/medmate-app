@@ -95,6 +95,8 @@ export function CareField({
   placeholder,
   helper,
   tall = false,
+  keyboardType,
+  autoCapitalize = 'sentences',
   style,
 }: {
   label?: string;
@@ -105,6 +107,8 @@ export function CareField({
   helper?: string;
   /** The field is tall enough for several lines. */
   tall?: boolean;
+  keyboardType?: 'default' | 'number-pad' | 'phone-pad' | 'email-address';
+  autoCapitalize?: 'none' | 'sentences' | 'words';
   style?: object;
 }) {
   return (
@@ -120,6 +124,8 @@ export function CareField({
         placeholder={placeholder}
         placeholderTextColor={semantic.textFaint}
         multiline={tall}
+        keyboardType={keyboardType}
+        autoCapitalize={autoCapitalize}
         style={[styles.fieldInput, tall ? styles.fieldInputTall : null]}
       />
       {helper ? (

@@ -137,6 +137,8 @@ export function ShopHomeScreen() {
         <BrandHero
           onSearch={() => router.push({ pathname: '/search', params: { q: 'paracetamol' } })}
           onUploadRx={() => notice.notify('Upload a prescription to unlock Rx medicines')}
+          onProfilePress={() => router.push({ pathname: '/account' })}
+          onWalletPress={() => router.push({ pathname: '/account' })}
           onBannerPress={(id) => notice.notify(BANNER_MESSAGES[id] ?? 'Opening')}
           onServiceTabChange={setServiceTab}
         />
