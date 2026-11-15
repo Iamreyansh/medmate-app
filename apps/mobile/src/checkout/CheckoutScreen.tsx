@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -14,9 +14,11 @@ import {
 } from '@medmate/theme';
 
 import { catalogue } from '../data/catalogue';
+import { offerCoupons } from '../data/pharmacy';
 import { Icon } from '../icons/Icon';
 import { useCart } from '../state/cart';
 import { useCheckout } from '../state/checkout';
+import { CouponSheet, type SheetCoupon } from '../overlays/CouponSheet';
 import { Text } from '../ui/Text';
 import { ArtTile, Button, EmptyState, Gradient } from '../ui/primitives';
 import { useContentInset } from '../ui/layout';
@@ -120,11 +122,34 @@ export function CheckoutScreen({
     [],
   );
 
+  const [couponsOpen, setCouponsOpen] = useState(false);
   const rxLines = cart.lines.filter((line) => line.rx);
   const paymentLabel =
     checkout.paymentId === 'cod' ? 'Cash' : checkout.paymentId === 'upi' ? 'UPI' : 'Card';
 
   // The label widths are the ones the Figma frame draws them at.
+  /** The coupons the sheet offers, in the shape the sheet draws them. */
+  const sheetCoupons: SheetCoupon[] = useMemo(
+    () =>
+      offerCoupons.map((coupon) => ({
+        id: coupon.id,
+        stub: coupon.big,
+        stubLabel: coupon.unit,
+        code: coupon.code,
+        title: coupon.title,
+        body: coupon.requirement,
+        saving:
+          coupon.id === 'medmate25'
+            ? 'Save ₹27 · on health products only'
+            : coupon.id === 'flat50'
+              ? 'Add ₹291 more of health products. Prescription medicines don’t count.'
+              : 'Delivery is already ₹0 on this order',
+        best: coupon.best,
+        applied: checkout.couponId === coupon.id,
+      })),
+    [checkout.couponId],
+  );
+
   const steps = [
     { id: 'cart', label: 'Cart', labelWidth: 27, done: totals.products > 0 },
     { id: 'pharmacy', label: 'Pharmacy', labelWidth: 61, done: totals.products > 0 },
@@ -570,12 +595,16 @@ export function CheckoutScreen({
               <Text variant="headline" color={semantic.text}>
                 Offers and coupons
               </Text>
-              <View style={styles.headLink}>
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => setCouponsOpen(true)}
+                style={styles.headLink}
+              >
                 <Text variant="footnoteEmphasized" color={semantic.text}>
                   View all
                 </Text>
                 <Icon name="chev-r" size={14} color={semantic.text} />
-              </View>
+              </Pressable>
             </View>
 
             <CardRail>
@@ -687,6 +716,13 @@ export function CheckoutScreen({
       </ScrollView>
 
       {/* Bottom bar ------------------------------------------------------- */}
+      <CouponSheet
+        visible={couponsOpen}
+        coupons={sheetCoupons}
+        onClose={() => setCouponsOpen(false)}
+        onApply={(id) => checkout.setCouponId(id)}
+      />
+
       <View style={[styles.actionBar, { paddingBottom: insets.bottom + spacing.sm }]}>
         <View style={[styles.actionInner, { paddingHorizontal: inset }]}>
           <Pressable

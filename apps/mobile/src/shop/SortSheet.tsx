@@ -1,10 +1,11 @@
 import React from 'react';
-import { Modal, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
-import { neutral, radii, semantic, spacing } from '@medmate/theme';
+import { brand, semantic, spacing } from '@medmate/theme';
 
 import { Icon } from '../icons/Icon';
 import { Text } from '../ui/Text';
+import { Sheet } from '../overlays/parts';
 
 export type SortOption = { id: string; label: string };
 
@@ -23,68 +24,57 @@ export type SortSheetProps = {
 /**
  * The sort sheet.
  *
- * The design only draws the sort chip, so this sheet follows the surfaces
- * used elsewhere in the app and is flagged as a not-yet-designed surface.
+ * The Figma `08 Overlays / Sort sheet` frame: the sheet over the results with
+ * a grabber, the heading, a close button and the ways of sorting them.
  */
 export function SortSheet({
   visible,
   options,
   active,
-  title = 'Sort by',
+  title = 'Sort results',
   onSelect,
   onClose,
 }: SortSheetProps) {
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <Pressable style={styles.scrim} onPress={onClose} />
-      <View style={styles.sheet}>
-        <Text variant="sectionTitle" color={semantic.text}>
-          {title}
-        </Text>
-        {options.map((option) => (
-          <Pressable
-            key={option.id}
-            accessibilityRole="radio"
-            accessibilityState={{ selected: option.id === active }}
-            onPress={() => onSelect(option.id)}
-            style={({ pressed }) => [styles.option, { opacity: pressed ? 0.8 : 1 }]}
-          >
-            <Text variant="body" color={semantic.text}>
-              {option.label}
-            </Text>
-            {option.id === active ? <Icon name="check" size={16} color={semantic.action} /> : null}
-          </Pressable>
-        ))}
-        <Pressable accessibilityRole="button" onPress={onClose} style={styles.cancel}>
-          <Text variant="button" color={semantic.action}>
-            Cancel
-          </Text>
-        </Pressable>
+    <Sheet visible={visible} title={title} onClose={onClose}>
+      <View style={styles.rows}>
+        {options.map((option) => {
+          const selected = option.id === active;
+          return (
+            <Pressable
+              key={option.id}
+              accessibilityRole="radio"
+              accessibilityState={{ selected }}
+              onPress={() => onSelect(option.id)}
+              style={({ pressed }) => [styles.option, pressed ? { opacity: 0.9 } : null]}
+            >
+              <Text
+                variant="subheadline"
+                color={selected ? brand.green : semantic.text}
+                style={styles.label}
+              >
+                {option.label}
+              </Text>
+              {selected ? <Icon name="check" size={18} color={brand.green} /> : null}
+            </Pressable>
+          );
+        })}
       </View>
-    </Modal>
+    </Sheet>
   );
 }
 
 const styles = StyleSheet.create({
-  scrim: {
-    flex: 1,
-    backgroundColor: semantic.scrim,
-  },
-  sheet: {
-    backgroundColor: neutral.surface,
-    borderTopLeftRadius: radii.huge,
-    borderTopRightRadius: radii.huge,
-    padding: spacing.lg,
-    gap: spacing.md,
+  rows: {
+    paddingHorizontal: spacing.lg,
   },
   option: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: spacing.sm,
+    gap: spacing.md,
+    minHeight: 48,
   },
-  cancel: {
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
+  label: {
+    flex: 1,
   },
 });

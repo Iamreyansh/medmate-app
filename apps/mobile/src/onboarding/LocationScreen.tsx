@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -16,6 +16,7 @@ import { Icon } from '../icons/Icon';
 import { Text } from '../ui/Text';
 import { Button, Gradient } from '../ui/primitives';
 import { useContentInset } from '../ui/layout';
+import { PermissionPrompt, permissionCopy } from '../overlays/parts';
 import { useSession } from '../state/session';
 import { DetectRow, DeliveringHereTag, Wordmark } from './parts';
 import {
@@ -54,6 +55,7 @@ export function LocationScreen({
   const insets = useSafeAreaInsets();
   const inset = useContentInset();
   const session = useSession();
+  const [asking, setAsking] = useState(false);
 
   const chosen = useMemo(
     () => session.addresses.find((address) => address.id === session.addressId),
@@ -110,7 +112,7 @@ export function LocationScreen({
             title={detectLocation.title}
             body={detectLocation.body}
             action={detectLocation.action}
-            onPress={onDetect}
+            onPress={() => setAsking(true)}
           />
 
           <Text variant="eyebrow" color={brand.green700}>
@@ -180,6 +182,17 @@ export function LocationScreen({
           </View>
         </View>
       </ScrollView>
+
+      <PermissionPrompt
+        visible={asking}
+        title={permissionCopy.location.title}
+        body={permissionCopy.location.body}
+        onAllow={() => {
+          setAsking(false);
+          onDetect?.();
+        }}
+        onDeny={() => setAsking(false)}
+      />
 
       <View style={[styles.actionBar, { paddingBottom: insets.bottom + spacing.sm }]}>
         <View style={[styles.actionInner, { paddingHorizontal: inset }]}>

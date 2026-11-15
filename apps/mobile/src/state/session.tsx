@@ -1,4 +1,13 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+
+import { clearStoredSession, readStoredSession, writeStoredSession } from './sessionStore';
 
 /**
  * The session.
@@ -101,6 +110,7 @@ export const seedAddresses: SavedAddress[] = [
 export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [signedIn, setSignedIn] = useState(false);
   const [onboarded, setOnboarded] = useState(false);
+  const [restored, setRestored] = useState(false);
   const [phone, setPhone] = useState('+91 98450 12345');
   const [consents, setConsents] = useState<Consents>({ adult: false, offers: false });
   const [permissions, setPermissions] = useState<Permissions>({
@@ -112,6 +122,24 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [addresses, setAddresses] = useState<SavedAddress[]>(seedAddresses);
   const [addressId, setAddressId] = useState('home');
 
+  // The session is read back on the first render, so a shopper who has been
+  // through the flow is not asked for it again.
+  useEffect(() => {
+    const stored = readStoredSession();
+    if (stored) {
+      if (stored.signedIn) setSignedIn(true);
+      if (stored.onboarded) setOnboarded(true);
+      if (stored.phone) setPhone(stored.phone);
+      if (stored.consents) setConsents(stored.consents);
+      if (stored.addresses) setAddresses(stored.addresses as SavedAddress[]);
+      if (stored.addressId) setAddressId(stored.addressId);
+      if (stored.permissions) {
+        setPermissions((current) => ({ ...current, ...stored.permissions }) as Permissions);
+      }
+    }
+    setRestored(true);
+  }, []);
+
   const signIn = useCallback((value: string) => {
     setPhone(value);
     setSignedIn(true);
@@ -122,6 +150,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const signOut = useCallback(() => {
     setSignedIn(false);
     setOnboarded(false);
+    clearStoredSession();
     setConsents({ adult: false, offers: false });
     setPermissions({
       location: 'ask-me',
@@ -139,6 +168,19 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     setAddresses((current) => [...current, address]);
     setAddressId(address.id);
   }, []);
+
+  useEffect(() => {
+    if (!restored) return;
+    writeStoredSession({
+      signedIn,
+      onboarded,
+      phone,
+      consents,
+      permissions: permissions as unknown as Record<string, string>,
+      addresses,
+      addressId,
+    });
+  }, [restored, signedIn, onboarded, phone, consents, permissions, addresses, addressId]);
 
   const value = useMemo<SessionContextValue>(
     () => ({

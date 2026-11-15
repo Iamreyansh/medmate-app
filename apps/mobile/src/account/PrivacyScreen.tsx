@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -12,6 +12,7 @@ import {
 import { Text } from '../ui/Text';
 import { Gradient } from '../ui/primitives';
 import { useContentInset } from '../ui/layout';
+import { PermissionPrompt, permissionCopy } from '../overlays/parts';
 import { ZoneBar, ZoneHeading } from '../ui/blocks';
 import { AccountGroup, ConsentRow, HeldRow, PermissionRow } from './parts';
 import { consents, dataActions, devicePermissions, heldData } from './data';
@@ -32,6 +33,7 @@ export type PrivacyScreenProps = {
 export function PrivacyScreen({ onBack, onHelp, onLink }: PrivacyScreenProps) {
   const insets = useSafeAreaInsets();
   const inset = useContentInset();
+  const [asking, setAsking] = useState<keyof typeof permissionCopy | null>(null);
 
   return (
     <View style={styles.root}>
@@ -73,6 +75,7 @@ export function PrivacyScreen({ onBack, onHelp, onLink }: PrivacyScreenProps) {
                     body={permission.body}
                     icon={permission.icon}
                     state={permission.state}
+                    onPress={() => setAsking(permission.id as keyof typeof permissionCopy)}
                   />
                 </View>
               ))}
@@ -127,6 +130,14 @@ export function PrivacyScreen({ onBack, onHelp, onLink }: PrivacyScreenProps) {
           </View>
         </View>
       </ScrollView>
+
+      <PermissionPrompt
+        visible={asking !== null}
+        title={asking ? permissionCopy[asking].title : ''}
+        body={asking ? permissionCopy[asking].body : ''}
+        onAllow={() => setAsking(null)}
+        onDeny={() => setAsking(null)}
+      />
     </View>
   );
 }

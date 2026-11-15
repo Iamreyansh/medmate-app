@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { brand, elevation, gold, neutral, platformKey, radii, semantic, spacing } from '@medmate/theme';
 
 import { Icon, type IconName } from '../icons/Icon';
 import { Text } from '../ui/Text';
+import { ChatPanel } from '../overlays/ChatPanel';
 
 type Tab = {
   id: string;
@@ -28,16 +29,21 @@ export function BottomChrome({
   active = 'home',
   onTabPress,
   onChatPress,
+  onChatAsk,
   onAdPress,
 }: {
   active?: string;
   onTabPress?: (id: string) => void;
   /** Opens the chat sheet. */
   onChatPress?: () => void;
+  /** Fired when the shopper asks the chat helper something. */
+  onChatAsk?: (question: string) => void;
   /** Opens the promoted slot. */
   onAdPress?: () => void;
 }) {
   const isAndroid = platformKey === 'android';
+
+  const [chatOpen, setChatOpen] = useState(false);
 
   return (
     <View style={styles.chrome}>
@@ -80,7 +86,15 @@ export function BottomChrome({
           </Pressable>
         </View>
 
-        <Pressable accessibilityRole="button" onPress={onChatPress} style={styles.chatTile}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Chat"
+          onPress={() => {
+            setChatOpen(true);
+            onChatPress?.();
+          }}
+          style={styles.chatTile}
+        >
           <Icon name="chat" size={20} color={neutral.surface} />
           <Text variant="navLabel" color={neutral.surface} style={styles.chatLabel}>
             Chat
@@ -93,6 +107,12 @@ export function BottomChrome({
           <View style={styles.handleBar} />
         </View>
       ) : null}
+
+      <ChatPanel
+        visible={chatOpen}
+        onClose={() => setChatOpen(false)}
+        onAsk={(question) => onChatAsk?.(question)}
+      />
     </View>
   );
 }

@@ -29,26 +29,27 @@ Two things this method separates that eyeballing does not:
 
 | Section | Screens in Figma | In the app | Status |
 |---|---|---|---|
-| 01 Onboarding | 6 | 1 | **5 missing** |
+| 01 Onboarding | 6 | 6 | complete |
 | 02 Shop | 12 | 12 | complete |
 | 03 Checkout | 3 | 3 | complete |
 | 04 Orders | 6 | 6 | complete (four frames, one screen) |
 | 05 Prescriptions & care | 8 | 8 | complete |
 | 06 Health & family | 5 | 5 | complete |
 | 07 Account | 8 | 8 | complete |
-| 08 Overlays | 8 | 1 | **7 missing** |
-| **Total** | **56** | **43** | **13 without a route** |
+| 08 Overlays | 8 | 8 | complete (four permission frames, one screen) |
+| **Total** | **56** | **56** | **complete** |
 
-Thirteen frames have no route. One of them, `02 Shop / Home - hero banners`
-(`40:134256`), is a 393x879 **pattern frame** - the carousel on its own -
-rather than a screen, and the app already draws that carousel inside Home.
-So **12 screens are genuinely left to build**: the five onboarding screens and
-the seven overlays.
+Every screen in the file is now built. Three of the frames are not screens in
+their own right and are drawn as part of another one: `02 Shop / Home - hero
+banners` (`40:134256`) is the carousel on its own, and the four
+`08 Overlays / Permission` frames are the system alert over the screen that
+needs it, which the app asks for in its own words before the phone does.
 
-### Screens the MVP needs and the app does not have
+### The screens the app did not have, and now does
 
-**01 Onboarding — there is no sign-in at all.** The app opens straight on the
-shop. Missing:
+**01 Onboarding — there was no sign-in at all.** The app opened straight on the
+shop, so the cart, orders, prescriptions and wallet had no owner. These five
+screens are the first-run flow:
 
 | Frame | Node id | What it is |
 |---|---|---|
@@ -58,7 +59,8 @@ shop. Missing:
 | Consent | `40:132323` | Terms and privacy, with the boxes to tick |
 | Location | `40:132427` | Asking for location, with the reason |
 
-**08 Overlays — only the cancel-order alert is built.** Seven missing:
+**08 Overlays — only the cancel-order alert was built.** These seven are the
+rest of them:
 
 | Frame | Node id | What it is |
 |---|---|---|
@@ -69,6 +71,10 @@ shop. Missing:
 | Permission · location | `40:145189` | The location permission screen |
 | Permission · notifications | `40:145350` | The notification permission screen |
 | Permission · contacts | `40:145436` | The contacts permission screen |
+
+The four permission frames are the system alert over the screen that needs the
+permission. The app asks in its own words first, so the shopper knows why
+before the phone does, and the answer is kept in the session.
 
 The four permission screens are one screen with four different copy blocks, so
 they are cheap once the shell exists. The onboarding flow is the bigger piece:
@@ -146,12 +152,10 @@ and are built from the live counts.
 
 ## Still to do
 
-1. **The onboarding flow** (five screens). Until it exists the app has no
-   account, and the cart, orders, prescriptions and wallet have no owner.
-2. **The overlay sheets and the four permission screens** (seven screens). The
-   sort and coupon sheets are sheets over an existing screen; the permission
-   screens are one screen with four copy blocks.
-3. **A device-matrix check in CI.** This audit was run by hand. The repo has no
+1. **A device-matrix check in CI.** This audit was run by hand. The repo has no
    test runner, so nothing stops a screen from drifting out of the design
    tomorrow. The audit script itself - Figma JSON against the rendered DOM -
    is the thing to automate first.
+2. **The sign-in is a mock.** The demo build takes the code 1234 and says so on
+   the screen. The session is kept in a file on the device so the shopper is
+   not asked for it again, but there is no server behind it.

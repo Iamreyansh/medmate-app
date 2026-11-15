@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -15,6 +15,7 @@ import { Icon } from '../icons/Icon';
 import { Text } from '../ui/Text';
 import { Button, Gradient } from '../ui/primitives';
 import { useContentInset } from '../ui/layout';
+import { PermissionPrompt, permissionCopy } from '../overlays/parts';
 import {
   CheckLine,
   InfoNote,
@@ -56,6 +57,7 @@ export function UploadPrescriptionScreen({
 }: UploadPrescriptionScreenProps) {
   const insets = useSafeAreaInsets();
   const inset = useContentInset();
+  const [asking, setAsking] = useState(false);
 
   return (
     <View style={styles.root}>
@@ -110,7 +112,7 @@ export function UploadPrescriptionScreen({
                 size="large"
                 icon="camera"
                 chevron
-                onPress={onTakePhoto}
+                onPress={() => setAsking(true)}
                 style={styles.dropButton}
               />
               <Button
@@ -160,6 +162,17 @@ export function UploadPrescriptionScreen({
           </Pressable>
         </View>
       </ScrollView>
+
+      <PermissionPrompt
+        visible={asking}
+        title={permissionCopy.camera.title}
+        body={permissionCopy.camera.body}
+        onAllow={() => {
+          setAsking(false);
+          onTakePhoto?.();
+        }}
+        onDeny={() => setAsking(false)}
+      />
 
       {/* The action bar. */}
       <View style={[styles.actionBar, { paddingBottom: insets.bottom + spacing.sm }]}>
