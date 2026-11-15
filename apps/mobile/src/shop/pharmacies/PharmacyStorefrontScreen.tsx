@@ -36,6 +36,8 @@ export type PharmacyStorefrontScreenProps = {
   onHelp?: () => void;
   onProductPress?: (id: string) => void;
   onCouponApply?: (code: string) => void;
+  /** Opens the cart. */
+  onCartPress?: () => void;
 };
 
 /**
@@ -50,6 +52,7 @@ export function PharmacyStorefrontScreen({
   onHelp,
   onProductPress,
   onCouponApply,
+  onCartPress,
 }: PharmacyStorefrontScreenProps) {
   const insets = useSafeAreaInsets();
   const cart = useCart();
@@ -233,7 +236,15 @@ export function PharmacyStorefrontScreen({
                 product={product}
                 width={grid.width}
                 onAdd={() => {
-                  cart.add({ id: product.id, name: product.name, price: product.price });
+                  cart.add({
+                    id: product.id,
+                    name: product.name,
+                    sub: product.sub,
+                    price: product.price,
+                    mrp: product.mrp,
+                    off: product.off,
+                    rx: product.rx,
+                  });
                   notice.notify(`${product.name} added to the cart`);
                 }}
                 onPress={() => onProductPress?.(product.id)}
@@ -256,7 +267,7 @@ export function PharmacyStorefrontScreen({
             </Text>
           </Pressable>
         </View>
-        <CartBar count={cart.count} />
+        <CartBar count={cart.count} onCartPress={onCartPress} />
       </View>
     </View>
   );

@@ -49,6 +49,8 @@ export type CategoryScreenProps = {
   onSearch?: () => void;
   onCategoryChange?: (category: string) => void;
   onProductPress?: (id: string) => void;
+  /** Opens the cart. */
+  onCartPress?: () => void;
 };
 
 /**
@@ -66,6 +68,7 @@ export function CategoryScreen({
   onSearch,
   onCategoryChange,
   onProductPress,
+  onCartPress,
 }: CategoryScreenProps) {
   const insets = useSafeAreaInsets();
   const cart = useCart();
@@ -101,7 +104,15 @@ export function CategoryScreen({
   const siblings = useMemo(() => categoryList(), []);
 
   const addToCart = (product: (typeof inCategory)[number]) => {
-    cart.add({ id: product.id, name: product.name, price: product.price });
+    cart.add({
+                    id: product.id,
+                    name: product.name,
+                    sub: product.sub,
+                    price: product.price,
+                    mrp: product.mrp,
+                    off: product.off,
+                    rx: product.rx,
+                  });
     notice.notify(`${product.name} added to the cart`);
   };
 
@@ -361,7 +372,7 @@ export function CategoryScreen({
       </ScrollView>
 
       <View style={[styles.cartBar, { paddingBottom: insets.bottom }]}>
-        <CartBar count={cart.count} />
+        <CartBar count={cart.count} onCartPress={onCartPress} />
       </View>
 
       <SortSheet

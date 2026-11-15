@@ -79,7 +79,15 @@ export function ShopHomeScreen() {
   /** Add a product to the cart and say so. */
   const addToCart = useCallback(
     (product: Product) => {
-      cart.add({ id: product.id, name: product.name, price: product.price });
+      cart.add({
+                    id: product.id,
+                    name: product.name,
+                    sub: product.sub,
+                    price: product.price,
+                    mrp: product.mrp,
+                    off: product.off,
+                    rx: product.rx,
+                  });
       notice.notify(`${product.name} added to the cart`);
     },
     [cart, notice],

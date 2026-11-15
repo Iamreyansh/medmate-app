@@ -281,7 +281,15 @@ export function ProductScreen({
             products={similar}
             onPress={(other) => onSimilarPress?.(other.id)}
             onAdd={(other) => {
-              cart.add({ id: other.id, name: other.name, price: other.price });
+              cart.add({
+                    id: other.id,
+                    name: other.name,
+                    sub: other.sub,
+                    price: other.price,
+                    mrp: other.mrp,
+                    off: other.off,
+                    rx: other.rx,
+                  });
               notice.notify(`${other.name} added to the cart`);
             }}
           />
@@ -319,7 +327,15 @@ export function ProductScreen({
             tone="filled"
             size="large"
             onPress={() => {
-              cart.add({ id: product.id, name: product.name, price: product.price });
+              cart.add({
+                    id: product.id,
+                    name: product.name,
+                    sub: product.sub,
+                    price: product.price,
+                    mrp: product.mrp,
+                    off: product.off,
+                    rx: product.rx,
+                  });
               notice.notify(`${product.name} added to the cart`);
             }}
             style={styles.addButton}

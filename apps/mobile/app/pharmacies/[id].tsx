@@ -26,6 +26,7 @@ export default function PharmacyRoute() {
         router.push({ pathname: '/product/[id]', params: { id: productId } })
       }
       onCouponApply={(code) => notice.notify(`${code} applied`)}
+      onCartPress={() => router.push({ pathname: '/checkout' })}
     />
   );
 }

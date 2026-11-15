@@ -24,6 +24,7 @@ export default function CategoryRoute() {
         router.push({ pathname: '/category/[slug]', params: { slug: slugFor(name) } })
       }
       onProductPress={(id) => router.push({ pathname: '/product/[id]', params: { id } })}
+      onCartPress={() => router.push({ pathname: '/checkout' })}
     />
   );
 }

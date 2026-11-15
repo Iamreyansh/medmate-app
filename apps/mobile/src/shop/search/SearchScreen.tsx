@@ -36,6 +36,8 @@ export type SearchScreenProps = {
   onCategoryPress?: (category: string) => void;
   onRequestMedicine?: () => void;
   onProductPress?: (id: string) => void;
+  /** Opens the cart. */
+  onCartPress?: () => void;
 };
 
 /**
@@ -53,6 +55,7 @@ export function SearchScreen({
   onCategoryPress,
   onRequestMedicine,
   onProductPress,
+  onCartPress,
 }: SearchScreenProps) {
   const insets = useSafeAreaInsets();
   // On a screen wider than the design the content column is centred.
@@ -190,7 +193,15 @@ export function SearchScreen({
               <ResultLine
                 result={result}
                 onAdd={() => {
-                  cart.add({ id: result.id, name: result.name, price: result.price });
+                  cart.add({
+                    id: result.id,
+                    name: result.name,
+                    sub: result.sub,
+                    price: result.price,
+                    mrp: result.mrp,
+                    off: result.off,
+                    rx: result.rx,
+                  });
                   notice.notify(`${result.name} added to the cart`);
                 }}
                 onPress={() => onProductPress?.(result.id)}
@@ -219,7 +230,7 @@ export function SearchScreen({
       </ScrollView>
 
       <View style={[styles.cartBar, { paddingBottom: insets.bottom }]}>
-        <CartBar count={cart.count} />
+        <CartBar count={cart.count} onCartPress={onCartPress} />
       </View>
 
       <SortSheet

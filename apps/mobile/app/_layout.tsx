@@ -14,6 +14,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { neutral, platformKey } from '@medmate/theme';
 
 import { CartProvider } from '../src/state/cart';
+import { CheckoutProvider } from '../src/state/checkout';
 import { NoticeProvider } from '../src/state/notice';
 
 /**
@@ -38,16 +39,18 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <CartProvider>
-        <NoticeProvider>
-          <StatusBar style="light" />
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: neutral.page },
-              animation: 'fade',
-            }}
-          />
-        </NoticeProvider>
+        <CheckoutProvider>
+          <NoticeProvider>
+            <StatusBar style="light" />
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: neutral.page },
+                animation: 'fade',
+              }}
+            />
+          </NoticeProvider>
+        </CheckoutProvider>
       </CartProvider>
     </SafeAreaProvider>
   );
