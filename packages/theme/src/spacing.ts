@@ -38,6 +38,8 @@ export const radii = {
   md: 10,
   mdPlus: 11,
   lg: 12,
+  /** The card radius the prescriptions, health and account screens use. */
+  card: 14,
   xl: 16,
   xxl: 18,
   xxxl: 20,

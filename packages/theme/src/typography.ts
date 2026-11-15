@@ -92,6 +92,8 @@ export const iosType = {
   storeNavTitle: { fontSize: 17, lineHeight: 22, fontWeight: '600', letterSpacing: -0.085 },
   /** The headline on the order tracking screen. */
   orderHeadline: { fontSize: 30, lineHeight: 34, fontWeight: '800', letterSpacing: -0.6 },
+  /** The Rx mark on a prescription. */
+  rxMark: { fontSize: 36, lineHeight: 40, fontWeight: '800', letterSpacing: -0.72 },
 } as const satisfies Record<string, TypeStyle>;
 
 /** Material 3 type scale, used on Android. */
@@ -136,6 +138,8 @@ export const m3Type = {
   storeNavTitle: { fontSize: 22, lineHeight: 28, fontWeight: '700', letterSpacing: -0.11 },
   /** The headline on the order tracking screen. */
   orderHeadline: { fontSize: 30, lineHeight: 34, fontWeight: '800', letterSpacing: -0.6 },
+  /** The Rx mark on a prescription. */
+  rxMark: { fontSize: 36, lineHeight: 40, fontWeight: '800', letterSpacing: -0.72 },
 } as const satisfies Record<string, TypeStyle>;
 
 export type IosTypeToken = keyof typeof iosType;

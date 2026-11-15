@@ -142,8 +142,9 @@ export type ButtonProps = {
    * - `filled` - green, the primary call to action
    * - `forest` - the dark button on light surfaces
    * - `gold`   - the premium action
+   * - `muted`  - a button that is there but not ready yet
    */
-  tone?: 'filled' | 'forest' | 'gold' | 'outline';
+  tone?: 'filled' | 'forest' | 'gold' | 'outline' | 'muted';
   /** `large` is the 50pt call to action, `small` the 34pt one. */
   size?: 'small' | 'large';
   /** Leading icon. Defaults to the plus the design draws on every button. */
@@ -171,8 +172,9 @@ export function Button({
 }: ButtonProps) {
   const isGold = tone === 'gold';
   const isOutline = tone === 'outline';
+  const isMuted = tone === 'muted';
   const isLarge = size === 'large';
-  const ink = isGold || isOutline ? brand.green : neutral.surface;
+  const ink = isGold || isOutline ? brand.green : isMuted ? semantic.textMuted : neutral.surface;
 
   return (
     <Pressable
@@ -184,11 +186,13 @@ export function Button({
         {
           backgroundColor: isOutline
             ? neutral.surface
-            : tone === 'filled'
-              ? brand.green
-              : isGold
-                ? gold[300]
-                : brand.forest,
+            : isMuted
+              ? neutral.surface3
+              : tone === 'filled'
+                ? brand.green
+                : isGold
+                  ? gold[300]
+                  : brand.forest,
           opacity: pressed ? 0.85 : 1,
         },
         isOutline ? styles.buttonOutline : null,
