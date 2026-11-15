@@ -93,17 +93,22 @@ export function CareField({
   value,
   onChangeText,
   placeholder,
+  helper,
   tall = false,
+  style,
 }: {
   label?: string;
   value: string;
   onChangeText: (value: string) => void;
   placeholder?: string;
+  /** The line under the box. */
+  helper?: string;
   /** The field is tall enough for several lines. */
   tall?: boolean;
+  style?: object;
 }) {
   return (
-    <View style={styles.field}>
+    <View style={[styles.field, style]}>
       {label ? (
         <Text variant="footnoteEmphasized" color={semantic.textSecondary}>
           {label}
@@ -117,6 +122,11 @@ export function CareField({
         multiline={tall}
         style={[styles.fieldInput, tall ? styles.fieldInputTall : null]}
       />
+      {helper ? (
+        <Text variant="caption" color={semantic.textMuted}>
+          {helper}
+        </Text>
+      ) : null}
     </View>
   );
 }

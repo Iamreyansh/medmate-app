@@ -379,6 +379,7 @@ export function ZoneBar({
         </Text>
       ) : null}
 
+
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Help and support"
@@ -515,14 +516,24 @@ const styles = StyleSheet.create({
     height: 44,
     gap: spacing.sm,
   },
+  zoneBarSpacer: {
+    flex: 1,
+  },
   zoneBack: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
   },
   zoneTitle: {
-    flex: 1,
+    // The title sits over the middle of the bar rather than between the two
+    // ends, so a long one is not squeezed into a corner.
+    position: 'absolute',
+    left: spacing.xl,
+    right: spacing.xl,
+    top: 0,
+    bottom: 0,
     textAlign: 'center',
+    textAlignVertical: 'center',
   },
   zoneHelp: {
     flexDirection: 'row',
