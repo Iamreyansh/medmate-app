@@ -17,6 +17,8 @@ import { CartProvider } from '../src/state/cart';
 import { CheckoutProvider } from '../src/state/checkout';
 import { OrdersProvider } from '../src/state/orders';
 import { NoticeProvider } from '../src/state/notice';
+import { SessionProvider } from '../src/state/session';
+import { OnboardingGate } from './_gate';
 
 /**
  * Root layout.
@@ -39,22 +41,26 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <CartProvider>
-        <CheckoutProvider>
-          <OrdersProvider>
+      <SessionProvider>
+        <CartProvider>
+          <CheckoutProvider>
+            <OrdersProvider>
               <NoticeProvider>
-              <StatusBar style="light" />
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                  contentStyle: { backgroundColor: neutral.page },
-                  animation: 'fade',
-                }}
-              />
-            </NoticeProvider>
-          </OrdersProvider>
-        </CheckoutProvider>
-      </CartProvider>
+                <StatusBar style="light" />
+                <OnboardingGate>
+                  <Stack
+                    screenOptions={{
+                      headerShown: false,
+                      contentStyle: { backgroundColor: neutral.page },
+                      animation: 'fade',
+                    }}
+                  />
+                </OnboardingGate>
+              </NoticeProvider>
+            </OrdersProvider>
+          </CheckoutProvider>
+        </CartProvider>
+      </SessionProvider>
     </SafeAreaProvider>
   );
 }
