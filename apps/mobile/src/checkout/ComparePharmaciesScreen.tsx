@@ -26,6 +26,7 @@ import {
   compareNote,
   compareRxNote,
   compareDisclaimer,
+  licensedLine,
   licensedPharmacies,
   pharmacyMeta,
   pharmacyOptions,
@@ -180,7 +181,11 @@ export function ComparePharmaciesScreen({
             return (
               <PharmacyOptionCard
                 key={option.id}
-                option={option}
+                option={
+                  isChosen && option.compareTag
+                    ? { ...option, tag: { label: option.compareTag, tone: 'best' } }
+                    : option
+                }
                 selected={isChosen}
                 total={`₹${totals.total}`}
                 meta={pharmacyMeta(option)}
@@ -204,7 +209,20 @@ export function ComparePharmaciesScreen({
 
           {/* How the options are compared. */}
           <FoldRow label="How we compare" icon="info" />
+          <Text variant="buttonSmall" color={semantic.text}>
+            Licensed pharmacies in these options
+          </Text>
           <View style={styles.explainer}>
+            {pharmacyOptions.map((option) => (
+              <View key={option.id} style={styles.licensedRow}>
+                <Text variant="captionStrong" color={brand.green700}>
+                  {option.initials}
+                </Text>
+                <Text variant="caption" color={semantic.textSecondary} style={styles.licensedText}>
+                  {licensedLine(option)}
+                </Text>
+              </View>
+            ))}
             {licensedPharmacies.map((line) => (
               <View key={line} style={styles.explainerRow}>
                 <Icon name="check" size={14} color={brand.green700} />
@@ -317,6 +335,14 @@ const styles = StyleSheet.create({
     backgroundColor: neutral.surface,
     borderWidth: 1,
     borderColor: neutral.line,
+  },
+  licensedRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  licensedText: {
+    flex: 1,
   },
   explainerRow: {
     flexDirection: 'row',

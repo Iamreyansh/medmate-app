@@ -20,10 +20,14 @@ export type Pharmacy = {
   eta: string;
   /** What the store carries. */
   categories: string;
-  /** The store licence. */
+  /** The store licence, the short form used on the pharmacy list. */
   licence: string;
   /** The pharmacist on duty. */
   pharmacist: string;
+  /** The full drug licence number, shown on the storefront. */
+  drugLicence: string;
+  /** The pharmacist's name and registration, shown on the storefront. */
+  pharmacistReg: string;
   /** What the store is good for. */
   perks: string[];
   /** Whether the store is open right now. */
@@ -50,7 +54,9 @@ export const pharmacies: Pharmacy[] = [
     eta: '32–47 min',
     categories: 'Medicines · Baby care · Devices',
     licence: 'Lic. 118744',
+    drugLicence: 'KA-BLR-20B/21B 118744',
     pharmacist: 'Pharmacist Meena Rao',
+    pharmacistReg: 'Meena Rao · Reg. KSPC 41208',
     perks: ['No delivery fee', 'Rx accepted'],
     open: true,
     openLabel: 'Open till 11 pm',
@@ -72,7 +78,9 @@ export const pharmacies: Pharmacy[] = [
     eta: '36–51 min',
     categories: 'Medicines · Surgicals · Ayurveda',
     licence: 'Lic. 102377',
+    drugLicence: 'KA-BLR-20B/21B 102377',
     pharmacist: 'Pharmacist Sai Prasad',
+    pharmacistReg: 'Sai Prasad · Reg. KSPC 38821',
     perks: ['₹20 delivery · no fee above ₹199'],
     open: true,
     openLabel: 'Open 24×7',
@@ -93,7 +101,9 @@ export const pharmacies: Pharmacy[] = [
     eta: '38–53 min',
     categories: 'Medicines · Devices · First aid',
     licence: 'Lic. 118201',
+    drugLicence: 'KA-BLR-20B/21B 118201',
     pharmacist: 'Pharmacist Anitha Rao',
+    pharmacistReg: 'Anitha Rao · Reg. KSPC 40117',
     perks: ['₹25 delivery · no fee above ₹299'],
     open: true,
     openLabel: 'Open till 10 pm',
@@ -109,7 +119,9 @@ export const pharmacies: Pharmacy[] = [
     eta: '42–57 min',
     categories: 'Medicines · Generic medicines',
     licence: 'Lic. 118990',
+    drugLicence: 'KA-BLR-20B/21B 118990',
     pharmacist: 'Pharmacist Ravi Kumar',
+    pharmacistReg: 'Ravi Kumar · Reg. KSPC 39552',
     perks: ['Generics available'],
     open: false,
     openLabel: 'Opens at 9 am',

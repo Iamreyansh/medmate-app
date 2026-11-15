@@ -49,7 +49,7 @@ export function CartBar({ count = cartGoal.count, onCartPress }: CartBarProps) {
           <View style={styles.track}>
             <View style={[styles.fill, { width: `${progress * 100}%` }]} />
           </View>
-          <Text variant="resultSub" color={semantic.textMuted}>
+          <Text variant="resultSub" color={semantic.textMuted} numberOfLines={1}>
             {cartGoal.sub}
           </Text>
         </View>

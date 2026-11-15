@@ -18,6 +18,8 @@ export default function OffersRoute() {
     <OffersScreen
       onBack={() => router.back()}
       onApplyCoupon={(code) => notice.notify(`${code} applied`)}
+      onRefer={() => router.push({ pathname: '/account/refer' })}
+      onHistory={() => router.push({ pathname: '/orders' })}
     />
   );
 }

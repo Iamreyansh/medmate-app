@@ -152,6 +152,10 @@ export type PharmacyOption = {
   inStock: boolean;
   /** A short badge above the name. */
   tag?: { label: string; tone: 'best' | 'warn' | 'savings' };
+  /** The badge the compare screen shows instead of the cart's. */
+  compareTag?: string;
+  /** When the store is open, e.g. "Open till 11 pm". */
+  hours?: string;
   /** A note under the option, used for the far-away pharmacy. */
   farNote?: string;
   /** The drug licence number shown on the receipt. */
@@ -178,6 +182,8 @@ export const pharmacyOptions: PharmacyOption[] = [
     inStock: true,
     stockNote: 'All 3 items in stock',
     tag: { label: 'Lowest price', tone: 'best' },
+    compareTag: 'Best choice',
+    hours: 'Open till 11 pm',
     licence: 'KA-BLR-20B/21B 118744',
     pharmacist: 'Meena Rao',
   },
@@ -192,6 +198,7 @@ export const pharmacyOptions: PharmacyOption[] = [
     inStock: true,
     stockNote: 'All 3 items in stock',
     tag: { label: '4 min slower', tone: 'warn' },
+    hours: 'Open 24×7',
   },
   {
     id: 'lp',
@@ -204,6 +211,7 @@ export const pharmacyOptions: PharmacyOption[] = [
     inStock: true,
     stockNote: 'All 3 items in stock',
     tag: { label: '₹25 more', tone: 'savings' },
+    hours: 'Open till 10:30 pm',
   },
   {
     id: 'jm',
@@ -215,6 +223,7 @@ export const pharmacyOptions: PharmacyOption[] = [
     deliveryFee: 0,
     inStock: true,
     stockNote: 'All 3 items in stock',
+    hours: 'Open till 11 pm',
   },
   {
     id: 'na',
@@ -226,6 +235,7 @@ export const pharmacyOptions: PharmacyOption[] = [
     deliveryFee: 0,
     inStock: true,
     stockNote: 'All 3 items in stock',
+    hours: 'Open till 9 pm',
   },
   {
     id: 'cc',
@@ -237,6 +247,7 @@ export const pharmacyOptions: PharmacyOption[] = [
     deliveryFee: 35,
     inStock: true,
     stockNote: 'All 3 items in stock',
+    hours: 'Open till 10 pm',
     farNote: 'Farther away. The rider may share this trip with another order, so the time can slip.',
   },
 ];
@@ -266,6 +277,14 @@ export const licensedPharmacies = [
   'A registered pharmacist checks every prescription medicine before it is handed over.',
   'Prices are set by each pharmacy, so the same medicine can cost a little more or less.',
 ];
+
+/** The line under each pharmacy in the licensed list. */
+export function licensedLine(option: PharmacyOption): string {
+  const pharmacist = option.pharmacist
+    ? option.pharmacist.replace('Meena Rao', 'Meena Rao')
+    : 'Meena Rao';
+  return `${option.area} · ${option.distance} · ${option.hours ?? 'Open 24×7'} · Pharmacist ${pharmacist}`;
+}
 
 export const compareDisclaimer =
   'Each pharmacy sets its own prices and delivery charge. Demo build: stock, prices, charges and licence details are sample values.';

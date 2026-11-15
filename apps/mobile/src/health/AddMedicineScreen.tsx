@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
   brand,
+  neutral,
   radii,
   semantic,
   spacing,
@@ -39,6 +40,11 @@ export function AddMedicineScreen({ onBack, onHelp, onSave }: AddMedicineScreenP
   const [dose, setDose] = useState('1 tablet');
   const [times, setTimes] = useState<string[]>(['Morning 8:00 am']);
   const [food, setFood] = useState('After food');
+  const [starts, setStarts] = useState('30 Oct 2026');
+  const [ends, setEnds] = useState('');
+  const [stock, setStock] = useState('');
+  const [perDose, setPerDose] = useState('');
+  const [note, setNote] = useState('');
 
   const toggleTime = (time: string) =>
     setTimes((current) =>
@@ -125,20 +131,6 @@ export function AddMedicineScreen({ onBack, onHelp, onSave }: AddMedicineScreenP
             </View>
 
             <Text variant="footnoteEmphasized" color={semantic.textSecondary}>
-              {`Times each day · ${times.length} of up to 6`}
-            </Text>
-            <View style={styles.chips}>
-              {timeOptions.map((option) => (
-                <FilterChip
-                  key={option}
-                  label={option}
-                  selected={times.includes(option)}
-                  onPress={() => toggleTime(option)}
-                />
-              ))}
-            </View>
-
-            <Text variant="footnoteEmphasized" color={semantic.textSecondary}>
               With food
             </Text>
             <View style={styles.chips}>
@@ -153,11 +145,103 @@ export function AddMedicineScreen({ onBack, onHelp, onSave }: AddMedicineScreenP
             </View>
           </ScreenCard>
 
+          {/* Which days the dose is taken on. */}
+          <ScreenCard>
+            <Text variant="footnoteEmphasized" color={semantic.textSecondary}>
+              {`Times each day · ${times.length} of up to 6`}
+            </Text>
+            <View style={styles.chips}>
+              {timeOptions.map((option) => (
+                <FilterChip
+                  key={option}
+                  label={option}
+                  selected={times.includes(option)}
+                  onPress={() => toggleTime(option)}
+                />
+              ))}
+            </View>
+            <Text variant="caption" color={semantic.textMuted}>
+              Every day. Tap days to pick only some.
+            </Text>
+          </ScreenCard>
+
+          {/* How long the course runs and how much is in stock. */}
+          <ScreenCard>
+            <CardTitle>Duration and stock</CardTitle>
+
+            <CareField
+              label="Starts"
+              value={starts}
+              onChangeText={setStarts}
+              helper="30 Oct 2026"
+            />
+            <CareField
+              label="Ends (optional)"
+              value={ends}
+              onChangeText={setEnds}
+              placeholder="Not set"
+            />
+            <View style={styles.chips}>
+              {['1 week', '2 weeks', '1 month', '3 months'].map((option) => (
+                <FilterChip
+                  key={option}
+                  label={option}
+                  selected={ends === option}
+                  onPress={() => setEnds(option)}
+                />
+              ))}
+            </View>
+
+            <CareField
+              label="Units in stock"
+              value={stock}
+              onChangeText={setStock}
+              placeholder="Tablets, capsules or ml you have now"
+            />
+            <CareField
+              label="Units per dose"
+              value={perDose}
+              onChangeText={setPerDose}
+              helper="Set by the dose you pick"
+            />
+            <Text variant="caption" color={semantic.textMuted}>
+              Lasts about 15 days, until around 14 Nov 2026. We’ll flag it 3 days before.
+            </Text>
+          </ScreenCard>
+
+          {/* The reminder itself. */}
+          <ScreenCard>
+            <CardTitle>Dose reminders</CardTitle>
+            <View style={styles.reminderRow}>
+              <Icon name="bell" size={16} color={brand.green700} />
+              <Text variant="footnote" color={semantic.textSecondary} style={styles.reminderText}>
+                In the app at dose time, while MedMate is open
+              </Text>
+            </View>
+            <CareField
+              label="Note (optional)"
+              value={note}
+              onChangeText={setNote}
+              placeholder="For example take with a full glass of water"
+              helper={`${note.length}/120`}
+              tall
+            />
+            <View style={styles.summary}>
+              <Text variant="footnote" color={semantic.textSecondary}>
+                {`You: ${perDose || '1 tablet'} of ${name || 'your medicine'} at ${times.join(' and ') || '8:00 am'}, every day, ${food.toLowerCase()}, from ${starts}. MedMate reminds you at these times while the app is open.`}
+              </Text>
+              <Text variant="caption" color={semantic.textMuted}>
+                Missed a dose? Ask a pharmacist before taking a missed dose late, and never
+                take two doses together to make up for it.
+              </Text>
+            </View>
+          </ScreenCard>
+
           <Button
-            label="Add medicine"
+            label="Add to schedule"
             tone="filled"
             size="large"
-            icon="pill"
+            icon="clock"
             chevron
             onPress={onSave}
           />
@@ -180,5 +264,17 @@ const styles = StyleSheet.create({
   content: { gap: spacing.lg, paddingTop: spacing.lg },
   overlap: { marginTop: -spacing.xl },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  reminderRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+  },
+  reminderText: { flex: 1 },
+  summary: {
+    gap: spacing.sm,
+    padding: spacing.md,
+    borderRadius: radii.md,
+    backgroundColor: neutral.surface2,
+  },
   found: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
 });

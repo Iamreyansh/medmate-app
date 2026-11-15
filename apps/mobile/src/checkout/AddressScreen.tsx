@@ -37,6 +37,7 @@ export type AddressScreenProps = {
   onHelp?: () => void;
   onSave?: () => void;
   onUseMyNumber?: () => void;
+  onUseMyLocation?: () => void;
 };
 
 /**
@@ -51,6 +52,7 @@ export function AddressScreen({
   onHelp,
   onSave,
   onUseMyNumber,
+  onUseMyLocation,
 }: AddressScreenProps) {
   const insets = useSafeAreaInsets();
   const inset = useContentInset();
@@ -130,10 +132,30 @@ export function AddressScreen({
         </Gradient>
 
         <View style={[styles.content, { paddingHorizontal: inset }]}>
-          {/* The note that sits under the zone. */}
-          <View style={styles.noteCard}>
-            <Icon name="pin" size={16} color={brand.green700} />
-            <Text variant="caption" color={semantic.textSecondary} style={styles.noteText}>
+          {/* The card that overlaps the zone. */}
+          <View style={styles.overlapCard}>
+            <Pressable
+              accessibilityRole="button"
+              onPress={onUseMyLocation}
+              style={({ pressed }) => [
+                styles.locationRow,
+                pressed ? { opacity: 0.85 } : null,
+              ]}
+            >
+              <View style={styles.locationIcon}>
+                <Icon name="pin" size={22} color={neutral.surface} />
+              </View>
+              <View style={styles.locationText}>
+                <Text variant="subheadline" color={semantic.text}>
+                  Use my current location
+                </Text>
+                <Text variant="caption" color={semantic.textMuted}>
+                  Pin the exact spot, then fill in the details
+                </Text>
+              </View>
+              <Icon name="chev-r" size={18} color={semantic.textMuted} />
+            </Pressable>
+            <Text variant="caption" color={semantic.textMuted}>
               Without a pin, the rider finds you from the address you type and may call the
               number below.
             </Text>
@@ -278,7 +300,7 @@ export function AddressScreen({
               label="Your instructions"
               value={instructions}
               onChangeText={setInstructions}
-              placeholder="Leave at the door"
+              placeholder="For example gate 2, third floor, ring twice"
               helper={`${instructions.length}/140`}
               multiline
             />
@@ -298,7 +320,7 @@ export function AddressScreen({
             </View>
             <View style={styles.deliverHereText}>
               <Text variant="buttonSmall" color={semantic.text}>
-                Deliver here now
+                We deliver here
               </Text>
               <Text variant="caption" color={semantic.textMuted}>
                 Use this as your delivery address for the next order.
@@ -368,14 +390,31 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
     paddingTop: spacing.lg,
   },
-  noteCard: {
-    flexDirection: 'row',
-    gap: spacing.md,
+  overlapCard: {
+    marginTop: -spacing.xl,
     padding: spacing.md,
-    borderRadius: radii.lg,
+    gap: spacing.md,
+    borderRadius: radii.card,
     borderWidth: 1,
-    borderColor: mint[200],
+    borderColor: neutral.line,
     backgroundColor: neutral.surface,
+  },
+  locationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  locationIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: radii.mdPlus,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: brand.forest,
+  },
+  locationText: {
+    flex: 1,
+    gap: 2,
   },
   noteText: {
     flex: 1,

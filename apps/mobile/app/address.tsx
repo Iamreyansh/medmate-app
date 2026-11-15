@@ -20,6 +20,7 @@ export default function AddressRoute() {
       onHelp={() => notice.notify('Help and support is one tap away')}
       onSave={() => router.back()}
       onUseMyNumber={() => notice.notify('Your number is already saved')}
+      onUseMyLocation={() => notice.notify('Pinning your location')}
     />
   );
 }

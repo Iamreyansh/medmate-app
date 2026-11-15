@@ -72,7 +72,7 @@ export const validPrescriptionLines: { icon: 'user' | 'id' | 'clock' | 'pill' | 
   { icon: 'id', text: 'Patient’s name and age' },
   { icon: 'clock', text: 'Date the prescription was written' },
   { icon: 'pill', text: 'Medicine name, strength, dose and duration' },
-  { icon: 'edit', text: 'Doctor’s signature or clinic stamp' },
+  { icon: 'edit', text: 'Doctor’s signature or stamp' },
 ];
 
 /** How to take a clear photo of a prescription. */

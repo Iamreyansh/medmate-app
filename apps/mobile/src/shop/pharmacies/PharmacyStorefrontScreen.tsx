@@ -251,6 +251,46 @@ export function PharmacyStorefrontScreen({
               />
             ))}
           </View>
+
+          {/* The store details, the way the frame sets them out. */}
+          <View style={styles.detailsCard}>
+            <Text variant="buttonSmall" color={semantic.text}>
+              {pharmacy.name}
+            </Text>
+            {[
+              { label: 'Drug licence', value: pharmacy.drugLicence },
+              { label: 'Pharmacist', value: pharmacy.pharmacistReg },
+              {
+                label: 'Address',
+                value: `${pharmacy.area}, Bengaluru · ${pharmacy.distance} from you`,
+              },
+              { label: 'Hours', value: pharmacy.openLabel },
+              {
+                label: 'Delivery',
+                value: pharmacy.noDeliveryFee
+                  ? 'No delivery fee · ₹5 handling per order'
+                  : 'Delivery fee applies · ₹5 handling per order',
+              },
+            ].map((row) => (
+              <View key={row.label} style={styles.detailRow}>
+                <Text variant="caption" color={semantic.textMuted}>
+                  {row.label}
+                </Text>
+                <Text variant="footnoteEmphasized" color={semantic.text}>
+                  {row.value}
+                </Text>
+              </View>
+            ))}
+          </View>
+
+          <Text variant="caption" color={semantic.textMuted}>
+            Prescription medicines are dispensed only against a valid prescription checked by
+            the registered pharmacist named above.
+          </Text>
+          <Text variant="caption" color={semantic.textMuted}>
+            Store details, licence and pharmacist are sample listings until this pharmacy joins
+            the MedMate network.
+          </Text>
         </View>
       </ScrollView>
 
@@ -395,6 +435,17 @@ const styles = StyleSheet.create({
   couponText: {
     flex: 1,
     gap: spacing.xxs,
+  },
+  detailsCard: {
+    gap: spacing.sm,
+    padding: spacing.lg,
+    borderRadius: radii.card,
+    borderWidth: 1,
+    borderColor: neutral.line,
+    backgroundColor: neutral.surface,
+  },
+  detailRow: {
+    gap: 2,
   },
   searchBar: {
     flexDirection: 'row',

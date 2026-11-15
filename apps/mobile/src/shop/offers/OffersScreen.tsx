@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
@@ -34,6 +34,10 @@ const isAndroid = platformKey === 'android';
 export type OffersScreenProps = {
   onBack?: () => void;
   onApplyCoupon?: (code: string) => void;
+  /** Fired when "Refer a friend" is tapped. */
+  onRefer?: () => void;
+  /** Fired when "Order history" is tapped. */
+  onHistory?: () => void;
 };
 
 /**
@@ -42,7 +46,10 @@ export type OffersScreenProps = {
  * The rewards balance, the field for a code the user has, the coupons that
  * are waiting for them and how the rules work.
  */
-export function OffersScreen({ onBack, onApplyCoupon }: OffersScreenProps) {
+export function OffersScreen({ onBack, onApplyCoupon,
+  onRefer,
+  onHistory,
+}: OffersScreenProps) {
   const insets = useSafeAreaInsets();
   // On a screen wider than the design the content column is centred.
   const inset = useContentInset();
@@ -95,17 +102,42 @@ export function OffersScreen({ onBack, onApplyCoupon }: OffersScreenProps) {
             <Text variant="displayPrice" color={brand.forest}>
               {rewards.balance}
             </Text>
-            <Text variant="strong" color={brand.forest}>
+            <Text variant="strong" color={brand.forest} numberOfLines={2}>
               {rewards.line}
             </Text>
-            <Text variant="resultSub" color={brand.green700}>
+            <Text variant="resultSub" color={brand.green700} numberOfLines={3}>
               {rewards.body}
             </Text>
-            <View style={styles.rewardsAction}>
-              <Text variant="strong" color={brand.forest}>
-                {rewards.action}
-              </Text>
-              <Icon name="chev-r" size={14} color={brand.forest} />
+            <View style={styles.rewardsButtons}>
+              <Pressable
+                accessibilityRole="button"
+                onPress={onRefer}
+                style={({ pressed }) => [
+                  styles.rewardsButton,
+                  styles.rewardsButtonDark,
+                  pressed ? { opacity: 0.85 } : null,
+                ]}
+              >
+                <Icon name="gift" size={18} color={neutral.surface} />
+                <Text variant="buttonSmall" color={neutral.surface}>
+                  Refer a friend
+                </Text>
+                <Icon name="chev-r" size={16} color={neutral.surface} />
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                onPress={onHistory}
+                style={({ pressed }) => [
+                  styles.rewardsButton,
+                  pressed ? { opacity: 0.85 } : null,
+                ]}
+              >
+                <Icon name="id" size={18} color={brand.green} />
+                <Text variant="buttonSmall" color={brand.green}>
+                  Order history
+                </Text>
+                <Icon name="chev-r" size={16} color={brand.green} />
+              </Pressable>
             </View>
           </Gradient>
         </View>
@@ -290,6 +322,7 @@ const styles = StyleSheet.create({
   },
   rewards: {
     gap: spacing.xs,
+    width: '100%',
     padding: spacing.lg,
     borderRadius: radii.xxl,
     shadowColor: elevation.medium.shadowColor,
@@ -300,6 +333,25 @@ const styles = StyleSheet.create({
   },
   rewardsEyebrow: {
     lineHeight: 13,
+  },
+  rewardsButtons: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  rewardsButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    height: 34,
+    paddingHorizontal: spacing.md,
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    borderColor: neutral.line,
+    backgroundColor: neutral.surface,
+  },
+  rewardsButtonDark: {
+    backgroundColor: brand.forest,
+    borderColor: brand.forest,
   },
   rewardsAction: {
     flexDirection: 'row',
