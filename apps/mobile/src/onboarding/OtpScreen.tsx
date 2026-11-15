@@ -55,7 +55,8 @@ export function OtpScreen({
   const [code, setCode] = useState(demoCode);
   const input = useRef<React.ComponentRef<typeof TextInput>>(null);
 
-  const complete = code.length === 4;
+  // The demo build has one code, and it is the one on the screen.
+  const matches = code === demoCode;
 
   return (
     <View style={styles.root}>
@@ -110,7 +111,7 @@ export function OtpScreen({
             {/* The four boxes. */}
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Enter the 4-digit code"
+              accessibilityLabel={code.length ? `Code ${code}` : 'Enter the 4-digit code'}
               onPress={() => input.current?.focus()}
               style={styles.boxes}
             >
@@ -142,6 +143,8 @@ export function OtpScreen({
               maxLength={4}
               style={styles.hiddenInput}
               accessibilityLabel="Verification code"
+              accessibilityElementsHidden
+              importantForAccessibility="no-hide-descendants"
             />
           </View>
         </View>
@@ -157,10 +160,11 @@ export function OtpScreen({
 
         <Button
           label="Verify and continue"
-          tone={complete ? 'filled' : 'muted'}
+          tone={matches ? 'filled' : 'muted'}
           size="large"
           icon="chev-r"
-          onPress={() => onVerify?.(code || demoCode)}
+          disabled={!matches}
+          onPress={() => onVerify?.(code)}
         />
 
         <Text variant="footnote" color={brand.green700}>

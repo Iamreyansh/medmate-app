@@ -119,49 +119,51 @@ export function LocationScreen({
             {savedAddressesLabel(session.addresses.length)}
           </Text>
 
-          {session.addresses.map((address) => {
-            const selected = address.id === session.addressId;
-            return (
-              <Pressable
-                key={address.id}
-                accessibilityRole="radio"
-                accessibilityState={{ selected }}
-                onPress={() => session.setAddressId(address.id)}
-                style={({ pressed }) => [
-                  styles.address,
-                  selected ? styles.addressOn : null,
-                  pressed ? { opacity: 0.92 } : null,
-                ]}
-              >
-                <View style={styles.addressIcon}>
-                  <Icon
-                    name={address.label === 'Work' ? 'briefcase' : 'home'}
-                    size={20}
-                    color={brand.green700}
-                  />
-                </View>
-                <View style={styles.addressText}>
-                  <View style={styles.addressHead}>
-                    <Text variant="subheadline" color={semantic.text}>
-                      {address.label}
-                    </Text>
-                    {address.deliveringHere ? <DeliveringHereTag /> : null}
+          <View accessibilityRole="radiogroup">
+            {session.addresses.map((address) => {
+              const selected = address.id === session.addressId;
+              return (
+                <Pressable
+                  key={address.id}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected }}
+                  onPress={() => session.setAddressId(address.id)}
+                  style={({ pressed }) => [
+                    styles.address,
+                    selected ? styles.addressOn : null,
+                    pressed ? { opacity: 0.92 } : null,
+                  ]}
+                >
+                  <View style={styles.addressIcon}>
+                    <Icon
+                      name={address.label === 'Work' ? 'briefcase' : 'home'}
+                      size={20}
+                      color={brand.green700}
+                    />
                   </View>
-                  <Text variant="caption" color={semantic.textSecondary}>
-                    {address.line}
-                  </Text>
-                  <Text variant="caption" color={semantic.textMuted}>
-                    {`${address.receiver} · ${address.phone}`}
-                  </Text>
-                </View>
-                <View style={styles.addressRadio}>
-                  {selected ? (
-                    <Icon name="check" size={12} color={neutral.surface} />
-                  ) : null}
-                </View>
-              </Pressable>
-            );
-          })}
+                  <View style={styles.addressText}>
+                    <View style={styles.addressHead}>
+                      <Text variant="subheadline" color={semantic.text}>
+                        {address.label}
+                      </Text>
+                      {address.id === session.addressId ? <DeliveringHereTag /> : null}
+                    </View>
+                    <Text variant="caption" color={semantic.textSecondary}>
+                      {address.line}
+                    </Text>
+                    <Text variant="caption" color={semantic.textMuted}>
+                      {`${address.receiver} · ${address.phone}`}
+                    </Text>
+                  </View>
+                  <View style={styles.addressRadio}>
+                    {selected ? (
+                      <Icon name="check" size={12} color={neutral.surface} />
+                    ) : null}
+                  </View>
+                </Pressable>
+              );
+            })}
+          </View>
 
           <Pressable
             accessibilityRole="button"
@@ -191,14 +193,19 @@ export function LocationScreen({
           label: 'Allow While Using App',
           onPress: () => {
             setAsking(false);
+            session.setPermission('location', 'allowed');
             onDetect?.();
           },
         }}
         onAllow={() => {
           setAsking(false);
+          session.setPermission('location', 'allowed');
           onDetect?.();
         }}
-        onDeny={() => setAsking(false)}
+        onDeny={() => {
+          setAsking(false);
+          session.setPermission('location', 'denied');
+        }}
       />
 
       <View style={[styles.actionBar, { paddingBottom: insets.bottom + spacing.sm }]}>

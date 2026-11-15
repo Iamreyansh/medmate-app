@@ -1,4 +1,4 @@
-import React, { type ReactNode } from 'react';
+import React, { useId, type ReactNode } from 'react';
 import {
   Pressable,
   StyleSheet,
@@ -42,8 +42,6 @@ export type GradientProps = {
   children?: ReactNode;
 };
 
-let gradientSeq = 0;
-
 /**
  * A gradient-filled surface.
  *
@@ -52,7 +50,8 @@ let gradientSeq = 0;
  * renderer cheap and the output predictable.
  */
 export function Gradient({ token = 'art', colors: override, radius = 0, style, children }: GradientProps) {
-  const id = `grad${(gradientSeq += 1)}`;
+  // A stable id, so the gradient is not rebuilt on every render.
+  const id = useId().replace(/:/g, '');
   const stops = override ?? DEFAULT_STOPS[token];
 
   return (
@@ -153,6 +152,14 @@ export type ButtonProps = {
   /** Trailing chevron. On by default. */
   chevron?: boolean;
   onPress?: () => void;
+  /**
+   * The button is there but cannot be pressed.
+   *
+   * A muted tone alone is not enough: the shopper has to be told, and the
+   * press has to be refused, or an action that is not ready can still be
+   * taken.
+   */
+  disabled?: boolean;
   style?: StyleProp<ViewStyle>;
 };
 
@@ -169,6 +176,7 @@ export function Button({
   icon = null,
   chevron = false,
   onPress,
+  disabled = false,
   style,
 }: ButtonProps) {
   const isGold = tone === 'gold';
@@ -186,7 +194,8 @@ export function Button({
   return (
     <Pressable
       accessibilityRole="button"
-      onPress={onPress}
+      accessibilityState={{ disabled }}
+      onPress={disabled ? undefined : onPress}
       style={({ pressed }) => [
         styles.button,
         isLarge ? styles.buttonLarge : styles.buttonSmall,

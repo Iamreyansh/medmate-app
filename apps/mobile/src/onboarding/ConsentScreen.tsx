@@ -169,6 +169,7 @@ export function ConsentScreen({
             tone={adult ? 'filled' : 'muted'}
             size="large"
             icon="chev-r"
+            disabled={!adult}
             onPress={() => onAgree?.({ adult, offers })}
           />
 

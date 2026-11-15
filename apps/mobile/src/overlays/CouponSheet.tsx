@@ -49,6 +49,7 @@ export function CouponSheet({ visible, coupons, onClose, onApply }: CouponSheetP
           <Pressable
             key={coupon.id}
             accessibilityRole="button"
+            accessibilityState={{ selected: !!coupon.applied }}
             onPress={() => {
               onApply?.(coupon.id);
               onClose?.();
@@ -82,6 +83,9 @@ export function CouponSheet({ visible, coupons, onClose, onApply }: CouponSheetP
               </View>
               <Text variant="caption" color={semantic.text}>
                 {coupon.title}
+              </Text>
+              <Text variant="caption" color={semantic.textMuted}>
+                {coupon.body}
               </Text>
               <Text variant="caption" color={semantic.textMuted}>
                 {coupon.saving}

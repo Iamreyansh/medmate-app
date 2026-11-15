@@ -19,7 +19,9 @@ export default function LoginRoute() {
       onHelp={() => notice.notify('Help and support is one tap away')}
       onBrowse={() => router.replace({ pathname: '/' })}
       onGetCode={(phone) => {
-        session.signIn(phone);
+        // The shopper is signed in once the code is verified, not when the
+        // code is asked for.
+        session.setPhone(phone);
         router.push({ pathname: '/onboarding/otp', params: { phone } });
       }}
     />

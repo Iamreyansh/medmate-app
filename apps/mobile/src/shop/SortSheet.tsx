@@ -37,7 +37,7 @@ export function SortSheet({
 }: SortSheetProps) {
   return (
     <Sheet visible={visible} title={title} onClose={onClose}>
-      <View style={styles.rows}>
+      <View style={styles.rows} accessibilityRole="radiogroup">
         {options.map((option) => {
           const selected = option.id === active;
           return (

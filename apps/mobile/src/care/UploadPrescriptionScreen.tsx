@@ -16,6 +16,7 @@ import { Text } from '../ui/Text';
 import { Button, Gradient } from '../ui/primitives';
 import { useContentInset } from '../ui/layout';
 import { PermissionPrompt, permissionCopy } from '../overlays/parts';
+import { useSession } from '../state/session';
 import {
   CheckLine,
   InfoNote,
@@ -58,6 +59,7 @@ export function UploadPrescriptionScreen({
   const insets = useSafeAreaInsets();
   const inset = useContentInset();
   const [asking, setAsking] = useState(false);
+  const session = useSession();
 
   return (
     <View style={styles.root}>
@@ -171,9 +173,13 @@ export function UploadPrescriptionScreen({
         body={permissionCopy.camera.body}
         onAllow={() => {
           setAsking(false);
+          session.setPermission('camera', 'allowed');
           onTakePhoto?.();
         }}
-        onDeny={() => setAsking(false)}
+        onDeny={() => {
+          setAsking(false);
+          session.setPermission('camera', 'denied');
+        }}
       />
 
       {/* The action bar. */}

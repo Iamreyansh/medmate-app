@@ -24,6 +24,27 @@ export const chatGreeting =
 export const chatDelivery =
   'Each pharmacy sets its own delivery fee, and some waive it above an order value. A ₹5 handling fee applies to every order. Express adds ₹25, and a second pickup adds ₹15.';
 
+/** What the helper says back. */
+export function chatReply(question: string): string {
+  const text = question.toLowerCase();
+  if (text.includes('track')) {
+    return 'Open My orders to see where your order is. It shows the pharmacy, the rider and the time it will arrive.';
+  }
+  if (text.includes('upload') || text.includes('prescription')) {
+    return 'Upload a photo or a PDF from My prescriptions, and a pharmacist checks it, usually within 30 minutes.';
+  }
+  if (text.includes('not available') || text.includes('find')) {
+    return 'Request it from the search screen and the MedMate team will check with pharmacies and call you back.';
+  }
+  if (text.includes('offer') || text.includes('coupon')) {
+    return 'Your coupons are on the Offers screen. One coupon per order, and never on prescription medicines.';
+  }
+  if (text.includes('support') || text.includes('person')) {
+    return 'You can reach the pharmacy on the number in your order, or the support line is on Help and support.';
+  }
+  return 'Ask about orders, prescriptions, delivery or offers, and I will point you at the right screen.';
+}
+
 export type ChatPanelProps = {
   visible: boolean;
   onClose?: () => void;
@@ -40,6 +61,14 @@ export type ChatPanelProps = {
 export function ChatPanel({ visible, onClose, onAsk }: ChatPanelProps) {
   const insets = useSafeAreaInsets();
   const [message, setMessage] = useState('');
+  const [sent, setSent] = useState<{ question: string; answer: string }[]>([]);
+
+  const ask = (question: string) => {
+    const text = question.trim();
+    if (!text) return;
+    setSent((current) => [...current, { question: text, answer: chatReply(text) }]);
+    onAsk?.(text);
+  };
 
   return (
     <Modal
@@ -53,10 +82,12 @@ export function ChatPanel({ visible, onClose, onAsk }: ChatPanelProps) {
           accessibilityRole="button"
           accessibilityLabel="Close the chat"
           onPress={onClose}
+          accessible={false}
+          importantForAccessibility="no"
           style={styles.scrimFill}
         />
 
-        <View style={[styles.panel, { paddingBottom: insets.bottom }]}>
+        <View style={[styles.panel, { paddingBottom: insets.bottom }]} accessibilityViewIsModal>
           <View style={styles.grabber} />
 
           <View style={styles.head}>
@@ -90,24 +121,27 @@ export function ChatPanel({ visible, onClose, onAsk }: ChatPanelProps) {
               </Text>
             </View>
 
-            <View style={[styles.bubble, styles.userBubble]}>
-              <Text variant="footnote" color={neutral.surface}>
-                Delivery charges
-              </Text>
-            </View>
-
-            <View style={[styles.bubble, styles.botBubble]}>
-              <Text variant="footnote" color={semantic.text}>
-                {chatDelivery}
-              </Text>
-            </View>
+            {sent.map((exchange, index) => (
+              <React.Fragment key={`${exchange.question}-${index}`}>
+                <View style={[styles.bubble, styles.userBubble]}>
+                  <Text variant="footnote" color={neutral.surface}>
+                    {exchange.question}
+                  </Text>
+                </View>
+                <View style={[styles.bubble, styles.botBubble]}>
+                  <Text variant="footnote" color={semantic.text}>
+                    {exchange.answer}
+                  </Text>
+                </View>
+              </React.Fragment>
+            ))}
 
             <View style={styles.chips}>
               {chatChips.map((chip) => (
                 <Pressable
                   key={chip}
                   accessibilityRole="button"
-                  onPress={() => onAsk?.(chip)}
+                  onPress={() => ask(chip)}
                   style={({ pressed }) => [styles.chip, pressed ? { opacity: 0.9 } : null]}
                 >
                   <Text variant="footnoteEmphasized" color={brand.green}>
@@ -131,7 +165,7 @@ export function ChatPanel({ visible, onClose, onAsk }: ChatPanelProps) {
               accessibilityRole="button"
               accessibilityLabel="Send"
               onPress={() => {
-                if (message.trim()) onAsk?.(message.trim());
+                ask(message);
                 setMessage('');
               }}
               style={({ pressed }) => [styles.send, pressed ? { opacity: 0.85 } : null]}

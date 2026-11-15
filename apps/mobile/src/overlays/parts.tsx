@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 
 import {
@@ -31,6 +32,8 @@ export function Sheet({
   onClose?: () => void;
   children: React.ReactNode;
 }) {
+  const insets = useSafeAreaInsets();
+
   return (
     <Modal
       visible={visible}
@@ -43,9 +46,14 @@ export function Sheet({
           accessibilityRole="button"
           accessibilityLabel="Close"
           onPress={onClose}
+          accessible={false}
+          importantForAccessibility="no"
           style={styles.scrimFill}
         />
-        <View style={styles.sheet}>
+        <View
+          style={[styles.sheet, { paddingBottom: insets.bottom + spacing.xl }]}
+          accessibilityViewIsModal
+        >
           <View style={styles.grabber} />
 
           <View style={styles.sheetHead}>
@@ -202,7 +210,6 @@ const styles = StyleSheet.create({
     backgroundColor: neutral.surface,
     borderTopLeftRadius: radii.huge,
     borderTopRightRadius: radii.huge,
-    paddingBottom: spacing.xl,
   },
   grabber: {
     alignSelf: 'center',

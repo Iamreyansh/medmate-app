@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
@@ -25,10 +25,15 @@ export type SplashScreenProps = {
 export function SplashScreen({ onDone, duration = 1400 }: SplashScreenProps) {
   const insets = useSafeAreaInsets();
 
+  // The callback is held in a ref, so a re-render of the route does not
+  // cancel the timer and start the wait again.
+  const done = useRef(onDone);
+  done.current = onDone;
+
   useEffect(() => {
-    const timer = setTimeout(() => onDone?.(), duration);
+    const timer = setTimeout(() => done.current?.(), duration);
     return () => clearTimeout(timer);
-  }, [duration, onDone]);
+  }, [duration]);
 
   return (
     <Gradient token="brand" radius={0} style={styles.root}>

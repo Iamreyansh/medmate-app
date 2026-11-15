@@ -263,7 +263,6 @@ export function PharmaciesScreen({
           onTabPress={(id) =>
             id === 'home' ? undefined : notice.notify('The pharmacy screen is next in the section')
           }
-          onChatPress={() => notice.notify('Chat opens in the next release')}
           onAdPress={() => notice.notify('New arrivals are on the offers screen')}
         />
       </View>

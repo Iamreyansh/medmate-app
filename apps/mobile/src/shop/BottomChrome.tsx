@@ -76,7 +76,12 @@ export function BottomChrome({
           })}
 
           {/* Ad slot that takes the third tab position. */}
-          <Pressable accessibilityRole="button" onPress={onAdPress} style={styles.adSlot}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Sponsored: new arrivals"
+            onPress={onAdPress}
+            style={styles.adSlot}
+          >
             <View style={styles.adArt} />
             <View style={styles.adTag}>
               <Text variant="tag" color={gold[300]}>
@@ -88,7 +93,7 @@ export function BottomChrome({
 
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Chat"
+          accessibilityLabel="Chat with the MedMate helper"
           onPress={() => {
             setChatOpen(true);
             onChatPress?.();

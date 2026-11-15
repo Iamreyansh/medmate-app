@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -15,6 +15,7 @@ import { Text } from '../ui/Text';
 import { Button, Gradient } from '../ui/primitives';
 import { useContentInset } from '../ui/layout';
 import { CardTitle, ScreenCard, ZoneBar, ZoneHeading } from '../ui/blocks';
+import { PermissionPrompt, permissionCopy } from '../overlays/parts';
 import { account } from './data';
 
 export type ReferScreenProps = {
@@ -22,6 +23,8 @@ export type ReferScreenProps = {
   onHelp?: () => void;
   onCopy?: (value: string) => void;
   onInvite?: () => void;
+  /** Fired when the shopper picks who to invite. */
+  onPickContacts?: () => void;
 };
 
 /**
@@ -30,9 +33,16 @@ export type ReferScreenProps = {
  * The Figma `07 Account / Refer & earn` frame: the code, what the shopper and
  * their friend get, and how it works.
  */
-export function ReferScreen({ onBack, onHelp, onCopy, onInvite }: ReferScreenProps) {
+export function ReferScreen({
+  onBack,
+  onHelp,
+  onCopy,
+  onInvite,
+  onPickContacts,
+}: ReferScreenProps) {
   const insets = useSafeAreaInsets();
   const inset = useContentInset();
+  const [asking, setAsking] = useState(false);
 
   return (
     <View style={styles.root}>
@@ -191,6 +201,17 @@ export function ReferScreen({ onBack, onHelp, onCopy, onInvite }: ReferScreenPro
         </View>
       </ScrollView>
 
+      <PermissionPrompt
+        visible={asking}
+        title={permissionCopy.contacts.title}
+        body={permissionCopy.contacts.body}
+        onAllow={() => {
+          setAsking(false);
+          onPickContacts?.();
+        }}
+        onDeny={() => setAsking(false)}
+      />
+
       <View style={[styles.actionBar, { paddingBottom: insets.bottom + spacing.sm }]}>
         <View style={[styles.actionInner, { paddingHorizontal: inset }]}>
           <Button
@@ -199,7 +220,7 @@ export function ReferScreen({ onBack, onHelp, onCopy, onInvite }: ReferScreenPro
             size="large"
             icon="gift"
             chevron
-            onPress={onInvite}
+            onPress={() => setAsking(true)}
           />
         </View>
       </View>

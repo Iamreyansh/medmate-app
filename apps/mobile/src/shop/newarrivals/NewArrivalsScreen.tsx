@@ -130,7 +130,6 @@ export function NewArrivalsScreen({
           onTabPress={(id) =>
             id === 'home' ? undefined : notice.notify('The pharmacy screen is next in the section')
           }
-          onChatPress={() => notice.notify('Chat opens in the next release')}
           onAdPress={() => notice.notify('You are already looking at the newest arrivals')}
         />
       </View>

@@ -52,9 +52,15 @@ export function LoginScreen({
   const insets = useSafeAreaInsets();
   const inset = useContentInset();
   const [number, setNumber] = useState('98450 12345');
+  const [stripWidth, setStripWidth] = useState(0);
 
-  const phone = `+91 ${number}`;
-  const valid = number.replace(/\D/g, '').length >= 10;
+  const digits = number.replace(/\D/g, '');
+  const valid = digits.length === 10;
+  // The number is stored the way it is written, so the shopper sees the same
+  // number on the next screen that they typed.
+  const phone = `+91 ${digits}`;
+  // The strip is drawn for a 344pt band.
+  const stripScale = stripWidth ? Math.min(1, stripWidth / 344) : 1;
 
   return (
     <View style={styles.root}>
@@ -93,18 +99,23 @@ export function LoginScreen({
             <View style={[styles.zoneBody, { paddingHorizontal: inset }]}>
               <Wordmark size="large" />
 
-              {/* The pack of products the zone shows. */}
-              <View style={styles.packs}>
+              {/* The pack of products the zone shows. It is drawn for a
+                  344pt band, and shrinks rather than being cut off on a
+                  narrower phone. */}
+              <View
+                style={styles.packs}
+                onLayout={(event) => setStripWidth(event.nativeEvent.layout.width)}
+              >
                 {packPhotos.map((photo) => (
                   <View
                     key={photo.id}
                     style={[
                       styles.pack,
                       {
-                        width: photo.size,
-                        height: photo.size,
-                        left: photo.x,
-                        top: photo.y,
+                        width: photo.size * stripScale,
+                        height: photo.size * stripScale,
+                        left: photo.x * stripScale,
+                        top: photo.y * stripScale,
                       },
                     ]}
                   >
@@ -161,9 +172,10 @@ export function LoginScreen({
 
           <Button
             label="Get code"
-            tone="filled"
+            tone={valid ? 'filled' : 'muted'}
             size="large"
             icon="chev-r"
+            disabled={!valid}
             onPress={() => onGetCode?.(phone)}
           />
 
@@ -211,9 +223,8 @@ const styles = StyleSheet.create({
   zoneBody: { gap: spacing.lg, paddingTop: spacing.sm },
   packs: {
     position: 'relative',
-    width: 300,
+    width: '100%',
     height: 150,
-    marginLeft: 31,
   },
   pack: {
     position: 'absolute',

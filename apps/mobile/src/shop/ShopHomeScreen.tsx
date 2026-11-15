@@ -225,7 +225,6 @@ export function ShopHomeScreen() {
         <BottomChrome
           active="home"
           onTabPress={(id) => (id === 'home' ? router.replace('/') : router.push('/pharmacies'))}
-          onChatPress={() => notice.notify('Chat opens in the next release')}
           onAdPress={() => router.push('/new-arrivals')}
         />
       </View>

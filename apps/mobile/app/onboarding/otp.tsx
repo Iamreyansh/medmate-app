@@ -3,6 +3,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { OtpScreen } from '../../src/onboarding/OtpScreen';
 import { useNotice } from '../../src/state/notice';
+import { demoCode } from '../../src/onboarding/data';
 import { useSession } from '../../src/state/session';
 
 /**
@@ -23,7 +24,11 @@ export default function OtpRoute() {
       onBack={() => router.back()}
       onHelp={() => notice.notify('Help and support is one tap away')}
       onChangeNumber={() => router.replace({ pathname: '/onboarding/login' })}
-      onVerify={() => router.replace({ pathname: '/onboarding/consent' })}
+      onVerify={(code) => {
+        if (code !== demoCode) return;
+        session.signIn(number);
+        router.replace({ pathname: '/onboarding/consent' });
+      }}
     />
   );
 }
