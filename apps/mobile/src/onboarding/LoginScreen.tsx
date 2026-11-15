@@ -17,13 +17,23 @@ import { Text } from '../ui/Text';
 import { Button, Gradient } from '../ui/primitives';
 import { useContentInset } from '../ui/layout';
 import { PromiseStrip, Wordmark } from './parts';
-import { codeNotice, loginBody, loginHeading, packPhotos } from './data';
+import {
+  browseFirst,
+  codeNotice,
+  loginBody,
+  loginHeading,
+  numberNoteBody,
+  numberNoteTitle,
+  packPhotos,
+} from './data';
 
 export type LoginScreenProps = {
   onBack?: () => void;
   onHelp?: () => void;
   /** Fired when the shopper asks for a code. */
   onGetCode?: (phone: string) => void;
+  /** Fired when the shopper looks around before signing in. */
+  onBrowse?: () => void;
 };
 
 /**
@@ -33,7 +43,12 @@ export type LoginScreenProps = {
  * and the three promises, and the sheet that slides over it with the mobile
  * number field.
  */
-export function LoginScreen({ onBack, onHelp, onGetCode }: LoginScreenProps) {
+export function LoginScreen({
+  onBack,
+  onHelp,
+  onGetCode,
+  onBrowse,
+}: LoginScreenProps) {
   const insets = useSafeAreaInsets();
   const inset = useContentInset();
   const [number, setNumber] = useState('98450 12345');
@@ -151,6 +166,25 @@ export function LoginScreen({ onBack, onHelp, onGetCode }: LoginScreenProps) {
             icon="chev-r"
             onPress={() => onGetCode?.(phone)}
           />
+
+          <View style={styles.noteBlock}>
+            <Text variant="footnoteEmphasized" color={semantic.textSecondary}>
+              {numberNoteTitle}
+            </Text>
+            <Text variant="caption" color={semantic.textMuted}>
+              {numberNoteBody}
+            </Text>
+          </View>
+
+          <Pressable
+            accessibilityRole="link"
+            onPress={onBrowse}
+            style={({ pressed }) => [pressed ? { opacity: 0.8 } : null]}
+          >
+            <Text variant="footnoteEmphasized" color={brand.green}>
+              {browseFirst}
+            </Text>
+          </Pressable>
         </View>
       </ScrollView>
     </View>
@@ -218,6 +252,10 @@ const styles = StyleSheet.create({
     backgroundColor: neutral.surface,
   },
   fieldRule: { width: 1, height: 22, backgroundColor: neutral.line2 },
+  noteBlock: {
+    gap: 2,
+    paddingTop: spacing.sm,
+  },
   fieldInput: {
     flex: 1,
     fontSize: 17,

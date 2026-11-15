@@ -39,6 +39,16 @@ export function codeNotice(phone: string): string {
   return `We’ll send a 4-digit code to ${phone}.`;
 }
 
+/** The note under the mobile field. */
+export const numberNoteTitle = 'What happens to my number?';
+
+/** The note under that. */
+export const numberNoteBody =
+  'You will review our Terms and Privacy Policy on the next step. MedMate is for people aged 18 and over.';
+
+/** The link that lets the shopper look around first. */
+export const browseFirst = 'Browse medicines first';
+
 /** The code the demo build accepts. */
 export const demoCode = '1234';
 

@@ -17,6 +17,7 @@ export default function LoginRoute() {
     <LoginScreen
       onBack={() => router.back()}
       onHelp={() => notice.notify('Help and support is one tap away')}
+      onBrowse={() => router.replace({ pathname: '/' })}
       onGetCode={(phone) => {
         session.signIn(phone);
         router.push({ pathname: '/onboarding/otp', params: { phone } });

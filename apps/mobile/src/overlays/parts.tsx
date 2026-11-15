@@ -84,6 +84,7 @@ export function PermissionPrompt({
   body,
   onAllow,
   onDeny,
+  middle,
 }: {
   visible: boolean;
   /** The permission, e.g. `“MedMate” Would Like to Access the Camera`. */
@@ -91,6 +92,8 @@ export function PermissionPrompt({
   body: string;
   onAllow?: () => void;
   onDeny?: () => void;
+  /** A third choice, the way iOS offers "Allow While Using App". */
+  middle?: { label: string; onPress?: () => void };
 }) {
   return (
     <Modal
@@ -118,10 +121,24 @@ export function PermissionPrompt({
               onPress={onDeny}
               style={({ pressed }) => [styles.alertAction, pressed ? { opacity: 0.85 } : null]}
             >
-              <Text variant="button" color={brand.green}>
+              <Text variant="body" color={brand.green}>
                 Don’t Allow
               </Text>
             </Pressable>
+            {middle ? (
+              <>
+                <View style={styles.alertRule} />
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={middle.onPress}
+                  style={({ pressed }) => [styles.alertAction, pressed ? { opacity: 0.85 } : null]}
+                >
+                  <Text variant="body" color={brand.green}>
+                    {middle.label}
+                  </Text>
+                </Pressable>
+              </>
+            ) : null}
             <View style={styles.alertRule} />
             <Pressable
               accessibilityRole="button"
@@ -129,7 +146,7 @@ export function PermissionPrompt({
               style={({ pressed }) => [styles.alertAction, pressed ? { opacity: 0.85 } : null]}
             >
               <Text variant="button" color={brand.green}>
-                Allow
+                {middle ? 'Allow Once' : 'Allow'}
               </Text>
             </Pressable>
           </View>
@@ -156,7 +173,7 @@ export const permissionCopy: Record<
   },
   location: {
     title: 'Allow “MedMate” to use your location?',
-    body: 'MedMate uses your location to find pharmacies nearby and to give the rider the right pin. Your location is shared with the pharmacy and rider only for an order you place.',
+    body: 'To find pharmacies near you and fill in your address. Only while you use the app.',
   },
   notifications: {
     title: '“MedMate” Would Like to Send You Notifications',
@@ -164,7 +181,7 @@ export const permissionCopy: Record<
   },
   contacts: {
     title: '“MedMate” Would Like to Access Your Contacts',
-    body: 'To let you pick who to invite. Contacts are never uploaded.',
+    body: 'You pick who to invite. Your address book is never uploaded.',
   },
 };
 

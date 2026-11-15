@@ -166,6 +166,18 @@ export function OtpScreen({
         <Text variant="footnote" color={brand.green700}>
           {otpSafety}
         </Text>
+
+        {/* The paste suggestion the phone offers for the code. */}
+        <View style={styles.paste}>
+          <View style={styles.pasteHead}>
+            <Text variant="captionStrong" color={semantic.textSecondary}>
+              From Messages
+            </Text>
+          </View>
+          <Text variant="buttonSmall" color={semantic.text}>
+            {demoCode}
+          </Text>
+        </View>
       </View>
     </View>
   );
@@ -212,5 +224,18 @@ const styles = StyleSheet.create({
   body: {
     gap: spacing.md,
     paddingTop: spacing.lg,
+  },
+  paste: {
+    gap: spacing.xs,
+    padding: spacing.md,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: neutral.line,
+    backgroundColor: neutral.surface,
+  },
+  pasteHead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
   },
 });

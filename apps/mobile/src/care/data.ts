@@ -66,14 +66,24 @@ export const prescriptionSteps = [
   { id: 'confirm', label: 'Confirm', icon: 'check' as const },
 ];
 
-/** What a valid prescription has to show. */
-export const validPrescriptionLines: { icon: 'user' | 'id' | 'clock' | 'pill' | 'edit'; text: string }[] = [
-  { icon: 'user', text: 'Doctor’s name, qualification and registration number' },
-  { icon: 'id', text: 'Patient’s name and age' },
-  { icon: 'clock', text: 'Date the prescription was written' },
-  { icon: 'pill', text: 'Medicine name, strength, dose and duration' },
-  { icon: 'edit', text: 'Doctor’s signature or stamp' },
-];
+/**
+ * What a valid prescription has to show.
+ *
+ * The two frames that carry this list spell the last line differently - the
+ * upload screen says "clinic stamp" and My Prescriptions says "stamp" - so the
+ * wording is a choice rather than a constant.
+ */
+export function validPrescriptionLines(
+  signature = 'Doctor’s signature or stamp',
+): { icon: 'user' | 'id' | 'clock' | 'pill' | 'edit'; text: string }[] {
+  return [
+    { icon: 'user', text: 'Doctor’s name, qualification and registration number' },
+    { icon: 'id', text: 'Patient’s name and age' },
+    { icon: 'clock', text: 'Date the prescription was written' },
+    { icon: 'pill', text: 'Medicine name, strength, dose and duration' },
+    { icon: 'edit', text: signature },
+  ];
+}
 
 /** How to take a clear photo of a prescription. */
 export const clearPhotoLines: { icon: 'camera'; text: string }[] = [

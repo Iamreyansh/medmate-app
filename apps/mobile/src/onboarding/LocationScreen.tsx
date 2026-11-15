@@ -187,6 +187,13 @@ export function LocationScreen({
         visible={asking}
         title={permissionCopy.location.title}
         body={permissionCopy.location.body}
+        middle={{
+          label: 'Allow While Using App',
+          onPress: () => {
+            setAsking(false);
+            onDetect?.();
+          },
+        }}
         onAllow={() => {
           setAsking(false);
           onDetect?.();

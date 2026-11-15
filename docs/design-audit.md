@@ -119,6 +119,19 @@ prescriptions and the wallet all need a signed-in shopper.
 | 19 | Add medicine | The days picker, "Duration and stock", the reminder note and the summary of the schedule | Missing | Added, with the "Add to schedule" action |
 | 20 | My prescriptions | "Doctor's signature or stamp" | "...or clinic stamp" | Changed |
 
+### A second pass, after the onboarding and the overlays were built
+
+The same audit was run again over the twelve new screens. It found six more:
+
+| # | Where | Discrepancy | Fix |
+|---|---|---|---|
+| 21 | Login | "What happens to my number?" and the line under it | Added, with the "Browse medicines first" link |
+| 22 | Login | "Browse medicines first" | Added, and it opens the shop without signing in |
+| 23 | Sort sheet | "Biggest discount" | "Biggest discount (no-prescription items)", the way the frame spells it |
+| 24 | OTP | The paste suggestion the phone offers for the code | Added, as the frame draws it |
+| 25 | Permission - location | The body said something else, and the alert had two buttons | The frame's copy, and the three choices iOS offers |
+| 26 | Upload prescription | "Doctor's signature or clinic stamp" | The upload screen and My Prescriptions spell the last line differently, so the wording is a choice rather than a constant |
+
 ## Discrepancies that are data, not UI
 
 These are correct in the app and differ only because the frames were drawn

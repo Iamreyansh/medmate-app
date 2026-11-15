@@ -153,7 +153,7 @@ export function MyPrescriptionsScreen({
             ))}
           </ScreenCard>
 
-          <ValidPrescriptionCard lines={validPrescriptionLines} />
+          <ValidPrescriptionCard lines={validPrescriptionLines()} />
 
           <InfoNote icon="shield">
             Each prescription is shared only with the reviewing pharmacist or doctor and the

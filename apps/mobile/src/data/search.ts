@@ -87,7 +87,7 @@ export const searchSorts: { id: SearchSort; label: string }[] = [
   { id: 'relevance', label: 'Relevance' },
   { id: 'priceLow', label: 'Price: low to high' },
   { id: 'priceHigh', label: 'Price: high to low' },
-  { id: 'discount', label: 'Biggest discount' },
+  { id: 'discount', label: 'Biggest discount (no-prescription items)' },
 ];
 
 /** Sort a result set. */

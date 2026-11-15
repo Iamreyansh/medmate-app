@@ -128,7 +128,9 @@ export function UploadPrescriptionScreen({
           </View>
 
           <View>
-            <ValidPrescriptionCard lines={validPrescriptionLines} />
+            <ValidPrescriptionCard
+            lines={validPrescriptionLines('Doctor’s signature or clinic stamp')}
+          />
             <Text variant="caption" color={semantic.textMuted} style={styles.uploadNote}>
               {uploadNote}
             </Text>
