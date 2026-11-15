@@ -196,7 +196,11 @@ export function Button({
       ]}
     >
       {icon ? <Icon name={icon} size={18} color={ink} /> : null}
-      <Text variant={isLarge ? 'button' : 'buttonSmall'} color={ink}>
+      <Text
+        variant={isLarge ? 'button' : 'buttonSmall'}
+        color={ink}
+        numberOfLines={1}
+      >
         {label}
       </Text>
       {chevron ? <Icon name="chev-r" size={16} color={ink} /> : null}

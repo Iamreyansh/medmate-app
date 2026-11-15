@@ -179,7 +179,7 @@ export const pharmacyOptions: PharmacyOption[] = [
     stockNote: 'All 3 items in stock',
     tag: { label: 'Lowest price', tone: 'best' },
     licence: 'KA-BLR-20B/21B 118744',
-    pharmacist: 'Meena Rao (KSPC 41208)',
+    pharmacist: 'Meena Rao',
   },
   {
     id: 'ss',

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { PaymentSuccessScreen } from '../../src/checkout/PaymentSuccessScreen';
 import { useNotice } from '../../src/state/notice';
@@ -13,10 +13,13 @@ import { useNotice } from '../../src/state/notice';
 export default function PaymentSuccessRoute() {
   const router = useRouter();
   const notice = useNotice();
+  const { id } = useLocalSearchParams<{ id?: string }>();
 
   return (
     <PaymentSuccessScreen
-      onTrackOrder={() => router.push({ pathname: '/pharmacies' })}
+      onTrackOrder={() =>
+        router.push({ pathname: '/orders/track', params: id ? { id } : {} })
+      }
       onDoctorCall={() => notice.notify('A doctor calls you after you order')}
       onHelp={() => notice.notify('Help and support is one tap away')}
       onTurnOnUpdates={() => notice.notify('Live updates are on')}

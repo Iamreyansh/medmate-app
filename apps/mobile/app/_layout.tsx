@@ -15,6 +15,7 @@ import { neutral, platformKey } from '@medmate/theme';
 
 import { CartProvider } from '../src/state/cart';
 import { CheckoutProvider } from '../src/state/checkout';
+import { OrdersProvider } from '../src/state/orders';
 import { NoticeProvider } from '../src/state/notice';
 
 /**
@@ -40,16 +41,18 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <CartProvider>
         <CheckoutProvider>
-          <NoticeProvider>
-            <StatusBar style="light" />
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                contentStyle: { backgroundColor: neutral.page },
-                animation: 'fade',
-              }}
-            />
-          </NoticeProvider>
+          <OrdersProvider>
+              <NoticeProvider>
+              <StatusBar style="light" />
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  contentStyle: { backgroundColor: neutral.page },
+                  animation: 'fade',
+                }}
+              />
+            </NoticeProvider>
+          </OrdersProvider>
         </CheckoutProvider>
       </CartProvider>
     </SafeAreaProvider>

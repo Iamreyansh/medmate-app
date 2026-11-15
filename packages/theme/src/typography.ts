@@ -90,6 +90,8 @@ export const iosType = {
   pharmacyTitle: { fontSize: 34, lineHeight: 41, fontWeight: '700', letterSpacing: -0.34 },
   /** The title in a store nav bar. */
   storeNavTitle: { fontSize: 17, lineHeight: 22, fontWeight: '600', letterSpacing: -0.085 },
+  /** The headline on the order tracking screen. */
+  orderHeadline: { fontSize: 30, lineHeight: 34, fontWeight: '800', letterSpacing: -0.6 },
 } as const satisfies Record<string, TypeStyle>;
 
 /** Material 3 type scale, used on Android. */
@@ -132,6 +134,8 @@ export const m3Type = {
   pharmacyTitle: { fontSize: 34, lineHeight: 41, fontWeight: '700', letterSpacing: -0.34 },
   /** The title in a store nav bar. */
   storeNavTitle: { fontSize: 22, lineHeight: 28, fontWeight: '700', letterSpacing: -0.11 },
+  /** The headline on the order tracking screen. */
+  orderHeadline: { fontSize: 30, lineHeight: 34, fontWeight: '800', letterSpacing: -0.6 },
 } as const satisfies Record<string, TypeStyle>;
 
 export type IosTypeToken = keyof typeof iosType;
